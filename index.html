@@ -20,6 +20,12 @@
   --rsm:8px;--rmd:12px;--rlg:16px;--rxl:20px;
   --s1:0 1px 3px rgba(0,0,0,.07);--s2:0 4px 16px rgba(0,0,0,.10);--s3:0 8px 28px rgba(0,0,0,.15)
 }
+.dark{
+  --p:#818cf8;--pd:#6366f1;--pl:#312e81;
+  --bg:#0f172a;--card:#1e293b;--t1:#f1f5f9;--t2:#94a3b8;--t3:#64748b;
+  --border:#334155;--danger:#f87171;--dl:#450a0a;--success:#34d399;--sl:#064e3b;
+  --s1:0 1px 3px rgba(0,0,0,.3);--s2:0 4px 16px rgba(0,0,0,.4);--s3:0 8px 28px rgba(0,0,0,.5)
+}
 html,body{height:100%;overflow:hidden}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:var(--bg);color:var(--t1);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 #root{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto;background:var(--bg);position:relative;overflow:hidden}
@@ -185,6 +191,16 @@ try {
     installments: '++id,cardId,isComplete',
     settings: 'key'
   });
+  db.version(2).stores({
+    expenses: '++id,date,category,cardId',
+    recurring: '++id,category,isActive',
+    income: '++id,isActive',
+    savings: '++id',
+    cards: '++id',
+    installments: '++id,cardId,isComplete',
+    settings: 'key',
+    budgets: 'category'
+  });
 } catch (e) {
   document.getElementById('root').innerHTML = '<div style="padding:24px;font-family:system-ui;color:#ef4444"><b>Database error:</b> ' + e + '</div>';
   throw e;
@@ -347,16 +363,240 @@ const CURRS = [{
 }];
 const CCOLORS = [['#4f46e5', '#4338ca'], ['#0891b2', '#0e7490'], ['#059669', '#047857'], ['#dc2626', '#b91c1c'], ['#7c3aed', '#6d28d9'], ['#db2777', '#be185d'], ['#d97706', '#b45309'], ['#0f172a', '#1e293b']];
 
+// i18n
+let currentLang = 'en';
+const LANGS = {
+  en: {
+    // Nav & Header
+    home: 'Home', spend: 'Spend', income: 'Income', save: 'Save', cards: 'Cards',
+    settings: 'Settings', today: '↩ Today', loading: 'Loading…',
+    // Dashboard
+    netBalance: '✅ Net Balance', overBudget: '⚠️ Over Budget',
+    ofIncomeSpent: '% of income spent', addIncomeTrack: 'Add income to track budget health',
+    incomeLabel: '💰 Income', expensesLabel: '💸 Expenses', thisMonth: 'this month',
+    fixed: 'fixed', savingsGoals: '🎯 Savings Goals', remaining: 'remaining',
+    spendingByCategory: 'Spending by Category',
+    incomeVsExpenses: 'Income vs Expenses (6 months)',
+    creditCards: 'Credit Cards', avail: 'avail',
+    recentTransactions: 'Recent Transactions',
+    // Expenses
+    variable: 'Variable', installments: 'Installments',
+    noExpensesMonth: 'No expenses this month', tapToLog: 'Tap + to log one',
+    noFixedCosts: 'No fixed costs yet', tapToAddRecurring: 'Tap + to add recurring expenses',
+    active: 'Active', pausedEnded: 'Paused / Ended', paused: 'Paused',
+    dueDay: 'Due day', addExpense: 'Add Expense', editExpense: 'Edit Expense',
+    addFixedCost: 'Add Fixed Cost', editFixedCost: 'Edit Fixed Cost',
+    noActiveInstallments: 'No active installments',
+    addInstFromCards: 'Add installments from the Cards tab',
+    monthsLeft: 'months left',
+    // Income
+    totalMonthlyIncome: '💰 Total Monthly Income',
+    includes: 'Includes', oneTime: 'one-time',
+    addIncomeSources: 'Add income sources below',
+    noIncomeSources: 'No income sources', tapToAddIncome: 'Tap + to add income',
+    perMonth: 'per month', addIncome: 'Add Income', editIncome: 'Edit Income',
+    // Savings
+    totalSaved: '🎯 Total Saved', ofMonthlyIncome: '% of monthly income',
+    goal: 'goal', goals: 'goals', toGo: 'to go',
+    noSavingsGoals: 'No savings goals', tapToCreateGoal: 'Tap + to create a goal',
+    saved: 'saved', goalLabel: 'Goal:', reached: '✅ Reached!',
+    addFunds: 'Add Funds', amountToAdd: 'Amount to Add', addFundsBtn: 'Add Funds 💰',
+    newSavingsGoal: 'New Savings Goal', editGoal: 'Edit Goal',
+    // Cards
+    noCreditCards: 'No credit cards', tapToAddCard: 'Tap + to add a card',
+    limit: 'Limit:', statementDay: 'Statement day', dueDayLabel: 'Due day',
+    spent: 'spent', available: 'available', used: 'used',
+    installmentsLabel: '📦 Installments', noActiveInst: 'No active installments',
+    thisMonthCharges: "📋 This Month's Charges",
+    fixedDueDay: 'Fixed · due day',
+    addCard: 'Add Card', editCard: 'Edit Card', addInstallment: 'Add Installment',
+    deleteCardConfirm: 'Delete "', deleteCardConfirm2: '"? This will also remove all installments on this card.',
+    paidOff: '✅ Paid off!', done: '✓ Done',
+    // Forms
+    name: 'Name', amount: 'Amount', date: 'Date', category: 'Category',
+    notesOptional: 'Notes (optional)', notes: 'Notes', anyNotes: 'Any notes…',
+    cardOptional: 'Card (optional)', cashDebit: 'Cash / Debit',
+    saveChanges: 'Save Changes', addExpenseBtn: 'Add Expense',
+    monthlyAmount: 'Monthly Amount', dueDayForm: 'Due Day',
+    startMonth: 'Start Month', endMonth: 'End Month', leaveBlank: 'Leave blank = ongoing',
+    addFixedCostBtn: 'Add Fixed Cost',
+    sourceName: 'Source Name', frequency: 'Frequency',
+    addIncomeBtn: 'Add Income',
+    goalName: 'Goal Name', icon: 'Icon', target: 'Target', alreadySaved: 'Already Saved',
+    savingFor: 'What are you saving for?', addGoalBtn: 'Add Goal',
+    cardName: 'Card Name', lastFourDigits: 'Last 4 Digits', creditLimit: 'Credit Limit',
+    statementDayForm: 'Statement Day', dueDayFormCard: 'Due Day', cardColor: 'Card Color',
+    addCardBtn: 'Add Card',
+    description: 'Description', card: 'Card', totalAmount: 'Total Amount',
+    monthlyPayment: 'Monthly Payment', monthsLeftForm: 'Months Left', startDate: 'Start Date',
+    addInstallmentBtn: 'Add Installment',
+    // Settings
+    settingsTitle: '⚙️ Settings', language: 'Language', currency: 'Currency',
+    backupRestore: '💾 Backup & Restore',
+    exportJSON: '📦 Export JSON Backup', exportCSV: '📊 Export CSV Spreadsheet',
+    importJSON: '📂 Import JSON Backup',
+    dangerZone: '⚠️ Danger Zone', clearAllData: '🗑️ Clear All Data',
+    offlineUse: 'Offline use:', offlineInstructions: 'Open in Safari → Share → "Add to Home Screen" to install as a PWA. All data is stored on-device in IndexedDB. Export JSON regularly to protect against Safari storage clears.',
+    clearConfirm: '⚠️ Delete ALL data permanently? This cannot be undone.',
+    importConfirm1: 'This will replace ALL current data with the backup from ',
+    importConfirm2: '. Continue?',
+    invalidBackup: '❌ Invalid backup file',
+    // Categories
+    catHousing: 'Housing', catFood: 'Food', catTransport: 'Transport', catHealth: 'Health',
+    catFun: 'Fun', catShopping: 'Shopping', catBills: 'Bills', catInsurance: 'Insurance',
+    catSavings: 'Savings', catOther: 'Other', catInstallments: 'Installments',
+    icatSalary: 'Salary', icatFreelance: 'Freelance', icatInvest: 'Invest',
+    icatBonus: 'Bonus', icatRental: 'Rental', icatOther: 'Other',
+    // Frequencies
+    freqMonthly: 'Monthly', freqWeekly: 'Weekly', freqBiweekly: 'Bi-weekly',
+    freqYearly: 'Yearly', freqOneTime: 'One-time',
+    // Toasts
+    updated: '✅ Updated', expenseAdded: '✅ Expense added', deleted: 'Deleted',
+    fixedCostAdded: '✅ Fixed cost added', incomeAdded: '✅ Income added',
+    goalAdded: '✅ Goal added', fundsAdded: '✅ Funds added!',
+    cardAdded: '✅ Card added', cardRemoved: 'Card removed',
+    installmentAdded: '✅ Installment added', removed: 'Removed',
+    jsonExported: '✅ JSON backup exported', csvExported: '✅ CSV exported',
+    dataRestored: '✅ Data restored!', dataCleared: 'All data cleared',
+    // Chart
+    incomeChart: 'Income', expensesChart: 'Expenses',
+    // Dark Mode
+    darkMode: 'Dark Mode',
+    // Budgets
+    budgetProgress: 'Budget Progress', setBudgets: 'Set Budgets', budget: 'Budget',
+    noBudgets: 'No budgets set', noBudgetsSub: 'Set monthly limits per category',
+    budgetOf: 'of', budgetOver: 'over budget', budgetRemaining: 'remaining',
+    saveBudgets: 'Save Budgets', budgetsSaved: '✅ Budgets saved',
+    overBudgetAlert: 'Over budget in', categories: 'categories',
+    // Search & Filter
+    searchExpenses: 'Search expenses…', allCategories: 'All Categories',
+    noResults: 'No matching expenses', results: 'results',
+    // Insights
+    insights: '📈 Insights', projectedSpend: 'Projected monthly spend',
+    projectedRemaining: 'Projected remaining', biggestExpense: 'Biggest expense',
+    noExpensesYet: 'No expenses yet', vsLastMonth: 'vs last month',
+    spending: 'spending', moreSpending: 'more spending', lessSpending: 'less spending',
+  },
+  th: {
+    home: 'หน้าหลัก', spend: 'รายจ่าย', income: 'รายรับ', save: 'ออมเงิน', cards: 'บัตร',
+    settings: 'ตั้งค่า', today: '↩ วันนี้', loading: 'กำลังโหลด…',
+    netBalance: '✅ ยอดคงเหลือ', overBudget: '⚠️ เกินงบ',
+    ofIncomeSpent: '% ของรายรับที่ใช้ไป', addIncomeTrack: 'เพิ่มรายรับเพื่อติดตามงบประมาณ',
+    incomeLabel: '💰 รายรับ', expensesLabel: '💸 รายจ่าย', thisMonth: 'เดือนนี้',
+    fixed: 'ค่าใช้จ่ายประจำ', savingsGoals: '🎯 เป้าหมายออมเงิน', remaining: 'คงเหลือ',
+    spendingByCategory: 'รายจ่ายตามหมวดหมู่',
+    incomeVsExpenses: 'รายรับ vs รายจ่าย (6 เดือน)',
+    creditCards: 'บัตรเครดิต', avail: 'คงเหลือ',
+    recentTransactions: 'รายการล่าสุด',
+    variable: 'รายจ่ายผันแปร', installments: 'ผ่อนชำระ',
+    noExpensesMonth: 'ยังไม่มีรายจ่ายเดือนนี้', tapToLog: 'แตะ + เพื่อบันทึก',
+    noFixedCosts: 'ยังไม่มีค่าใช้จ่ายประจำ', tapToAddRecurring: 'แตะ + เพื่อเพิ่มรายจ่ายประจำ',
+    active: 'ใช้งานอยู่', pausedEnded: 'หยุดชั่วคราว / สิ้นสุด', paused: 'หยุดชั่วคราว',
+    dueDay: 'ครบกำหนดวันที่', addExpense: 'เพิ่มรายจ่าย', editExpense: 'แก้ไขรายจ่าย',
+    addFixedCost: 'เพิ่มค่าใช้จ่ายประจำ', editFixedCost: 'แก้ไขค่าใช้จ่ายประจำ',
+    noActiveInstallments: 'ไม่มีรายการผ่อนชำระ',
+    addInstFromCards: 'เพิ่มรายการผ่อนชำระจากแท็บบัตร',
+    monthsLeft: 'เดือนที่เหลือ',
+    totalMonthlyIncome: '💰 รายรับรวมต่อเดือน',
+    includes: 'รวม', oneTime: 'ครั้งเดียว',
+    addIncomeSources: 'เพิ่มแหล่งรายรับด้านล่าง',
+    noIncomeSources: 'ยังไม่มีแหล่งรายรับ', tapToAddIncome: 'แตะ + เพื่อเพิ่มรายรับ',
+    perMonth: 'ต่อเดือน', addIncome: 'เพิ่มรายรับ', editIncome: 'แก้ไขรายรับ',
+    totalSaved: '🎯 ยอดออมทั้งหมด', ofMonthlyIncome: '% ของรายรับต่อเดือน',
+    goal: 'เป้าหมาย', goals: 'เป้าหมาย', toGo: 'อีก',
+    noSavingsGoals: 'ยังไม่มีเป้าหมายออมเงิน', tapToCreateGoal: 'แตะ + เพื่อสร้างเป้าหมาย',
+    saved: 'ออมแล้ว', goalLabel: 'เป้าหมาย:', reached: '✅ สำเร็จ!',
+    addFunds: 'เพิ่มเงิน', amountToAdd: 'จำนวนเงินที่ต้องการเพิ่ม', addFundsBtn: 'เพิ่มเงิน 💰',
+    newSavingsGoal: 'เป้าหมายออมเงินใหม่', editGoal: 'แก้ไขเป้าหมาย',
+    noCreditCards: 'ยังไม่มีบัตรเครดิต', tapToAddCard: 'แตะ + เพื่อเพิ่มบัตร',
+    limit: 'วงเงิน:', statementDay: 'วันสรุปยอด', dueDayLabel: 'วันครบกำหนด',
+    spent: 'ใช้ไป', available: 'คงเหลือ', used: 'ใช้ไป',
+    installmentsLabel: '📦 ผ่อนชำระ', noActiveInst: 'ไม่มีรายการผ่อนชำระ',
+    thisMonthCharges: '📋 รายการเดือนนี้',
+    fixedDueDay: 'ประจำ · ครบกำหนดวันที่',
+    addCard: 'เพิ่มบัตร', editCard: 'แก้ไขบัตร', addInstallment: 'เพิ่มรายการผ่อนชำระ',
+    deleteCardConfirm: 'ลบ "', deleteCardConfirm2: '"? รายการผ่อนชำระทั้งหมดบนบัตรนี้จะถูกลบด้วย',
+    paidOff: '✅ ชำระครบแล้ว!', done: '✓ เสร็จ',
+    name: 'ชื่อ', amount: 'จำนวนเงิน', date: 'วันที่', category: 'หมวดหมู่',
+    notesOptional: 'บันทึก (ไม่บังคับ)', notes: 'บันทึก', anyNotes: 'บันทึกเพิ่มเติม…',
+    cardOptional: 'บัตร (ไม่บังคับ)', cashDebit: 'เงินสด / เดบิต',
+    saveChanges: 'บันทึกการเปลี่ยนแปลง', addExpenseBtn: 'เพิ่มรายจ่าย',
+    monthlyAmount: 'จำนวนเงินต่อเดือน', dueDayForm: 'วันครบกำหนด',
+    startMonth: 'เดือนเริ่มต้น', endMonth: 'เดือนสิ้นสุด', leaveBlank: 'เว้นว่าง = ต่อเนื่อง',
+    addFixedCostBtn: 'เพิ่มค่าใช้จ่ายประจำ',
+    sourceName: 'ชื่อแหล่งรายรับ', frequency: 'ความถี่',
+    addIncomeBtn: 'เพิ่มรายรับ',
+    goalName: 'ชื่อเป้าหมาย', icon: 'ไอคอน', target: 'เป้าหมาย', alreadySaved: 'ออมไปแล้ว',
+    savingFor: 'ออมเงินเพื่ออะไร?', addGoalBtn: 'เพิ่มเป้าหมาย',
+    cardName: 'ชื่อบัตร', lastFourDigits: 'เลข 4 ตัวท้าย', creditLimit: 'วงเงินบัตร',
+    statementDayForm: 'วันสรุปยอด', dueDayFormCard: 'วันครบกำหนด', cardColor: 'สีบัตร',
+    addCardBtn: 'เพิ่มบัตร',
+    description: 'รายละเอียด', card: 'บัตร', totalAmount: 'ยอดรวม',
+    monthlyPayment: 'ค่างวดต่อเดือน', monthsLeftForm: 'จำนวนเดือนที่เหลือ', startDate: 'วันที่เริ่ม',
+    addInstallmentBtn: 'เพิ่มรายการผ่อนชำระ',
+    settingsTitle: '⚙️ ตั้งค่า', language: 'ภาษา', currency: 'สกุลเงิน',
+    backupRestore: '💾 สำรอง & กู้คืนข้อมูล',
+    exportJSON: '📦 ส่งออก JSON สำรอง', exportCSV: '📊 ส่งออก CSV สเปรดชีต',
+    importJSON: '📂 นำเข้า JSON สำรอง',
+    dangerZone: '⚠️ โซนอันตราย', clearAllData: '🗑️ ลบข้อมูลทั้งหมด',
+    offlineUse: 'ใช้งานออฟไลน์:', offlineInstructions: 'เปิดใน Safari → แชร์ → "เพิ่มไปที่หน้าจอหลัก" เพื่อติดตั้งเป็น PWA ข้อมูลทั้งหมดถูกเก็บในอุปกรณ์ผ่าน IndexedDB ส่งออก JSON เป็นประจำเพื่อป้องกันข้อมูลหาย',
+    clearConfirm: '⚠️ ลบข้อมูลทั้งหมดอย่างถาวร? ไม่สามารถกู้คืนได้',
+    importConfirm1: 'ข้อมูลปัจจุบันทั้งหมดจะถูกแทนที่ด้วยข้อมูลสำรองจาก ',
+    importConfirm2: ' ดำเนินการต่อ?',
+    invalidBackup: '❌ ไฟล์สำรองไม่ถูกต้อง',
+    catHousing: 'ที่อยู่', catFood: 'อาหาร', catTransport: 'เดินทาง', catHealth: 'สุขภาพ',
+    catFun: 'บันเทิง', catShopping: 'ช้อปปิ้ง', catBills: 'บิล', catInsurance: 'ประกัน',
+    catSavings: 'ออมเงิน', catOther: 'อื่นๆ', catInstallments: 'ผ่อนชำระ',
+    icatSalary: 'เงินเดือน', icatFreelance: 'ฟรีแลนซ์', icatInvest: 'ลงทุน',
+    icatBonus: 'โบนัส', icatRental: 'ค่าเช่า', icatOther: 'อื่นๆ',
+    freqMonthly: 'รายเดือน', freqWeekly: 'รายสัปดาห์', freqBiweekly: 'ทุก 2 สัปดาห์',
+    freqYearly: 'รายปี', freqOneTime: 'ครั้งเดียว',
+    updated: '✅ อัปเดตแล้ว', expenseAdded: '✅ เพิ่มรายจ่ายแล้ว', deleted: 'ลบแล้ว',
+    fixedCostAdded: '✅ เพิ่มค่าใช้จ่ายประจำแล้ว', incomeAdded: '✅ เพิ่มรายรับแล้ว',
+    goalAdded: '✅ เพิ่มเป้าหมายแล้ว', fundsAdded: '✅ เพิ่มเงินแล้ว!',
+    cardAdded: '✅ เพิ่มบัตรแล้ว', cardRemoved: 'ลบบัตรแล้ว',
+    installmentAdded: '✅ เพิ่มรายการผ่อนชำระแล้ว', removed: 'ลบแล้ว',
+    jsonExported: '✅ ส่งออก JSON สำรองแล้ว', csvExported: '✅ ส่งออก CSV แล้ว',
+    dataRestored: '✅ กู้คืนข้อมูลแล้ว!', dataCleared: 'ลบข้อมูลทั้งหมดแล้ว',
+    incomeChart: 'รายรับ', expensesChart: 'รายจ่าย',
+    darkMode: 'โหมดมืด',
+    budgetProgress: 'ความคืบหน้างบประมาณ', setBudgets: 'ตั้งงบประมาณ', budget: 'งบประมาณ',
+    noBudgets: 'ยังไม่ได้ตั้งงบประมาณ', noBudgetsSub: 'ตั้งวงเงินรายเดือนตามหมวดหมู่',
+    budgetOf: 'จาก', budgetOver: 'เกินงบ', budgetRemaining: 'เหลือ',
+    saveBudgets: 'บันทึกงบประมาณ', budgetsSaved: '✅ บันทึกงบประมาณแล้ว',
+    overBudgetAlert: 'เกินงบใน', categories: 'หมวดหมู่',
+    searchExpenses: 'ค้นหารายจ่าย…', allCategories: 'ทุกหมวดหมู่',
+    noResults: 'ไม่พบรายจ่ายที่ตรงกัน', results: 'ผลลัพธ์',
+    insights: '📈 วิเคราะห์', projectedSpend: 'รายจ่ายคาดการณ์ทั้งเดือน',
+    projectedRemaining: 'คาดว่าเหลือ', biggestExpense: 'รายจ่ายสูงสุด',
+    noExpensesYet: 'ยังไม่มีรายจ่าย', vsLastMonth: 'เทียบเดือนที่แล้ว',
+    spending: 'รายจ่าย', moreSpending: 'จ่ายเพิ่มขึ้น', lessSpending: 'จ่ายลดลง',
+  }
+};
+const t = key => (LANGS[currentLang] || LANGS.en)[key] || LANGS.en[key] || key;
+const getCatLabel = id => {
+  const map = {housing:'catHousing',food:'catFood',transport:'catTransport',health:'catHealth',entertainment:'catFun',shopping:'catShopping',bills:'catBills',insurance:'catInsurance',savings:'catSavings',other:'catOther',installments:'catInstallments'};
+  return t(map[id] || 'catOther');
+};
+const getICatLabel = id => {
+  const map = {salary:'icatSalary',freelance:'icatFreelance',investment:'icatInvest',bonus:'icatBonus',rental:'icatRental',other:'icatOther'};
+  return t(map[id] || 'icatOther');
+};
+const getFreqLabel = val => {
+  const map = {monthly:'freqMonthly',weekly:'freqWeekly',biweekly:'freqBiweekly',yearly:'freqYearly','one-time':'freqOneTime'};
+  return t(map[val] || val);
+};
+
 // Utils
 const getCat = id => CATS.find(c => c.id === id) || CATS.find(c => c.id === 'other');
 const getICat = id => ICATS.find(c => c.id === id) || ICATS[ICATS.length - 1];
-const fmt = (n, sym = '$') => sym + Math.abs(Number(n) || 0).toLocaleString('en-US', {
+const fmt = (n, sym = '$') => sym + Math.abs(Number(n) || 0).toLocaleString(currentLang === 'th' ? 'th-TH' : 'en-US', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2
 });
 const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
 const mkKey = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-const mkLabel = d => d.toLocaleDateString('en-US', {
+const mkLabel = d => d.toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-US', {
   month: 'long',
   year: 'numeric'
 });
@@ -452,7 +692,8 @@ const Txa = p => /*#__PURE__*/React.createElement("textarea", {
 function CatPicker({
   value,
   onChange,
-  cats = CATS
+  cats = CATS,
+  labelFn
 }) {
   return /*#__PURE__*/React.createElement("div", {
     className: "catg"
@@ -465,7 +706,7 @@ function CatPicker({
     className: "cico"
   }, c.emoji), /*#__PURE__*/React.createElement("span", {
     className: "clbl"
-  }, c.label))));
+  }, labelFn ? labelFn(c.id) : c.label))));
 }
 function Toggle({
   checked,
@@ -517,7 +758,7 @@ function DonutChart({
           data,
           backgroundColor: colors,
           borderWidth: 2,
-          borderColor: '#fff'
+          borderColor: document.documentElement.classList.contains('dark') ? '#1e293b' : '#fff'
         }]
       },
       options: {
@@ -549,7 +790,8 @@ function DonutChart({
 }
 function BarChart({
   labels,
-  datasets
+  datasets,
+  sym = '$'
 }) {
   const ref = useRef(null);
   const inst = useRef(null);
@@ -585,10 +827,10 @@ function BarChart({
           },
           y: {
             grid: {
-              color: '#f1f5f9'
+              color: document.documentElement.classList.contains('dark') ? '#334155' : '#f1f5f9'
             },
             ticks: {
-              callback: v => '$' + v.toFixed(0)
+              callback: v => sym + v.toFixed(0)
             }
           }
         }
@@ -635,7 +877,7 @@ function ExpenseForm({
     });
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
-    label: "Name"
+    label: t('name')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "text",
     placeholder: "e.g. Grocery run",
@@ -645,7 +887,7 @@ function ExpenseForm({
   })), /*#__PURE__*/React.createElement("div", {
     className: "frow"
   }, /*#__PURE__*/React.createElement(Field, {
-    label: "Amount"
+    label: t('amount')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     placeholder: "0.00",
@@ -654,39 +896,40 @@ function ExpenseForm({
     value: f.amount,
     onChange: e => s('amount', e.target.value)
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "Date"
+    label: t('date')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "date",
     value: f.date,
     onChange: e => s('date', e.target.value)
   }))), /*#__PURE__*/React.createElement(Field, {
-    label: "Category"
+    label: t('category')
   }, /*#__PURE__*/React.createElement(CatPicker, {
     value: f.category,
-    onChange: v => s('category', v)
+    onChange: v => s('category', v),
+    labelFn: getCatLabel
   })), cards?.length > 0 && /*#__PURE__*/React.createElement(Field, {
-    label: "Card (optional)"
+    label: t('cardOptional')
   }, /*#__PURE__*/React.createElement(Sel, {
     value: f.cardId ?? '',
     onChange: e => s('cardId', e.target.value),
     options: [{
       value: '',
-      label: 'Cash / Debit'
+      label: t('cashDebit')
     }, ...cards.map(c => ({
       value: String(c.id),
       label: `${c.name} ••••${c.lastFour}`
     }))]
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "Notes (optional)"
+    label: t('notesOptional')
   }, /*#__PURE__*/React.createElement(Txa, {
-    placeholder: "Any notes…",
+    placeholder: t('anyNotes'),
     value: f.notes,
     onChange: e => s('notes', e.target.value),
     rows: 2
   })), /*#__PURE__*/React.createElement("button", {
     className: "btn bpri",
     onClick: ok
-  }, initial ? 'Save Changes' : 'Add Expense'));
+  }, initial ? t('saveChanges') : t('addExpenseBtn')));
 }
 function RecurringForm({
   onSave,
@@ -720,7 +963,7 @@ function RecurringForm({
     });
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
-    label: "Name"
+    label: t('name')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "text",
     placeholder: "e.g. Rent, Netflix",
@@ -730,7 +973,7 @@ function RecurringForm({
   })), /*#__PURE__*/React.createElement("div", {
     className: "frow"
   }, /*#__PURE__*/React.createElement(Field, {
-    label: "Monthly Amount"
+    label: t('monthlyAmount')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     placeholder: "0.00",
@@ -739,7 +982,7 @@ function RecurringForm({
     value: f.amount,
     onChange: e => s('amount', e.target.value)
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "Due Day"
+    label: t('dueDayForm')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     min: "1",
@@ -747,18 +990,19 @@ function RecurringForm({
     value: f.dueDay,
     onChange: e => s('dueDay', e.target.value)
   }))), /*#__PURE__*/React.createElement(Field, {
-    label: "Category"
+    label: t('category')
   }, /*#__PURE__*/React.createElement(CatPicker, {
     value: f.category,
-    onChange: v => s('category', v)
+    onChange: v => s('category', v),
+    labelFn: getCatLabel
   })), cards?.length > 0 && /*#__PURE__*/React.createElement(Field, {
-    label: "Card (optional)"
+    label: t('cardOptional')
   }, /*#__PURE__*/React.createElement(Sel, {
     value: f.cardId ?? '',
     onChange: e => s('cardId', e.target.value),
     options: [{
       value: '',
-      label: 'Cash / Debit'
+      label: t('cashDebit')
     }, ...cards.map(c => ({
       value: String(c.id),
       label: `${c.name} ••••${c.lastFour}`
@@ -766,14 +1010,14 @@ function RecurringForm({
   })), /*#__PURE__*/React.createElement("div", {
     className: "frow"
   }, /*#__PURE__*/React.createElement(Field, {
-    label: "Start Month"
+    label: t('startMonth')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "month",
     value: f.startMonth,
     onChange: e => s('startMonth', e.target.value)
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "End Month",
-    hint: "Leave blank = ongoing"
+    label: t('endMonth'),
+    hint: t('leaveBlank')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "month",
     value: f.endMonth,
@@ -781,7 +1025,7 @@ function RecurringForm({
   }))), /*#__PURE__*/React.createElement("button", {
     className: "btn bpri",
     onClick: ok
-  }, initial ? 'Save Changes' : 'Add Fixed Cost'));
+  }, initial ? t('saveChanges') : t('addFixedCostBtn')));
 }
 function IncomeForm({
   onSave,
@@ -809,7 +1053,7 @@ function IncomeForm({
     });
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
-    label: "Source Name"
+    label: t('sourceName')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "text",
     placeholder: "e.g. Main Job",
@@ -819,7 +1063,7 @@ function IncomeForm({
   })), /*#__PURE__*/React.createElement("div", {
     className: "frow"
   }, /*#__PURE__*/React.createElement(Field, {
-    label: "Amount"
+    label: t('amount')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     placeholder: "0.00",
@@ -828,27 +1072,28 @@ function IncomeForm({
     value: f.amount,
     onChange: e => s('amount', e.target.value)
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "Frequency"
+    label: t('frequency')
   }, /*#__PURE__*/React.createElement(Sel, {
     value: f.frequency,
     onChange: e => s('frequency', e.target.value),
-    options: FREQS
+    options: FREQS.map(fq => ({ value: fq.value, label: getFreqLabel(fq.value) }))
   }))), f.frequency === 'one-time' && /*#__PURE__*/React.createElement(Field, {
-    label: "Date"
+    label: t('date')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "date",
     value: f.date,
     onChange: e => s('date', e.target.value)
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "Category"
+    label: t('category')
   }, /*#__PURE__*/React.createElement(CatPicker, {
     value: f.category,
     onChange: v => s('category', v),
-    cats: ICATS
+    cats: ICATS,
+    labelFn: getICatLabel
   })), /*#__PURE__*/React.createElement("button", {
     className: "btn bpri",
     onClick: ok
-  }, initial ? 'Save Changes' : 'Add Income'));
+  }, initial ? t('saveChanges') : t('addIncomeBtn')));
 }
 function SavingsForm({
   onSave,
@@ -878,7 +1123,7 @@ function SavingsForm({
   };
   const emos = ['🎯', '🏖️', '🚗', '🏠', '💻', '✈️', '💍', '🎓', '💊', '🐾', '🎸', '💡'];
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
-    label: "Goal Name"
+    label: t('goalName')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "text",
     placeholder: "e.g. Emergency Fund",
@@ -886,7 +1131,7 @@ function SavingsForm({
     onChange: e => s('name', e.target.value),
     autoFocus: true
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "Icon"
+    label: t('icon')
   }, /*#__PURE__*/React.createElement("div", {
     className: "catg",
     style: {
@@ -902,7 +1147,7 @@ function SavingsForm({
   }, e))))), /*#__PURE__*/React.createElement("div", {
     className: "frow"
   }, /*#__PURE__*/React.createElement(Field, {
-    label: "Target"
+    label: t('target')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     placeholder: "0.00",
@@ -911,7 +1156,7 @@ function SavingsForm({
     value: f.targetAmount,
     onChange: e => s('targetAmount', e.target.value)
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "Already Saved"
+    label: t('alreadySaved')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     placeholder: "0.00",
@@ -920,16 +1165,16 @@ function SavingsForm({
     value: f.currentAmount,
     onChange: e => s('currentAmount', e.target.value)
   }))), /*#__PURE__*/React.createElement(Field, {
-    label: "Notes (optional)"
+    label: t('notesOptional')
   }, /*#__PURE__*/React.createElement(Txa, {
-    placeholder: "What are you saving for?",
+    placeholder: t('savingFor'),
     value: f.notes,
     onChange: e => s('notes', e.target.value),
     rows: 2
   })), /*#__PURE__*/React.createElement("button", {
     className: "btn bpri",
     onClick: ok
-  }, initial ? 'Save Changes' : 'Add Goal'));
+  }, initial ? t('saveChanges') : t('addGoalBtn')));
 }
 function CardForm({
   onSave,
@@ -959,7 +1204,7 @@ function CardForm({
     });
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
-    label: "Card Name"
+    label: t('cardName')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "text",
     placeholder: "e.g. Chase Sapphire",
@@ -969,7 +1214,7 @@ function CardForm({
   })), /*#__PURE__*/React.createElement("div", {
     className: "frow"
   }, /*#__PURE__*/React.createElement(Field, {
-    label: "Last 4 Digits"
+    label: t('lastFourDigits')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "text",
     placeholder: "1234",
@@ -978,7 +1223,7 @@ function CardForm({
     value: f.lastFour,
     onChange: e => s('lastFour', e.target.value.replace(/\D/g, '').slice(0, 4))
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "Credit Limit"
+    label: t('creditLimit')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     placeholder: "5000",
@@ -989,7 +1234,7 @@ function CardForm({
   }))), /*#__PURE__*/React.createElement("div", {
     className: "frow"
   }, /*#__PURE__*/React.createElement(Field, {
-    label: "Statement Day"
+    label: t('statementDayForm')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     min: "1",
@@ -997,7 +1242,7 @@ function CardForm({
     value: f.statementDate,
     onChange: e => s('statementDate', e.target.value)
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "Due Day"
+    label: t('dueDayFormCard')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     min: "1",
@@ -1005,7 +1250,7 @@ function CardForm({
     value: f.dueDate,
     onChange: e => s('dueDate', e.target.value)
   }))), /*#__PURE__*/React.createElement(Field, {
-    label: "Card Color"
+    label: t('cardColor')
   }, /*#__PURE__*/React.createElement("div", {
     className: "cdots"
   }, CCOLORS.map(([a, b], i) => /*#__PURE__*/React.createElement("div", {
@@ -1018,7 +1263,7 @@ function CardForm({
   })))), /*#__PURE__*/React.createElement("button", {
     className: "btn bpri",
     onClick: ok
-  }, initial ? 'Save Changes' : 'Add Card'));
+  }, initial ? t('saveChanges') : t('addCardBtn')));
 }
 function InstallForm({
   onSave,
@@ -1053,7 +1298,7 @@ function InstallForm({
     });
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
-    label: "Description"
+    label: t('description')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "text",
     placeholder: "e.g. MacBook Pro",
@@ -1061,7 +1306,7 @@ function InstallForm({
     onChange: e => s('name', e.target.value),
     autoFocus: true
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "Card"
+    label: t('card')
   }, /*#__PURE__*/React.createElement(Sel, {
     value: String(f.cardId),
     onChange: e => s('cardId', Number(e.target.value)),
@@ -1072,7 +1317,7 @@ function InstallForm({
   })), /*#__PURE__*/React.createElement("div", {
     className: "frow"
   }, /*#__PURE__*/React.createElement(Field, {
-    label: "Total Amount"
+    label: t('totalAmount')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     placeholder: "0.00",
@@ -1080,7 +1325,7 @@ function InstallForm({
     value: f.totalAmount,
     onChange: e => s('totalAmount', e.target.value)
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "Monthly Payment"
+    label: t('monthlyPayment')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     placeholder: "0.00",
@@ -1090,7 +1335,7 @@ function InstallForm({
   }))), /*#__PURE__*/React.createElement("div", {
     className: "frow"
   }, /*#__PURE__*/React.createElement(Field, {
-    label: "Months Left"
+    label: t('monthsLeftForm')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     placeholder: "12",
@@ -1098,7 +1343,7 @@ function InstallForm({
     value: f.monthsRemaining,
     onChange: e => s('monthsRemaining', e.target.value)
   })), /*#__PURE__*/React.createElement(Field, {
-    label: "Start Date"
+    label: t('startDate')
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "date",
     value: f.startDate,
@@ -1106,7 +1351,7 @@ function InstallForm({
   }))), /*#__PURE__*/React.createElement("button", {
     className: "btn bpri",
     onClick: ok
-  }, initial ? 'Save Changes' : 'Add Installment'));
+  }, initial ? t('saveChanges') : t('addInstallmentBtn')));
 }
 
 // ══ DASHBOARD ══
@@ -1115,9 +1360,12 @@ function Dashboard({
   currentMonth
 }) {
   const [d, setD] = useState(null);
+  const [budgetModal, setBudgetModal] = useState(false);
+  const [budgetDrafts, setBudgetDrafts] = useState({});
+  const [btoast, showBToast] = useToast();
   const load = useCallback(async () => {
     const mk = mkKey(currentMonth);
-    const [allInc, allRec, allCards, allInst, allSav] = await Promise.all([db.income.toArray(), db.recurring.toArray(), db.cards.toArray(), db.installments.toArray(), db.savings.toArray()]);
+    const [allInc, allRec, allCards, allInst, allSav, allBudgets] = await Promise.all([db.income.toArray(), db.recurring.toArray(), db.cards.toArray(), db.installments.toArray(), db.savings.toArray(), db.budgets.toArray()]);
     const exps = await db.expenses.where('date').startsWith(mk).toArray();
     let totalInc = 0;
     for (const inc of allInc) {
@@ -1168,7 +1416,7 @@ function Dashboard({
       const me = await db.expenses.where('date').startsWith(mmk).toArray();
       const mInst = allInst.filter(i => !i.isComplete).reduce((s, i) => s + Number(i.monthlyPayment), 0);
       monthly.push({
-        label: md.toLocaleDateString('en-US', {
+        label: md.toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-US', {
           month: 'short'
         }),
         inc: mI,
@@ -1176,6 +1424,13 @@ function Dashboard({
       });
     }
     const recent = await db.expenses.orderBy('date').reverse().limit(6).toArray();
+    // Previous month expenses for insights
+    const prevMk = mkKey(addMonths(currentMonth, -1));
+    const prevExps = await db.expenses.where('date').startsWith(prevMk).toArray();
+    let prevFixed = 0;
+    for (const r of allRec) { if (isActiveInMonth(r, addMonths(currentMonth, -1))) prevFixed += Number(r.amount); }
+    const prevVarExp = prevExps.reduce((s, e) => s + Number(e.amount), 0);
+    const prevTotal = prevFixed + prevVarExp + instExp;
     setD({
       totalInc,
       fixed,
@@ -1185,7 +1440,11 @@ function Dashboard({
       allInst,
       allSav,
       monthly,
-      recent
+      recent,
+      allBudgets,
+      catMap,
+      exps,
+      prevTotal
     });
   }, [currentMonth]);
   useEffect(() => {
@@ -1193,7 +1452,7 @@ function Dashboard({
   }, [load]);
   if (!d) return /*#__PURE__*/React.createElement("div", {
     className: "loading"
-  }, "Loading…");
+  }, t('loading'));
   const {
     totalInc,
     fixed,
@@ -1203,7 +1462,11 @@ function Dashboard({
     allInst,
     allSav,
     monthly,
-    recent
+    recent,
+    allBudgets,
+    catMap,
+    exps,
+    prevTotal
   } = d;
   const instTotal = allInst.filter(i => !i.isComplete).reduce((s, i) => s + Number(i.monthlyPayment), 0);
   const totalExp = fixed + varExp + instTotal;
@@ -1219,11 +1482,11 @@ function Dashboard({
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "hlbl"
-  }, net >= 0 ? '✅ Net Balance' : '⚠️ Over Budget'), /*#__PURE__*/React.createElement("div", {
+  }, net >= 0 ? t('netBalance') : t('overBudget')), /*#__PURE__*/React.createElement("div", {
     className: "hamt"
   }, net < 0 ? '−' : '', fmt(Math.abs(net), sym)), /*#__PURE__*/React.createElement("div", {
     className: "hsub"
-  }, totalInc > 0 ? `${Math.round(totalExp / totalInc * 100)}% of income spent` : 'Add income to track budget health'))), /*#__PURE__*/React.createElement("div", {
+  }, totalInc > 0 ? `${Math.round(totalExp / totalInc * 100)}${t('ofIncomeSpent')}` : t('addIncomeTrack')))), /*#__PURE__*/React.createElement("div", {
     className: "sec"
   }, /*#__PURE__*/React.createElement("div", {
     className: "sgrid"
@@ -1231,29 +1494,29 @@ function Dashboard({
     className: "sc"
   }, /*#__PURE__*/React.createElement("div", {
     className: "slbl"
-  }, "💰 Income"), /*#__PURE__*/React.createElement("div", {
+  }, t('incomeLabel')), /*#__PURE__*/React.createElement("div", {
     className: "samt pos"
   }, fmt(totalInc, sym)), /*#__PURE__*/React.createElement("div", {
     className: "ssub"
-  }, "this month")), /*#__PURE__*/React.createElement("div", {
+  }, t('thisMonth'))), /*#__PURE__*/React.createElement("div", {
     className: "sc"
   }, /*#__PURE__*/React.createElement("div", {
     className: "slbl"
-  }, "💸 Expenses"), /*#__PURE__*/React.createElement("div", {
+  }, t('expensesLabel')), /*#__PURE__*/React.createElement("div", {
     className: "samt neg"
   }, fmt(totalExp, sym)), /*#__PURE__*/React.createElement("div", {
     className: "ssub"
-  }, fmt(fixed, sym), " fixed")), allSav.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }, fmt(fixed, sym), " ", t('fixed'))), allSav.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "sc full"
   }, /*#__PURE__*/React.createElement("div", {
     className: "fbet"
   }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
     className: "slbl"
-  }, "🎯 Savings Goals"), /*#__PURE__*/React.createElement("div", {
+  }, t('savingsGoals')), /*#__PURE__*/React.createElement("div", {
     className: "samt neu"
   }, fmt(totSaved, sym)), /*#__PURE__*/React.createElement("div", {
     className: "ssub"
-  }, fmt(totTarget - totSaved, sym), " remaining")), /*#__PURE__*/React.createElement("div", {
+  }, fmt(totTarget - totSaved, sym), " ", t('remaining'))), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 22,
       fontWeight: 800,
@@ -1270,9 +1533,9 @@ function Dashboard({
     className: "card cp"
   }, /*#__PURE__*/React.createElement("div", {
     className: "ctitle mb10"
-  }, "Spending by Category"), /*#__PURE__*/React.createElement(DonutChart, {
+  }, t('spendingByCategory')), /*#__PURE__*/React.createElement(DonutChart, {
     data: cats.map(c => c.amt),
-    labels: cats.map(c => c.label),
+    labels: cats.map(c => getCatLabel(c.id)),
     colors: cats.map(c => c.bg)
   }), /*#__PURE__*/React.createElement("div", {
     className: "mt10"
@@ -1294,37 +1557,119 @@ function Dashboard({
       fontSize: 13,
       fontWeight: 600
     }
-  }, c.label)), /*#__PURE__*/React.createElement("span", {
+  }, getCatLabel(c.id))), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 13,
       fontWeight: 700
     }
-  }, fmt(c.amt, sym))))))), monthly.some(m => m.inc > 0 || m.exp > 0) && /*#__PURE__*/React.createElement("div", {
+  }, fmt(c.amt, sym))))))), /*#__PURE__*/React.createElement("div", {
+    className: "sec"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "card cp"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fbet mb10"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "ctitle"
+  }, t('budgetProgress')), /*#__PURE__*/React.createElement("button", {
+    className: "btn bsm",
+    style: { background: 'var(--p)', color: '#fff', border: 'none' },
+    onClick: () => { const dr = {}; allBudgets.forEach(b => { dr[b.category] = b.amount; }); setBudgetDrafts(dr); setBudgetModal(true); }
+  }, t('setBudgets'))), (() => {
+    const budgeted = allBudgets.filter(b => b.amount > 0);
+    if (budgeted.length === 0) return /*#__PURE__*/React.createElement("div", {
+      className: "empty", style: { padding: '20px 10px' }
+    }, /*#__PURE__*/React.createElement("div", { className: "etxt" }, t('noBudgets')), /*#__PURE__*/React.createElement("div", { className: "esub" }, t('noBudgetsSub')));
+    return budgeted.map(b => {
+      const cat = getCat(b.category);
+      const spent = catMap[b.category] || 0;
+      const pct = b.amount > 0 ? spent / b.amount * 100 : 0;
+      const over = spent > b.amount;
+      const warn = pct >= 75 && !over;
+      const color = over ? 'var(--danger)' : warn ? '#f59e0b' : 'var(--success)';
+      return /*#__PURE__*/React.createElement("div", {
+        key: b.category, style: { marginBottom: 12 }
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "fbet", style: { marginBottom: 4 }
+      }, /*#__PURE__*/React.createElement("div", { className: "fb g8" },
+        /*#__PURE__*/React.createElement("span", { style: { fontSize: 14 } }, cat.emoji),
+        /*#__PURE__*/React.createElement("span", { style: { fontSize: 13, fontWeight: 600 } }, getCatLabel(b.category))
+      ), /*#__PURE__*/React.createElement("span", {
+        style: { fontSize: 12, fontWeight: 700, color: color }
+      }, fmt(spent, sym), ' ', t('budgetOf'), ' ', fmt(b.amount, sym))),
+      /*#__PURE__*/React.createElement(PBar, { value: Math.min(spent, b.amount * 1.5), max: b.amount, color: color }),
+      /*#__PURE__*/React.createElement("div", {
+        style: { fontSize: 11, color: over ? 'var(--danger)' : 'var(--t3)', marginTop: 3, textAlign: 'right' }
+      }, over ? fmt(spent - b.amount, sym) + ' ' + t('budgetOver') : fmt(b.amount - spent, sym) + ' ' + t('budgetRemaining')));
+    });
+  })())), monthly.some(m => m.inc > 0 || m.exp > 0) && /*#__PURE__*/React.createElement("div", {
     className: "sec"
   }, /*#__PURE__*/React.createElement("div", {
     className: "card cp"
   }, /*#__PURE__*/React.createElement("div", {
     className: "ctitle mb10"
-  }, "Income vs Expenses (6 months)"), /*#__PURE__*/React.createElement(BarChart, {
+  }, t('incomeVsExpenses')), /*#__PURE__*/React.createElement(BarChart, {
+    sym: sym,
     labels: monthly.map(m => m.label),
     datasets: [{
-      label: 'Income',
+      label: t('incomeChart'),
       data: monthly.map(m => m.inc),
       backgroundColor: '#86efac',
       borderRadius: 4
     }, {
-      label: 'Expenses',
+      label: t('expensesChart'),
       data: monthly.map(m => m.exp),
       backgroundColor: '#fca5a5',
       borderRadius: 4
     }]
-  }))), allCards.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }))), /*#__PURE__*/React.createElement("div", {
     className: "sec"
   }, /*#__PURE__*/React.createElement("div", {
     className: "card cp"
   }, /*#__PURE__*/React.createElement("div", {
     className: "ctitle mb10"
-  }, "Credit Cards"), allCards.map(card => {
+  }, t('insights')), (() => {
+    const mk = mkKey(currentMonth);
+    const now = new Date();
+    const dayOfMonth = now.getDate();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const dailyRate = dayOfMonth > 0 ? varExp / dayOfMonth : 0;
+    const projectedVar = dailyRate * daysInMonth;
+    const projectedTotal = fixed + projectedVar + instTotal;
+    const projectedRemaining = totalInc - projectedTotal;
+    const biggest = exps.length > 0 ? exps.reduce((a, b) => Number(a.amount) > Number(b.amount) ? a : b) : null;
+    const momChange = prevTotal > 0 ? ((totalExp - prevTotal) / prevTotal * 100) : 0;
+    const momUp = momChange > 0;
+    return /*#__PURE__*/React.createElement(React.Fragment, null,
+      /*#__PURE__*/React.createElement("div", { style: { marginBottom: 12, padding: '10px 12px', background: 'var(--bg)', borderRadius: 'var(--rmd)' } },
+        /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: 'var(--t3)', fontWeight: 600, marginBottom: 3 } }, t('projectedSpend')),
+        /*#__PURE__*/React.createElement("div", { style: { fontSize: 18, fontWeight: 800, color: 'var(--danger)' } }, fmt(projectedTotal, sym)),
+        /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: projectedRemaining >= 0 ? 'var(--success)' : 'var(--danger)', marginTop: 2 } },
+          t('projectedRemaining'), ': ', projectedRemaining < 0 ? '-' : '', fmt(Math.abs(projectedRemaining), sym))
+      ),
+      /*#__PURE__*/React.createElement("div", { style: { marginBottom: 12, padding: '10px 12px', background: 'var(--bg)', borderRadius: 'var(--rmd)' } },
+        /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: 'var(--t3)', fontWeight: 600, marginBottom: 3 } }, t('biggestExpense')),
+        biggest ? /*#__PURE__*/React.createElement("div", { className: "fb g8" },
+          /*#__PURE__*/React.createElement("span", { style: { fontSize: 16 } }, getCat(biggest.category).emoji),
+          /*#__PURE__*/React.createElement("div", null,
+            /*#__PURE__*/React.createElement("div", { style: { fontSize: 14, fontWeight: 700 } }, biggest.name),
+            /*#__PURE__*/React.createElement("div", { style: { fontSize: 11, color: 'var(--t3)' } }, biggest.date)
+          ),
+          /*#__PURE__*/React.createElement("div", { style: { marginLeft: 'auto', fontSize: 15, fontWeight: 800, color: 'var(--danger)' } }, fmt(biggest.amount, sym))
+        ) : /*#__PURE__*/React.createElement("div", { style: { fontSize: 13, color: 'var(--t3)' } }, t('noExpensesYet'))
+      ),
+      prevTotal > 0 && /*#__PURE__*/React.createElement("div", { style: { padding: '10px 12px', background: 'var(--bg)', borderRadius: 'var(--rmd)' } },
+        /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: 'var(--t3)', fontWeight: 600, marginBottom: 3 } }, t('vsLastMonth')),
+        /*#__PURE__*/React.createElement("div", { style: { fontSize: 16, fontWeight: 800, color: momUp ? 'var(--danger)' : 'var(--success)' } },
+          momUp ? '↑' : '↓', ' ', Math.abs(momChange).toFixed(1), '% ', momUp ? t('moreSpending') : t('lessSpending'))
+      )
+    );
+  })())), allCards.length > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "sec"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "card cp"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "ctitle mb10"
+  }, t('creditCards')), allCards.map(card => {
     const [a, b] = CCOLORS[card.colorIdx || 0];
     const expBal = d.recent.filter(e => Number(e.cardId) === card.id).reduce((s, e) => s + Number(e.amount), 0);
     const instBal = allInst.filter(i => i.cardId === card.id && !i.isComplete).reduce((s, i) => s + Number(i.monthlyPayment), 0);
@@ -1362,7 +1707,7 @@ function Dashboard({
         fontSize: 11,
         color: 'var(--t3)'
       }
-    }, fmt(avail, sym), " avail")));
+    }, fmt(avail, sym), " ", t('avail'))));
   }))), recent.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "sec",
     style: {
@@ -1372,7 +1717,7 @@ function Dashboard({
     className: "card cp"
   }, /*#__PURE__*/React.createElement("div", {
     className: "ctitle mb10"
-  }, "Recent Transactions"), recent.map(exp => {
+  }, t('recentTransactions')), recent.map(exp => {
     const cat = getCat(exp.category);
     return /*#__PURE__*/React.createElement("div", {
       key: exp.id,
@@ -1392,7 +1737,27 @@ function Dashboard({
     }, exp.date)), /*#__PURE__*/React.createElement("div", {
       className: "lamt exp"
     }, "−", fmt(exp.amount, sym)));
-  }))));
+  }))), /*#__PURE__*/React.createElement(Toast, { msg: btoast }), budgetModal && /*#__PURE__*/React.createElement(Modal, {
+    title: t('setBudgets'),
+    onClose: () => setBudgetModal(false)
+  }, CATS.filter(c => c.id !== 'installments').map(c => /*#__PURE__*/React.createElement(Field, {
+    key: c.id,
+    label: c.emoji + ' ' + getCatLabel(c.id)
+  }, /*#__PURE__*/React.createElement(Inp, {
+    type: "number", placeholder: "0.00", step: "0.01", inputMode: "decimal",
+    value: budgetDrafts[c.id] || '',
+    onChange: e => setBudgetDrafts(p => ({ ...p, [c.id]: e.target.value }))
+  }))), /*#__PURE__*/React.createElement("button", {
+    className: "btn bpri",
+    onClick: async () => {
+      const entries = Object.entries(budgetDrafts).filter(([,v]) => Number(v) > 0).map(([cat, amt]) => ({ category: cat, amount: Number(amt) }));
+      await db.budgets.clear();
+      if (entries.length) await db.budgets.bulkAdd(entries);
+      setBudgetModal(false);
+      showBToast(t('budgetsSaved'));
+      load();
+    }
+  }, t('saveBudgets'))));
 }
 
 // ══ EXPENSES TAB ══
@@ -1407,6 +1772,8 @@ function ExpensesTab({
   const [insts, setInsts] = useState([]);
   const [modal, setModal] = useState(null); // null | 'addVar' | 'addFixed' | {type,data}
   const [toast, showToast] = useToast();
+  const [search, setSearch] = useState('');
+  const [catFilter, setCatFilter] = useState('');
   const mk = mkKey(currentMonth);
   const load = useCallback(async () => {
     const [e, r, c, i] = await Promise.all([db.expenses.where('date').startsWith(mk).toArray(), db.recurring.toArray(), db.cards.toArray(), db.installments.toArray()]);
@@ -1422,23 +1789,23 @@ function ExpensesTab({
     if (f.id) await db.expenses.update(f.id, f);else await db.expenses.add(f);
     setModal(null);
     load();
-    showToast(f.id ? '✅ Updated' : '✅ Expense added');
+    showToast(f.id ? t('updated') : t('expenseAdded'));
   };
   const delVar = async id => {
     await db.expenses.delete(id);
     load();
-    showToast('Deleted');
+    showToast(t('deleted'));
   };
   const saveRec = async f => {
     if (f.id) await db.recurring.update(f.id, f);else await db.recurring.add(f);
     setModal(null);
     load();
-    showToast(f.id ? '✅ Updated' : '✅ Fixed cost added');
+    showToast(f.id ? t('updated') : t('fixedCostAdded'));
   };
   const delRec = async id => {
     await db.recurring.delete(id);
     load();
-    showToast('Deleted');
+    showToast(t('deleted'));
   };
   const toggleRec = async r => {
     await db.recurring.update(r.id, {
@@ -1460,13 +1827,26 @@ function ExpensesTab({
   }, /*#__PURE__*/React.createElement("button", {
     className: `sbtn${sub === 'variable' ? ' active' : ''}`,
     onClick: () => setSub('variable')
-  }, "Variable (", fmt(varTotal, sym), ")"), /*#__PURE__*/React.createElement("button", {
+  }, t('variable'), " (", fmt(varTotal, sym), ")"), /*#__PURE__*/React.createElement("button", {
     className: `sbtn${sub === 'fixed' ? ' active' : ''}`,
     onClick: () => setSub('fixed')
-  }, "Fixed (", fmt(fixedTotal, sym), ")"), /*#__PURE__*/React.createElement("button", {
+  }, t('fixed'), " (", fmt(fixedTotal, sym), ")"), /*#__PURE__*/React.createElement("button", {
     className: `sbtn${sub === 'installments' ? ' active' : ''}`,
     onClick: () => setSub('installments')
-  }, "Installments (", fmt(instTotal, sym), ")"))), sub === 'installments' && /*#__PURE__*/React.createElement("div", {
+  }, t('installments'), " (", fmt(instTotal, sym), ")"))), sub === 'variable' && /*#__PURE__*/React.createElement("div", {
+    className: "sec"
+  }, /*#__PURE__*/React.createElement("div", { style: { display: 'flex', gap: 8 } },
+    /*#__PURE__*/React.createElement("input", {
+      className: "fi", style: { flex: 1, height: 38, fontSize: 13 },
+      type: "text", placeholder: t('searchExpenses'), value: search,
+      onChange: e => setSearch(e.target.value)
+    }),
+    /*#__PURE__*/React.createElement("select", {
+      className: "fsel", style: { width: 'auto', minWidth: 100, height: 38, fontSize: 13 },
+      value: catFilter, onChange: e => setCatFilter(e.target.value)
+    }, /*#__PURE__*/React.createElement("option", { value: '' }, t('allCategories')),
+      CATS.map(c => /*#__PURE__*/React.createElement("option", { key: c.id, value: c.id }, c.emoji + ' ' + getCatLabel(c.id))))
+  )), sub === 'installments' && /*#__PURE__*/React.createElement("div", {
     className: "sec",
     style: { paddingBottom: 14 }
   }, insts.length === 0 ? /*#__PURE__*/React.createElement("div", {
@@ -1475,9 +1855,9 @@ function ExpensesTab({
     className: "eico"
   }, "💳"), /*#__PURE__*/React.createElement("div", {
     className: "etxt"
-  }, "No active installments"), /*#__PURE__*/React.createElement("div", {
+  }, t('noActiveInstallments')), /*#__PURE__*/React.createElement("div", {
     className: "esub"
-  }, "Add installments from the Cards tab")) : /*#__PURE__*/React.createElement("div", {
+  }, t('addInstFromCards'))) : /*#__PURE__*/React.createElement("div", {
     className: "card cp"
   }, insts.map(inst => {
     const card = cards.find(c => c.id === inst.cardId);
@@ -1493,25 +1873,34 @@ function ExpensesTab({
       className: "lname"
     }, inst.name), /*#__PURE__*/React.createElement("div", {
       className: "lsub"
-    }, card ? card.name + ' ••••' + card.lastFour : '', " · ", inst.monthsRemaining, " months left")), /*#__PURE__*/React.createElement("span", {
+    }, card ? card.name + ' ••••' + card.lastFour : '', " · ", inst.monthsRemaining, " ", t('monthsLeft'))), /*#__PURE__*/React.createElement("span", {
       className: "lamt exp"
     }, "−", fmt(inst.monthlyPayment, sym), "/mo"));
-  }))), sub === 'variable' && /*#__PURE__*/React.createElement("div", {
+  }))), (() => {
+  if (sub !== 'variable') return null;
+  const filtered = varExps.filter(e => {
+    if (search && !e.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (catFilter && e.category !== catFilter) return false;
+    return true;
+  });
+  return /*#__PURE__*/React.createElement("div", {
     className: "sec",
     style: {
       paddingBottom: 14
     }
-  }, varExps.length === 0 ? /*#__PURE__*/React.createElement("div", {
+  }, (search || catFilter) && filtered.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: { fontSize: 12, color: 'var(--t3)', marginBottom: 6 }
+  }, filtered.length, ' ', t('results')), filtered.length === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "empty"
   }, /*#__PURE__*/React.createElement("div", {
     className: "eico"
-  }, "🧾"), /*#__PURE__*/React.createElement("div", {
+  }, (search || catFilter) ? "🔍" : "🧾"), /*#__PURE__*/React.createElement("div", {
     className: "etxt"
-  }, "No expenses this month"), /*#__PURE__*/React.createElement("div", {
+  }, (search || catFilter) ? t('noResults') : t('noExpensesMonth')), /*#__PURE__*/React.createElement("div", {
     className: "esub"
-  }, "Tap + to log one")) : /*#__PURE__*/React.createElement("div", {
+  }, (search || catFilter) ? '' : t('tapToLog'))) : /*#__PURE__*/React.createElement("div", {
     className: "card cp"
-  }, varExps.map(exp => {
+  }, filtered.map(exp => {
     const cat = getCat(exp.category);
     const card = cards.find(c => Number(exp.cardId) === c.id);
     return /*#__PURE__*/React.createElement("div", {
@@ -1554,7 +1943,8 @@ function ExpensesTab({
         touchAction: 'manipulation'
       }
     }, "✕")));
-  }))), sub === 'fixed' && /*#__PURE__*/React.createElement("div", {
+  })));
+  })(), sub === 'fixed' && /*#__PURE__*/React.createElement("div", {
     className: "sec",
     style: {
       paddingBottom: 14
@@ -1565,13 +1955,13 @@ function ExpensesTab({
     className: "eico"
   }, "📅"), /*#__PURE__*/React.createElement("div", {
     className: "etxt"
-  }, "No fixed costs yet"), /*#__PURE__*/React.createElement("div", {
+  }, t('noFixedCosts')), /*#__PURE__*/React.createElement("div", {
     className: "esub"
-  }, "Tap + to add recurring expenses")) : /*#__PURE__*/React.createElement("div", null, activeRecs.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }, t('tapToAddRecurring'))) : /*#__PURE__*/React.createElement("div", null, activeRecs.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "card cp mb10"
   }, /*#__PURE__*/React.createElement("div", {
     className: "ctitle mb10"
-  }, "Active"), activeRecs.map(r => {
+  }, t('active')), activeRecs.map(r => {
     const cat = getCat(r.category);
     const card = cards.find(c => Number(r.cardId) === c.id);
     return /*#__PURE__*/React.createElement("div", {
@@ -1596,7 +1986,7 @@ function ExpensesTab({
       className: "lname"
     }, r.name), /*#__PURE__*/React.createElement("div", {
       className: "lsub"
-    }, "Due day ", r.dueDay, card ? ` · ${card.name}` : '')), /*#__PURE__*/React.createElement("div", {
+    }, t('dueDay'), " ", r.dueDay, card ? ` · ${card.name}` : '')), /*#__PURE__*/React.createElement("div", {
       className: "fb g8"
     }, /*#__PURE__*/React.createElement("span", {
       className: "lamt exp"
@@ -1621,7 +2011,7 @@ function ExpensesTab({
     className: "card cp"
   }, /*#__PURE__*/React.createElement("div", {
     className: "ctitle mb10"
-  }, "Paused / Ended"), inactiveRecs.map(r => {
+  }, t('pausedEnded')), inactiveRecs.map(r => {
     const cat = getCat(r.category);
     return /*#__PURE__*/React.createElement("div", {
       key: r.id,
@@ -1648,7 +2038,7 @@ function ExpensesTab({
       className: "lname"
     }, r.name), /*#__PURE__*/React.createElement("div", {
       className: "lsub"
-    }, "Paused")), /*#__PURE__*/React.createElement("div", {
+    }, t('paused'))), /*#__PURE__*/React.createElement("div", {
       className: "fb g8"
     }, /*#__PURE__*/React.createElement("span", {
       className: "lamt exp"
@@ -1673,14 +2063,14 @@ function ExpensesTab({
     className: "fab",
     onClick: () => setModal(sub === 'fixed' ? 'addFixed' : 'addVar')
   }, "+"), (modal === 'addVar' || modal?.type === 'editVar') && /*#__PURE__*/React.createElement(Modal, {
-    title: modal?.type ? 'Edit Expense' : 'Add Expense',
+    title: modal?.type ? t('editExpense') : t('addExpense'),
     onClose: () => setModal(null)
   }, /*#__PURE__*/React.createElement(ExpenseForm, {
     onSave: saveVar,
     cards: cards,
     initial: modal?.data
   })), (modal === 'addFixed' || modal?.type === 'editFixed') && /*#__PURE__*/React.createElement(Modal, {
-    title: modal?.type ? 'Edit Fixed Cost' : 'Add Fixed Cost',
+    title: modal?.type ? t('editFixedCost') : t('addFixedCost'),
     onClose: () => setModal(null)
   }, /*#__PURE__*/React.createElement(RecurringForm, {
     onSave: saveRec,
@@ -1712,12 +2102,12 @@ function IncomeTab({
     });
     setModal(null);
     load();
-    showToast(f.id ? '✅ Updated' : '✅ Income added');
+    showToast(f.id ? t('updated') : t('incomeAdded'));
   };
   const del = async id => {
     await db.income.delete(id);
     load();
-    showToast('Deleted');
+    showToast(t('deleted'));
   };
   const toggle = async inc => {
     await db.income.update(inc.id, {
@@ -1745,13 +2135,13 @@ function IncomeTab({
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "hlbl"
-  }, "💰 Total Monthly Income"), /*#__PURE__*/React.createElement("div", {
+  }, t('totalMonthlyIncome')), /*#__PURE__*/React.createElement("div", {
     className: "hamt"
   }, fmt(total, sym)), oneTime > 0 && /*#__PURE__*/React.createElement("div", {
     className: "hsub"
-  }, "Includes ", fmt(oneTime, sym), " one-time"), total === 0 && /*#__PURE__*/React.createElement("div", {
+  }, t('includes'), " ", fmt(oneTime, sym), " ", t('oneTime')), total === 0 && /*#__PURE__*/React.createElement("div", {
     className: "hsub"
-  }, "Add income sources below"))), /*#__PURE__*/React.createElement("div", {
+  }, t('addIncomeSources')))), /*#__PURE__*/React.createElement("div", {
     className: "sec",
     style: {
       paddingBottom: 14
@@ -1762,9 +2152,9 @@ function IncomeTab({
     className: "eico"
   }, "💼"), /*#__PURE__*/React.createElement("div", {
     className: "etxt"
-  }, "No income sources"), /*#__PURE__*/React.createElement("div", {
+  }, t('noIncomeSources')), /*#__PURE__*/React.createElement("div", {
     className: "esub"
-  }, "Tap + to add income")) : /*#__PURE__*/React.createElement("div", {
+  }, t('tapToAddIncome'))) : /*#__PURE__*/React.createElement("div", {
     className: "card cp"
   }, incs.map(inc => {
     const cat = getICat(inc.category);
@@ -1791,7 +2181,7 @@ function IncomeTab({
       className: "lname"
     }, inc.name), /*#__PURE__*/React.createElement("div", {
       className: "lsub"
-    }, inc.frequency === 'one-time' ? `One-time · ${inc.date || ''}` : `${inc.frequency} · ${fmt(inc.amount, sym)}/period`)), /*#__PURE__*/React.createElement("div", {
+    }, inc.frequency === 'one-time' ? `${getFreqLabel('one-time')} · ${inc.date || ''}` : `${getFreqLabel(inc.frequency)} · ${fmt(inc.amount, sym)}/period`)), /*#__PURE__*/React.createElement("div", {
       className: "fb g8"
     }, /*#__PURE__*/React.createElement("div", {
       style: {
@@ -1804,7 +2194,7 @@ function IncomeTab({
         fontSize: 10,
         color: 'var(--t3)'
       }
-    }, "per month")), /*#__PURE__*/React.createElement(Toggle, {
+    }, t('perMonth'))), /*#__PURE__*/React.createElement(Toggle, {
       checked: !!inc.isActive,
       onChange: () => toggle(inc)
     }), /*#__PURE__*/React.createElement("button", {
@@ -1825,7 +2215,7 @@ function IncomeTab({
     className: "fab",
     onClick: () => setModal('new')
   }, "+"), modal && /*#__PURE__*/React.createElement(Modal, {
-    title: modal === 'new' ? 'Add Income' : 'Edit Income',
+    title: modal === 'new' ? t('addIncome') : t('editIncome'),
     onClose: () => setModal(null)
   }, /*#__PURE__*/React.createElement(IncomeForm, {
     onSave: save,
@@ -1864,12 +2254,12 @@ function SavingsTab({
     if (f.id) await db.savings.update(f.id, f);else await db.savings.add(f);
     setModal(null);
     load();
-    showToast(f.id ? '✅ Updated' : '✅ Goal added');
+    showToast(f.id ? t('updated') : t('goalAdded'));
   };
   const del = async id => {
     await db.savings.delete(id);
     load();
-    showToast('Deleted');
+    showToast(t('deleted'));
   };
   const addFunds = async () => {
     if (!fundsAmt || !fundsGoal) return;
@@ -1881,7 +2271,7 @@ function SavingsTab({
     setFundsGoal(null);
     setFundsAmt('');
     load();
-    showToast('✅ Funds added!');
+    showToast(t('fundsAdded'));
   };
   const totSaved = goals.reduce((s, g) => s + Number(g.currentAmount || 0), 0);
   const totTarget = goals.reduce((s, g) => s + Number(g.targetAmount || 0), 0);
@@ -1897,11 +2287,11 @@ function SavingsTab({
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "hlbl"
-  }, "🎯 Total Saved"), /*#__PURE__*/React.createElement("div", {
+  }, t('totalSaved')), /*#__PURE__*/React.createElement("div", {
     className: "hamt"
   }, fmt(totSaved, sym)), /*#__PURE__*/React.createElement("div", {
     className: "hsub"
-  }, totalInc > 0 ? `${savPct}% of monthly income · ` : `${goals.length} goal${goals.length !== 1 ? 's' : ''} · `, fmt(totTarget - totSaved, sym), " to go"), totTarget > 0 && /*#__PURE__*/React.createElement("div", {
+  }, totalInc > 0 ? `${savPct}${t('ofMonthlyIncome')} · ` : `${goals.length} ${goals.length !== 1 ? t('goals') : t('goal')} · `, fmt(totTarget - totSaved, sym), " ", t('toGo')), totTarget > 0 && /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 10,
       height: 4,
@@ -1927,9 +2317,9 @@ function SavingsTab({
     className: "eico"
   }, "🎯"), /*#__PURE__*/React.createElement("div", {
     className: "etxt"
-  }, "No savings goals"), /*#__PURE__*/React.createElement("div", {
+  }, t('noSavingsGoals')), /*#__PURE__*/React.createElement("div", {
     className: "esub"
-  }, "Tap + to create a goal")) : goals.map(goal => {
+  }, t('tapToCreateGoal'))) : goals.map(goal => {
     const pct = Number(goal.targetAmount) > 0 ? Math.min(100, Number(goal.currentAmount || 0) / Number(goal.targetAmount) * 100) : 0;
     const rem = Number(goal.targetAmount) - Number(goal.currentAmount || 0);
     return /*#__PURE__*/React.createElement("div", {
@@ -1989,7 +2379,7 @@ function SavingsTab({
         fontSize: 13,
         color: 'var(--t2)'
       }
-    }, fmt(goal.currentAmount || 0, sym), " saved"), /*#__PURE__*/React.createElement("span", {
+    }, fmt(goal.currentAmount || 0, sym), " ", t('saved')), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 13,
         fontWeight: 700,
@@ -2006,18 +2396,18 @@ function SavingsTab({
         fontSize: 11,
         color: 'var(--t3)'
       }
-    }, "Goal: ", fmt(goal.targetAmount, sym)), /*#__PURE__*/React.createElement("span", {
+    }, t('goalLabel'), " ", fmt(goal.targetAmount, sym)), /*#__PURE__*/React.createElement("span", {
       style: {
         fontSize: 11,
         color: rem <= 0 ? 'var(--success)' : 'var(--t3)',
         fontWeight: rem <= 0 ? 700 : 400
       }
-    }, rem <= 0 ? '✅ Reached!' : fmt(rem, sym) + ' to go')));
+    }, rem <= 0 ? t('reached') : fmt(rem, sym) + ' ' + t('toGo'))));
   })), /*#__PURE__*/React.createElement("button", {
     className: "fab",
     onClick: () => setModal('new')
   }, "+"), fundsGoal && /*#__PURE__*/React.createElement(Modal, {
-    title: "Add Funds",
+    title: t('addFunds'),
     onClose: () => setFundsGoal(null)
   }, (() => {
     const g = goals.find(g => g.id === fundsGoal);
@@ -2042,8 +2432,8 @@ function SavingsTab({
         color: 'var(--t3)',
         marginTop: 3
       }
-    }, fmt(g.currentAmount || 0, sym), " saved · ", fmt(Number(g.targetAmount) - Number(g.currentAmount || 0), sym), " to go")), /*#__PURE__*/React.createElement(Field, {
-      label: "Amount to Add"
+    }, fmt(g.currentAmount || 0, sym), " ", t('saved'), " · ", fmt(Number(g.targetAmount) - Number(g.currentAmount || 0), sym), " ", t('toGo'))), /*#__PURE__*/React.createElement(Field, {
+      label: t('amountToAdd')
     }, /*#__PURE__*/React.createElement(Inp, {
       type: "number",
       placeholder: "0.00",
@@ -2055,9 +2445,9 @@ function SavingsTab({
     })), /*#__PURE__*/React.createElement("button", {
       className: "btn bpri",
       onClick: addFunds
-    }, "Add Funds 💰")) : null;
+    }, t('addFundsBtn'))) : null;
   })()), modal && /*#__PURE__*/React.createElement(Modal, {
-    title: modal === 'new' ? 'New Savings Goal' : 'Edit Goal',
+    title: modal === 'new' ? t('newSavingsGoal') : t('editGoal'),
     onClose: () => setModal(null)
   }, /*#__PURE__*/React.createElement(SavingsForm, {
     onSave: save,
@@ -2093,30 +2483,30 @@ function CardsTab({
     if (f.id) await db.cards.update(f.id, f);else await db.cards.add(f);
     setModal(null);
     load();
-    showToast(f.id ? '✅ Updated' : '✅ Card added');
+    showToast(f.id ? t('updated') : t('cardAdded'));
   };
   const delCard = async id => {
     await db.cards.delete(id);
     load();
-    showToast('Card removed');
+    showToast(t('cardRemoved'));
   };
   const saveInst = async f => {
     if (f.id) await db.installments.update(f.id, f);else await db.installments.add(f);
     setInstModal(null);
     load();
-    showToast(f.id ? '✅ Updated' : '✅ Installment added');
+    showToast(f.id ? t('updated') : t('installmentAdded'));
   };
   const delInst = async id => {
     await db.installments.delete(id);
     load();
-    showToast('Removed');
+    showToast(t('removed'));
   };
   const markDone = async id => {
     await db.installments.update(id, {
       isComplete: true
     });
     load();
-    showToast('✅ Paid off!');
+    showToast(t('paidOff'));
   };
   const getCardBal = card => {
     const eB = exps.filter(e => Number(e.cardId) === card.id).reduce((s, e) => s + Number(e.amount), 0);
@@ -2137,9 +2527,9 @@ function CardsTab({
     className: "eico"
   }, "💳"), /*#__PURE__*/React.createElement("div", {
     className: "etxt"
-  }, "No credit cards"), /*#__PURE__*/React.createElement("div", {
+  }, t('noCreditCards')), /*#__PURE__*/React.createElement("div", {
     className: "esub"
-  }, "Tap + to add a card")) : cards.map(card => {
+  }, t('tapToAddCard'))) : cards.map(card => {
     const [ca, cb] = CCOLORS[card.colorIdx || 0];
     const bal = getCardBal(card);
     const avail = Math.max(0, Number(card.creditLimit) - bal);
@@ -2169,7 +2559,7 @@ function CardsTab({
       className: "ccnum"
     }, "•••• •••• •••• ", card.lastFour))), /*#__PURE__*/React.createElement("div", {
       className: "ccinfo"
-    }, "Limit: ", fmt(card.creditLimit, sym), " · Statement day ", card.statementDate, " · Due day ", card.dueDate), /*#__PURE__*/React.createElement("div", {
+    }, t('limit'), " ", fmt(card.creditLimit, sym), " · ", t('statementDay'), " ", card.statementDate, " · ", t('dueDayLabel'), " ", card.dueDate), /*#__PURE__*/React.createElement("div", {
       className: "ccbal"
     }, fmt(bal, sym), /*#__PURE__*/React.createElement("span", {
       style: {
@@ -2177,7 +2567,7 @@ function CardsTab({
         opacity: .7,
         fontWeight: 400
       }
-    }, " spent")), /*#__PURE__*/React.createElement("div", {
+    }, " ", t('spent'))), /*#__PURE__*/React.createElement("div", {
       className: "ccbar"
     }, /*#__PURE__*/React.createElement("div", {
       className: "ccbf",
@@ -2186,7 +2576,7 @@ function CardsTab({
       }
     })), /*#__PURE__*/React.createElement("div", {
       className: "ccav"
-    }, fmt(avail, sym), " available · ", Math.round(pct), "% used")), /*#__PURE__*/React.createElement("div", {
+    }, fmt(avail, sym), " ", t('available'), " · ", Math.round(pct), "% ", t('used'))), /*#__PURE__*/React.createElement("div", {
       style: { position: 'absolute', top: 14, right: 14, display: 'flex', gap: 8, zIndex: 2 }
     }, /*#__PURE__*/React.createElement("button", {
       onClick: () => setModal(card),
@@ -2204,7 +2594,7 @@ function CardsTab({
         justifyContent: 'center'
       }
     }, "✏️"), /*#__PURE__*/React.createElement("button", {
-      onClick: () => { if (confirm('Delete "' + card.name + '"? This will also remove all installments on this card.')) delCard(card.id); },
+      onClick: () => { if (confirm(t('deleteCardConfirm') + card.name + t('deleteCardConfirm2'))) delCard(card.id); },
       style: {
         background: 'rgba(255,255,255,.2)',
         border: 'none',
@@ -2227,7 +2617,7 @@ function CardsTab({
       className: "fbet mb10"
     }, /*#__PURE__*/React.createElement("span", {
       className: "ctitle"
-    }, "📦 Installments"), /*#__PURE__*/React.createElement("button", {
+    }, t('installmentsLabel')), /*#__PURE__*/React.createElement("button", {
       className: "btn bsm",
       style: {
         background: 'var(--p)',
@@ -2241,7 +2631,7 @@ function CardsTab({
         color: 'var(--t3)',
         marginBottom: 12
       }
-    }, "No active installments") : cardInsts.map(inst => /*#__PURE__*/React.createElement("div", {
+    }, t('noActiveInst')) : cardInsts.map(inst => /*#__PURE__*/React.createElement("div", {
       key: inst.id,
       className: "li"
     }, /*#__PURE__*/React.createElement("div", {
@@ -2274,7 +2664,7 @@ function CardsTab({
         fontSize: 11,
         fontWeight: 700
       }
-    }, "✓ Done"), /*#__PURE__*/React.createElement("button", {
+    }, t('done')), /*#__PURE__*/React.createElement("button", {
       onClick: () => delInst(inst.id),
       style: {
         background: 'var(--dl)',
@@ -2289,7 +2679,7 @@ function CardsTab({
       }
     }, "✕")))), (cardRecs.length > 0 || cardExps.length > 0) && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
       className: "ctitle mt12 mb10"
-    }, "📋 This Month's Charges"), cardRecs.map(r => {
+    }, t('thisMonthCharges')), cardRecs.map(r => {
       const cat = getCat(r.category);
       return /*#__PURE__*/React.createElement("div", {
         key: `r${r.id}`,
@@ -2307,7 +2697,7 @@ function CardsTab({
         className: "lname"
       }, r.name), /*#__PURE__*/React.createElement("div", {
         className: "lsub"
-      }, "Fixed · due day ", r.dueDay)), /*#__PURE__*/React.createElement("span", {
+      }, t('fixedDueDay'), " ", r.dueDay)), /*#__PURE__*/React.createElement("span", {
         className: "lamt exp"
       }, "−", fmt(r.amount, sym)));
     }), cardExps.map(e => {
@@ -2336,13 +2726,13 @@ function CardsTab({
     className: "fab",
     onClick: () => setModal('new')
   }, "+"), instModal && cards.length > 0 && /*#__PURE__*/React.createElement(Modal, {
-    title: "Add Installment",
+    title: t('addInstallment'),
     onClose: () => setInstModal(null)
   }, /*#__PURE__*/React.createElement(InstallForm, {
     onSave: saveInst,
     cards: cards
   })), modal && /*#__PURE__*/React.createElement(Modal, {
-    title: modal === 'new' ? 'Add Card' : 'Edit Card',
+    title: modal === 'new' ? t('addCard') : t('editCard'),
     onClose: () => setModal(null)
   }, /*#__PURE__*/React.createElement(CardForm, {
     onSave: saveCard,
@@ -2356,7 +2746,11 @@ function SettingsModal({
   currCode,
   onCurrChange,
   onClose,
-  showToast
+  showToast,
+  lang,
+  onLangChange,
+  darkMode,
+  onDarkChange
 }) {
   const [curr, setCurr] = useState(currCode);
   const doExportJSON = async () => {
@@ -2378,7 +2772,7 @@ function SettingsModal({
     a.download = `cashflow-backup-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
-    showToast('✅ JSON backup exported');
+    showToast(t('jsonExported'));
   };
   const doExportCSV = async () => {
     const [e, r, inc] = await Promise.all([db.expenses.toArray(), db.recurring.toArray(), db.income.toArray()]);
@@ -2392,7 +2786,7 @@ function SettingsModal({
     a.download = `cashflow-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);
-    showToast('✅ CSV exported');
+    showToast(t('csvExported'));
   };
   const doImport = () => {
     const inp = document.createElement('input');
@@ -2405,7 +2799,7 @@ function SettingsModal({
         const text = await file.text();
         const data = JSON.parse(text);
         if (!data.version || !data.expenses) throw new Error('Invalid file');
-        if (!confirm(`This will replace ALL current data with the backup from ${data.exported?.split('T')[0] || 'unknown date'}. Continue?`)) return;
+        if (!confirm(t('importConfirm1') + (data.exported?.split('T')[0] || 'unknown date') + t('importConfirm2'))) return;
         await db.transaction('rw', [db.expenses, db.recurring, db.income, db.savings, db.cards, db.installments], async () => {
           await db.expenses.clear();
           if (data.expenses?.length) await db.expenses.bulkAdd(data.expenses);
@@ -2420,27 +2814,42 @@ function SettingsModal({
           await db.installments.clear();
           if (data.installments?.length) await db.installments.bulkAdd(data.installments);
         });
-        showToast('✅ Data restored!');
+        showToast(t('dataRestored'));
         onClose();
         setTimeout(() => location.reload(), 400);
       } catch (err) {
-        showToast('❌ Invalid backup file');
+        showToast(t('invalidBackup'));
       }
     };
     inp.click();
   };
   const doClear = async () => {
-    if (!confirm('⚠️ Delete ALL data permanently? This cannot be undone.')) return;
+    if (!confirm(t('clearConfirm'))) return;
     await Promise.all([db.expenses.clear(), db.recurring.clear(), db.income.clear(), db.savings.clear(), db.cards.clear(), db.installments.clear()]);
-    showToast('All data cleared');
+    showToast(t('dataCleared'));
     onClose();
     setTimeout(() => location.reload(), 400);
   };
   return /*#__PURE__*/React.createElement(Modal, {
-    title: "⚙️ Settings",
+    title: t('settingsTitle'),
     onClose: onClose
   }, /*#__PURE__*/React.createElement(Field, {
-    label: "Currency"
+    label: t('language')
+  }, /*#__PURE__*/React.createElement(Sel, {
+    value: lang || 'en',
+    onChange: e => { if (onLangChange) onLangChange(e.target.value); },
+    options: [{value:'en',label:'English'},{value:'th',label:'ไทย'}]
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "fbet"
+  }, /*#__PURE__*/React.createElement("label", {
+    className: "flbl", style: { marginBottom: 0 }
+  }, t('darkMode')), /*#__PURE__*/React.createElement(Toggle, {
+    checked: darkMode,
+    onChange: () => onDarkChange(!darkMode)
+  }))), /*#__PURE__*/React.createElement(Field, {
+    label: t('currency')
   }, /*#__PURE__*/React.createElement(Sel, {
     value: curr,
     onChange: e => {
@@ -2461,7 +2870,7 @@ function SettingsModal({
     style: {
       marginBottom: 10
     }
-  }, "💾 Backup & Restore"), /*#__PURE__*/React.createElement("div", {
+  }, t('backupRestore')), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',
@@ -2470,13 +2879,13 @@ function SettingsModal({
   }, /*#__PURE__*/React.createElement("button", {
     className: "btn bghost",
     onClick: doExportJSON
-  }, "📦 Export JSON Backup"), /*#__PURE__*/React.createElement("button", {
+  }, t('exportJSON')), /*#__PURE__*/React.createElement("button", {
     className: "btn bghost",
     onClick: doExportCSV
-  }, "📊 Export CSV Spreadsheet"), /*#__PURE__*/React.createElement("button", {
+  }, t('exportCSV')), /*#__PURE__*/React.createElement("button", {
     className: "btn bghost",
     onClick: doImport
-  }, "📂 Import JSON Backup"))), /*#__PURE__*/React.createElement("div", {
+  }, t('importJSON')))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 22
     }
@@ -2486,10 +2895,10 @@ function SettingsModal({
       marginBottom: 10,
       color: 'var(--danger)'
     }
-  }, "⚠️ Danger Zone"), /*#__PURE__*/React.createElement("button", {
+  }, t('dangerZone')), /*#__PURE__*/React.createElement("button", {
     className: "btn bdanger",
     onClick: doClear
-  }, "🗑️ Clear All Data")), /*#__PURE__*/React.createElement("div", {
+  }, t('clearAllData'))), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 20,
       padding: '12px',
@@ -2502,7 +2911,7 @@ function SettingsModal({
       color: 'var(--t3)',
       lineHeight: 1.5
     }
-  }, /*#__PURE__*/React.createElement("strong", null, "Offline use:"), " Open in Safari → Share → \"Add to Home Screen\" to install as a PWA. All data is stored on-device in IndexedDB. Export JSON regularly to protect against Safari storage clears.")));
+  }, /*#__PURE__*/React.createElement("strong", null, t('offlineUse')), " ", t('offlineInstructions'))));
 }
 
 // ── ERROR BOUNDARY ──
@@ -2558,17 +2967,44 @@ function App() {
   });
   const [showSettings, setShowSettings] = useState(false);
   const [ready, setReady] = useState(false);
+  const [lang, setLang] = useState('en');
+  const [darkMode, setDarkMode] = useState(false);
   const [toast, showToast] = useToast();
   useEffect(() => {
-    db.settings.get('currency').then(r => {
-      if (r?.value) {
-        setSettings({
-          currency: r.value.code,
-          sym: r.value.sym
-        });
-      }
-    }).catch(() => {}).finally(() => setReady(true));
+    Promise.all([
+      db.settings.get('currency').then(r => {
+        if (r?.value) {
+          setSettings({
+            currency: r.value.code,
+            sym: r.value.sym
+          });
+        }
+      }),
+      db.settings.get('language').then(r => {
+        if (r?.value) {
+          currentLang = r.value;
+          setLang(r.value);
+        }
+      }),
+      db.settings.get('darkMode').then(r => {
+        if (r?.value) {
+          setDarkMode(true);
+          document.documentElement.classList.add('dark');
+        }
+      })
+    ]).catch(() => {}).finally(() => setReady(true));
   }, []);
+  const updateLang = async l => {
+    await db.settings.put({ key: 'language', value: l });
+    currentLang = l;
+    setLang(l);
+  };
+  const updateDark = async v => {
+    await db.settings.put({ key: 'darkMode', value: v });
+    setDarkMode(v);
+    if (v) document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
+  };
   const updateCurr = async c => {
     await db.settings.put({
       key: 'currency',
@@ -2584,23 +3020,23 @@ function App() {
   const isCur = mkKey(month) === mkKey(new Date());
   const tabs = [{
     id: 'dashboard',
-    label: 'Home',
+    label: t('home'),
     emoji: '📊'
   }, {
     id: 'expenses',
-    label: 'Spend',
+    label: t('spend'),
     emoji: '💸'
   }, {
     id: 'income',
-    label: 'Income',
+    label: t('income'),
     emoji: '💰'
   }, {
     id: 'savings',
-    label: 'Save',
+    label: t('save'),
     emoji: '🎯'
   }, {
     id: 'cards',
-    label: 'Cards',
+    label: t('cards'),
     emoji: '💳'
   }];
   if (!ready) return /*#__PURE__*/React.createElement("div", {
@@ -2622,7 +3058,7 @@ function App() {
       color: '#94a3b8',
       fontFamily: 'system-ui'
     }
-  }, "Loading…"));
+  }, t('loading')));
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Toast, {
     msg: toast
   }), /*#__PURE__*/React.createElement("header", {
@@ -2638,7 +3074,7 @@ function App() {
   }, /*#__PURE__*/React.createElement("button", {
     className: "ibtn",
     onClick: () => setShowSettings(true),
-    title: "Settings"
+    title: t('settings')
   }, "⚙️"))), /*#__PURE__*/React.createElement("div", {
     className: "mnav"
   }, /*#__PURE__*/React.createElement("button", {
@@ -2649,7 +3085,7 @@ function App() {
   }, /*#__PURE__*/React.createElement("div", null, mkLabel(month)), !isCur && /*#__PURE__*/React.createElement("div", {
     className: "mtoday",
     onClick: () => setMonth(new Date())
-  }, "↩ Today")), /*#__PURE__*/React.createElement("button", {
+  }, t('today'))), /*#__PURE__*/React.createElement("button", {
     className: "mbtn",
     onClick: nextM
   }, "›")), /*#__PURE__*/React.createElement("main", {
@@ -2671,18 +3107,22 @@ function App() {
     currentMonth: month
   })), /*#__PURE__*/React.createElement("nav", {
     className: "bnav"
-  }, tabs.map(t => /*#__PURE__*/React.createElement("button", {
-    key: t.id,
-    className: `nitem${tab === t.id ? ' active' : ''}`,
-    onClick: () => setTab(t.id)
+  }, tabs.map(tb => /*#__PURE__*/React.createElement("button", {
+    key: tb.id,
+    className: `nitem${tab === tb.id ? ' active' : ''}`,
+    onClick: () => setTab(tb.id)
   }, /*#__PURE__*/React.createElement("span", {
     className: "nemo"
-  }, t.emoji), /*#__PURE__*/React.createElement("span", null, t.label)))), showSettings && /*#__PURE__*/React.createElement(SettingsModal, {
+  }, tb.emoji), /*#__PURE__*/React.createElement("span", null, tb.label)))), showSettings && /*#__PURE__*/React.createElement(SettingsModal, {
     sym: settings.sym,
     currCode: settings.currency,
     onCurrChange: updateCurr,
     onClose: () => setShowSettings(false),
-    showToast: showToast
+    showToast: showToast,
+    lang: lang,
+    onLangChange: updateLang,
+    darkMode: darkMode,
+    onDarkChange: updateDark
   }));
 }
 
