@@ -154,8 +154,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
   var m={name:"Cashflow — Expense Tracker",short_name:"Cashflow",description:"Track expenses, income & savings offline",start_url:"./",display:"standalone",background_color:"#f1f5f9",theme_color:"#4f46e5",orientation:"portrait-primary",icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%234f46e5'/%3E%3Ctext x='96' y='140' text-anchor='middle' font-size='110' font-family='system-ui'%3E%F0%9F%92%B0%3C/text%3E%3C/svg%3E",sizes:"192x192",type:"image/svg+xml"}]};
   try{var b=new Blob([JSON.stringify(m)],{type:'application/manifest+json'});document.getElementById('pwa-manifest').href=URL.createObjectURL(b);}catch(e){}
   if('serviceWorker' in navigator){
-    var sw=`const C='cf-v2';self.addEventListener('install',e=>{self.skipWaiting();});self.addEventListener('activate',e=>{e.waitUntil(Promise.all([self.clients.claim(),caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k))))]));});self.addEventListener('fetch',e=>{e.respondWith(fetch(e.request).then(res=>{if(res&&res.ok){var cl=res.clone();caches.open(C).then(c=>c.put(e.request,cl));}return res;}).catch(()=>caches.match(e.request).then(r=>r||new Response('Offline',{status:503}))));});`;
-    try{var sb=new Blob([sw],{type:'text/javascript'});navigator.serviceWorker.register(URL.createObjectURL(sb),{scope:'./'}).catch(function(){});}catch(e){}
+    navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){});
   }
 })();
 </script>
