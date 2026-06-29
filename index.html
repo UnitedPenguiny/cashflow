@@ -26,10 +26,10 @@
   --border:#334155;--danger:#f87171;--dl:#450a0a;--success:#34d399;--sl:#064e3b;
   --s1:0 1px 3px rgba(0,0,0,.3);--s2:0 4px 16px rgba(0,0,0,.4);--s3:0 8px 28px rgba(0,0,0,.5)
 }
-html{background:var(--bg)}
-html,body{height:100%;height:100dvh;height:var(--app-height,100dvh);overflow:hidden}
+html{background:var(--card)}
+html,body{height:100%;height:100vh;overflow:hidden}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:var(--bg);color:var(--t1);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-#root{display:flex;flex-direction:column;height:100%;height:100dvh;height:var(--app-height,100dvh);max-width:430px;margin:0 auto;background:var(--bg);position:relative;overflow:hidden}
+#root{display:flex;flex-direction:column;height:100%;height:100vh;max-width:430px;margin:0 auto;background:var(--bg);position:relative;overflow:hidden}
 .hdr{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:calc(var(--hdr) + var(--st));padding-top:var(--st);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding-left:18px;padding-right:14px;z-index:110;box-shadow:var(--s1)}
 .hdr-logo{display:flex;align-items:center;gap:8px}
 .hdr-icon{width:30px;height:30px;border-radius:9px;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:15px}
@@ -150,21 +150,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-// Lock app height to the real usable viewport. iOS recomputes 100dvh at
-// unpredictable times (launch animation, async safe-area resolution), which
-// makes a flex-bottom nav drift up/down. Pin it to innerHeight in px instead.
-(function(){
-  function setH(){
-    document.documentElement.style.setProperty('--app-height', window.innerHeight + 'px');
-  }
-  setH();
-  window.addEventListener('resize', setH);
-  window.addEventListener('orientationchange', function(){ setTimeout(setH, 300); });
-  window.addEventListener('load', function(){ setH(); setTimeout(setH, 300); });
-  // Catch the post-launch settle in standalone PWA mode.
-  setTimeout(setH, 60);
-  setTimeout(setH, 500);
-})();
 (function(){
   var m={name:"Cashflow — Expense Tracker",short_name:"Cashflow",description:"Track expenses, income & savings offline",start_url:"./",display:"standalone",background_color:"#f1f5f9",theme_color:"#4f46e5",orientation:"portrait-primary",icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%234f46e5'/%3E%3Ctext x='96' y='140' text-anchor='middle' font-size='110' font-family='system-ui'%3E%F0%9F%92%B0%3C/text%3E%3C/svg%3E",sizes:"192x192",type:"image/svg+xml"}]};
   try{var b=new Blob([JSON.stringify(m)],{type:'application/manifest+json'});document.getElementById('pwa-manifest').href=URL.createObjectURL(b);}catch(e){}
