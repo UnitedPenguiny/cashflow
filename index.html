@@ -644,7 +644,7 @@ function Modal({
       document.body.style.overflow = p;
     };
   }, []);
-  return /*#__PURE__*/React.createElement("div", {
+  return /*#__PURE__*/ReactDOM.createPortal(/*#__PURE__*/React.createElement("div", {
     className: "overlay",
     onClick: e => e.target === e.currentTarget && onClose()
   }, /*#__PURE__*/React.createElement("div", {
@@ -660,7 +660,7 @@ function Modal({
     onClick: onClose
   }, "✕")), /*#__PURE__*/React.createElement("div", {
     className: "sbody"
-  }, children)));
+  }, children))), document.body);
 }
 const Field = ({
   label,
