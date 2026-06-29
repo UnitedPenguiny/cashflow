@@ -77,7 +77,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;backg
 .lamt{font-size:14px;font-weight:700;flex-shrink:0}
 .lamt.exp{color:var(--danger)}.lamt.inc{color:var(--success)}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
-.sheet{background:var(--card);border-radius:var(--rxl) var(--rxl) 0 0;width:100%;max-width:430px;max-height:92vh;overflow-y:auto;padding-bottom:calc(24px + var(--sbe));animation:slideUp .28s cubic-bezier(.22,1,.36,1)}
+.sheet{background:var(--card);border-radius:var(--rxl) var(--rxl) 0 0;width:100%;max-width:430px;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(24px + var(--sbe));animation:slideUp .28s cubic-bezier(.22,1,.36,1)}
 .sheet::-webkit-scrollbar{display:none}
 .shandle{width:36px;height:4px;border-radius:2px;background:var(--border);margin:10px auto 0}
 .shdr{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card);z-index:1}
