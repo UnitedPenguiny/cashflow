@@ -1399,7 +1399,7 @@ function InstallForm({
     [k]: v
   }));
   const ok = () => {
-    if (!f.name || !f.monthlyPayment || !f.cardId) return;
+    if (!f.name || !f.monthlyPayment || !f.cardId || !(Number(f.monthsRemaining) > 0)) return;
     onSave({
       ...f,
       totalAmount: Number(f.totalAmount),
