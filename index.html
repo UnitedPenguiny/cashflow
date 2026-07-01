@@ -643,6 +643,33 @@ const cycleAnchor = (date, payday = PAYDAY, label = CYCLE_LABEL) => {
   return new Date(y, m + off, 1);
 };
 const inCycle = (ds, range) => !!ds && ds >= range.startISO && ds < range.endISO;
+// ── Installment auto-countdown ──
+// `monthsRemaining` is the payments left as of `startDate`. Each month since then one
+// payment is made, so the effective payments still left = monthsRemaining − months elapsed.
+// Returns null when we can't tell (no months/start date) → callers fall back to old behavior.
+const instMonthsLeft = (i, asOf) => {
+  const orig = Number(i.monthsRemaining);
+  if (!(orig > 0)) return null;
+  if (!i.startDate) return orig;
+  const s = new Date(i.startDate + 'T00:00:00');
+  if (isNaN(s.getTime())) return orig;
+  const elapsed = (asOf.getFullYear() - s.getFullYear()) * 12 + (asOf.getMonth() - s.getMonth());
+  return Math.max(0, Math.min(orig, orig - elapsed));
+};
+// An installment still runs (counts toward spend / card balance) as of the given month.
+const instActive = (i, asOf) => {
+  if (i.isComplete) return false;
+  const left = instMonthsLeft(i, asOf);
+  return left == null || left > 0;
+};
+// Balance still owed — what a card reserves against its limit (full remaining amount, not
+// one monthly payment), shrinking each month via the effective months left.
+const instRemaining = (i, asOf) => {
+  const left = instMonthsLeft(i, asOf);
+  if (left != null) return (Number(i.monthlyPayment) || 0) * left;
+  const tot = Number(i.totalAmount);
+  return tot > 0 ? tot : (Number(i.monthlyPayment) || 0);
+};
 const cycleRangeLabel = (anchor, payday = PAYDAY, label = CYCLE_LABEL) => {
   const { start, end } = cycleRange(anchor, payday, label);
   const last = new Date(end); last.setDate(last.getDate() - 1);
@@ -1438,7 +1465,7 @@ function Dashboard({
     }
     let instExp = 0;
     for (const inst of allInst) {
-      if (!inst.isComplete) {
+      if (instActive(inst, currentMonth)) {
         instExp += Number(inst.monthlyPayment);
       }
     }
@@ -1463,7 +1490,7 @@ function Dashboard({
         if (isActiveInMonth(r, md)) mF += Number(r.amount);
       }
       const me = await db.expenses.where('date').between(mcr.startISO, mcr.endISO, true, false).toArray();
-      const mInst = allInst.filter(i => !i.isComplete).reduce((s, i) => s + Number(i.monthlyPayment), 0);
+      const mInst = allInst.filter(i => instActive(i, md)).reduce((s, i) => s + Number(i.monthlyPayment), 0);
       monthly.push({
         label: md.toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-US', {
           month: 'short'
@@ -1517,7 +1544,7 @@ function Dashboard({
     exps,
     prevTotal
   } = d;
-  const instTotal = allInst.filter(i => !i.isComplete).reduce((s, i) => s + Number(i.monthlyPayment), 0);
+  const instTotal = allInst.filter(i => instActive(i, currentMonth)).reduce((s, i) => s + Number(i.monthlyPayment), 0);
   const totalExp = fixed + varExp + instTotal;
   const net = totalInc - totalExp;
   const totSaved = allSav.reduce((s, g) => s + Number(g.currentAmount || 0), 0);
@@ -1721,7 +1748,7 @@ function Dashboard({
   }, t('creditCards')), allCards.map(card => {
     const [a, b] = CCOLORS[card.colorIdx || 0];
     const expBal = d.recent.filter(e => Number(e.cardId) === card.id).reduce((s, e) => s + Number(e.amount), 0);
-    const instBal = allInst.filter(i => i.cardId === card.id && !i.isComplete).reduce((s, i) => s + Number(i.monthlyPayment), 0);
+    const instBal = allInst.filter(i => i.cardId === card.id && instActive(i, currentMonth)).reduce((s, i) => s + instRemaining(i, currentMonth), 0);
     const bal = expBal + instBal;
     const avail = Math.max(0, Number(card.creditLimit) - bal);
     const pct = card.creditLimit > 0 ? Math.min(100, bal / card.creditLimit * 100) : 0;
@@ -1831,7 +1858,7 @@ function ExpensesTab({
     setVarExps(e.sort((a, b) => b.date.localeCompare(a.date)));
     setRecs(r);
     setCards(c);
-    setInsts(i.filter(inst => !inst.isComplete));
+    setInsts(i.filter(inst => instActive(inst, currentMonth)));
   }, [mk, payday]);
   useEffect(() => {
     load();
@@ -1924,7 +1951,7 @@ function ExpensesTab({
       className: "lname"
     }, inst.name), /*#__PURE__*/React.createElement("div", {
       className: "lsub"
-    }, card ? card.name + ' ••••' + card.lastFour : '', " · ", inst.monthsRemaining, " ", t('monthsLeft'))), /*#__PURE__*/React.createElement("span", {
+    }, card ? card.name + ' ••••' + card.lastFour : '', " · ", (instMonthsLeft(inst, currentMonth) ?? inst.monthsRemaining), " ", t('monthsLeft'))), /*#__PURE__*/React.createElement("span", {
       className: "lamt exp"
     }, "−", fmt(inst.monthlyPayment, sym), "/mo"));
   }))), (() => {
@@ -2566,7 +2593,7 @@ function CardsTab({
   const getCardBal = card => {
     const eB = exps.filter(e => Number(e.cardId) === card.id).reduce((s, e) => s + Number(e.amount), 0);
     const rB = recs.filter(r => Number(r.cardId) === card.id && isActiveInMonth(r, currentMonth)).reduce((s, r) => s + Number(r.amount), 0);
-    const iB = insts.filter(i => i.cardId === card.id && !i.isComplete).reduce((s, i) => s + Number(i.monthlyPayment), 0);
+    const iB = insts.filter(i => i.cardId === card.id && instActive(i, currentMonth)).reduce((s, i) => s + instRemaining(i, currentMonth), 0);
     return eB + rB + iB;
   };
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Toast, {
@@ -2590,7 +2617,7 @@ function CardsTab({
     const avail = Math.max(0, Number(card.creditLimit) - bal);
     const pct = card.creditLimit > 0 ? Math.min(100, bal / card.creditLimit * 100) : 0;
     const isExp = expanded === card.id;
-    const cardInsts = insts.filter(i => i.cardId === card.id && !i.isComplete);
+    const cardInsts = insts.filter(i => i.cardId === card.id && instActive(i, currentMonth));
     const cardExps = exps.filter(e => Number(e.cardId) === card.id);
     const cardRecs = recs.filter(r => Number(r.cardId) === card.id && isActiveInMonth(r, currentMonth));
     return /*#__PURE__*/React.createElement("div", {
@@ -2695,7 +2722,7 @@ function CardsTab({
       className: "lname"
     }, inst.name), /*#__PURE__*/React.createElement("div", {
       className: "lsub"
-    }, inst.monthsRemaining, " months · ", fmt(inst.totalAmount, sym), " total")), /*#__PURE__*/React.createElement("div", {
+    }, (instMonthsLeft(inst, currentMonth) ?? inst.monthsRemaining), " months · ", fmt(inst.totalAmount, sym), " total")), /*#__PURE__*/React.createElement("div", {
       className: "fb g8",
       style: {
         flexShrink: 0
