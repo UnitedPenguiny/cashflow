@@ -1914,6 +1914,12 @@ function ExpensesTab({
     load();
     showToast(t('deleted'));
   };
+  const saveInst = async f => {
+    if (f.id) await db.installments.update(f.id, f);else await db.installments.add(f);
+    setModal(null);
+    load();
+    showToast(f.id ? t('updated') : t('installmentAdded'));
+  };
   const saveRec = async f => {
     if (f.id) await db.recurring.update(f.id, f);else await db.recurring.add(f);
     setModal(null);
@@ -1986,7 +1992,9 @@ function ExpensesTab({
       className: "lico",
       style: { background: '#fae8ff', color: '#86198f', fontSize: 14 }
     }, "💳"), /*#__PURE__*/React.createElement("div", {
-      className: "linf"
+      className: "linf",
+      onClick: () => setModal({ type: 'editInst', data: inst }),
+      style: { cursor: 'pointer' }
     }, /*#__PURE__*/React.createElement("div", {
       className: "lname"
     }, inst.name), /*#__PURE__*/React.createElement("div", {
@@ -2179,8 +2187,20 @@ function ExpensesTab({
     }, "✕")));
   })))), /*#__PURE__*/React.createElement("button", {
     className: "fab",
-    onClick: () => setModal(sub === 'fixed' ? 'addFixed' : 'addVar')
-  }, "+"), (modal === 'addVar' || modal?.type === 'editVar') && /*#__PURE__*/React.createElement(Modal, {
+    onClick: () => setModal(sub === 'fixed' ? 'addFixed' : sub === 'installments' ? 'addInst' : 'addVar')
+  }, "+"), (modal === 'addInst' || modal?.type === 'editInst') && (cards.length > 0 ? /*#__PURE__*/React.createElement(Modal, {
+    title: t('addInstallment'),
+    onClose: () => setModal(null)
+  }, /*#__PURE__*/React.createElement(InstallForm, {
+    onSave: saveInst,
+    cards: cards,
+    initial: modal?.data
+  })) : /*#__PURE__*/React.createElement(Modal, {
+    title: t('addInstallment'),
+    onClose: () => setModal(null)
+  }, /*#__PURE__*/React.createElement("p", {
+    style: { fontSize: 13, color: 'var(--t3)', padding: '4px 0 8px' }
+  }, t('addInstFromCards')))), (modal === 'addVar' || modal?.type === 'editVar') && /*#__PURE__*/React.createElement(Modal, {
     title: modal?.type ? t('editExpense') : t('addExpense'),
     onClose: () => setModal(null)
   }, /*#__PURE__*/React.createElement(ExpenseForm, {
