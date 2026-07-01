@@ -389,7 +389,7 @@ const LANGS = {
     addFixedCost: 'Add Fixed Cost', editFixedCost: 'Edit Fixed Cost',
     noActiveInstallments: 'No active installments',
     addInstFromCards: 'Add installments from the Cards tab',
-    monthsLeft: 'months left',
+    monthsLeft: 'months left', total: 'total',
     // Income
     totalMonthlyIncome: '💰 Total Monthly Income',
     includes: 'Includes', oneTime: 'one-time',
@@ -502,7 +502,7 @@ const LANGS = {
     addFixedCost: 'เพิ่มค่าใช้จ่ายประจำ', editFixedCost: 'แก้ไขค่าใช้จ่ายประจำ',
     noActiveInstallments: 'ไม่มีรายการผ่อนชำระ',
     addInstFromCards: 'เพิ่มรายการผ่อนชำระจากแท็บบัตร',
-    monthsLeft: 'เดือนที่เหลือ',
+    monthsLeft: 'เดือนที่เหลือ', total: 'รวม',
     totalMonthlyIncome: '💰 รายรับรวมต่อเดือน',
     includes: 'รวม', oneTime: 'ครั้งเดียว',
     addIncomeSources: 'เพิ่มแหล่งรายรับด้านล่าง',
@@ -669,6 +669,42 @@ const instRemaining = (i, asOf) => {
   if (left != null) return (Number(i.monthlyPayment) || 0) * left;
   const tot = Number(i.totalAmount);
   return tot > 0 ? tot : (Number(i.monthlyPayment) || 0);
+};
+// ── Credit-card statement cycle ──
+// A card carries a real-world outstanding balance driven by its own statement
+// (cutoff) day and due day, NOT the salary budget cycle. Charges since the last
+// cutoff are the "current" (unbilled) balance; the statement that closed at that
+// cutoff is still owed until its due day passes, at which point we assume it was
+// paid in full and drops off. This is always evaluated as of `asOf` (today), so
+// navigating budget months does not change what a card owes.
+const monthlyOnOrBefore = (day, asOf) => {
+  const mk = (y, m) => new Date(y, m, Math.min(day, new Date(y, m + 1, 0).getDate()));
+  let d = mk(asOf.getFullYear(), asOf.getMonth());
+  if (d > asOf) d = mk(asOf.getFullYear(), asOf.getMonth() - 1);
+  return d;
+};
+const monthlyAfter = (day, from) => {
+  const mk = (y, m) => new Date(y, m, Math.min(day, new Date(y, m + 1, 0).getDate()));
+  let m = from.getMonth();
+  let d = mk(from.getFullYear(), m);
+  while (d <= from) d = mk(from.getFullYear(), ++m);
+  return d;
+};
+// Earliest charge date that still counts toward a card's outstanding balance as of `asOf`.
+const cardChargeStart = (card, asOf) => {
+  const stmtDay = Number(card.statementDate) || 1;
+  const dueDay = Number(card.dueDate) || 15;
+  const cutoffThis = monthlyOnOrBefore(stmtDay, asOf);            // start of current unbilled period
+  const cutoffPrev = monthlyOnOrBefore(stmtDay, new Date(cutoffThis.getTime() - DAY)); // start of last statement
+  const due = monthlyAfter(dueDay, cutoffThis);                   // when the last statement must be paid
+  return due > asOf ? cutoffPrev : cutoffThis;                    // still owe last statement until its due day
+};
+// Sum of a card's outstanding one-off charges as of `asOf` (given all its expenses).
+const cardExpOutstanding = (card, cardExps, asOf) => {
+  const startISO = isoLocal(cardChargeStart(card, asOf));
+  return cardExps
+    .filter(e => Number(e.cardId) === card.id && e.date >= startISO)
+    .reduce((s, e) => s + Number(e.amount), 0);
 };
 const cycleRangeLabel = (anchor, payday = PAYDAY, label = CYCLE_LABEL) => {
   const { start, end } = cycleRange(anchor, payday, label);
@@ -1500,6 +1536,7 @@ function Dashboard({
       });
     }
     const recent = await db.expenses.orderBy('date').reverse().limit(6).toArray();
+    const cardCharges = await db.expenses.filter(x => x.cardId).toArray();
     // Previous cycle expenses for insights
     const pcr = cycleRange(addMonths(currentMonth, -1), payday);
     const prevExps = await db.expenses.where('date').between(pcr.startISO, pcr.endISO, true, false).toArray();
@@ -1517,6 +1554,7 @@ function Dashboard({
       allSav,
       monthly,
       recent,
+      cardCharges,
       allBudgets,
       catMap,
       exps,
@@ -1747,8 +1785,9 @@ function Dashboard({
     className: "ctitle mb10"
   }, t('creditCards')), allCards.map(card => {
     const [a, b] = CCOLORS[card.colorIdx || 0];
-    const expBal = d.recent.filter(e => Number(e.cardId) === card.id).reduce((s, e) => s + Number(e.amount), 0);
-    const instBal = allInst.filter(i => i.cardId === card.id && instActive(i, currentMonth)).reduce((s, i) => s + instRemaining(i, currentMonth), 0);
+    const now = new Date();
+    const expBal = cardExpOutstanding(card, d.cardCharges, now);
+    const instBal = allInst.filter(i => i.cardId === card.id && instActive(i, now)).reduce((s, i) => s + instRemaining(i, now), 0);
     const bal = expBal + instBal;
     const avail = Math.max(0, Number(card.creditLimit) - bal);
     const pct = card.creditLimit > 0 ? Math.min(100, bal / card.creditLimit * 100) : 0;
@@ -1951,7 +1990,7 @@ function ExpensesTab({
       className: "lname"
     }, inst.name), /*#__PURE__*/React.createElement("div", {
       className: "lsub"
-    }, card ? card.name + ' ••••' + card.lastFour : '', " · ", (instMonthsLeft(inst, currentMonth) ?? inst.monthsRemaining), " ", t('monthsLeft'))), /*#__PURE__*/React.createElement("span", {
+    }, card ? card.name + ' ••••' + card.lastFour : '', " · ", (instMonthsLeft(inst, currentMonth) ?? inst.monthsRemaining), " ", t('monthsLeft'), " · ", fmt(inst.totalAmount, sym), " ", t('total'))), /*#__PURE__*/React.createElement("span", {
       className: "lamt exp"
     }, "−", fmt(inst.monthlyPayment, sym), "/mo"));
   }))), (() => {
@@ -2544,6 +2583,7 @@ function CardsTab({
   const [cards, setCards] = useState([]);
   const [insts, setInsts] = useState([]);
   const [exps, setExps] = useState([]);
+  const [cardExps, setCardExps] = useState([]);
   const [recs, setRecs] = useState([]);
   const [expanded, setExpanded] = useState(null);
   const [modal, setModal] = useState(null);
@@ -2552,11 +2592,12 @@ function CardsTab({
   const mk = mkKey(currentMonth);
   const load = useCallback(async () => {
     const cr = cycleRange(currentMonth, payday);
-    const [c, i, e, r] = await Promise.all([db.cards.toArray(), db.installments.toArray(), db.expenses.where('date').between(cr.startISO, cr.endISO, true, false).toArray(), db.recurring.toArray()]);
+    const [c, i, e, r, ce] = await Promise.all([db.cards.toArray(), db.installments.toArray(), db.expenses.where('date').between(cr.startISO, cr.endISO, true, false).toArray(), db.recurring.toArray(), db.expenses.filter(x => x.cardId).toArray()]);
     setCards(c);
     setInsts(i);
     setExps(e);
     setRecs(r);
+    setCardExps(ce);
   }, [mk, payday]);
   useEffect(() => {
     load();
@@ -2591,9 +2632,10 @@ function CardsTab({
     showToast(t('paidOff'));
   };
   const getCardBal = card => {
-    const eB = exps.filter(e => Number(e.cardId) === card.id).reduce((s, e) => s + Number(e.amount), 0);
-    const rB = recs.filter(r => Number(r.cardId) === card.id && isActiveInMonth(r, currentMonth)).reduce((s, r) => s + Number(r.amount), 0);
-    const iB = insts.filter(i => i.cardId === card.id && instActive(i, currentMonth)).reduce((s, i) => s + instRemaining(i, currentMonth), 0);
+    const now = new Date();
+    const eB = cardExpOutstanding(card, cardExps, now);
+    const rB = recs.filter(r => Number(r.cardId) === card.id && isActiveInMonth(r, now)).reduce((s, r) => s + Number(r.amount), 0);
+    const iB = insts.filter(i => i.cardId === card.id && instActive(i, now)).reduce((s, i) => s + instRemaining(i, now), 0);
     return eB + rB + iB;
   };
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Toast, {
