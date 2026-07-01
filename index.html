@@ -463,6 +463,11 @@ const LANGS = {
     incomeChart: 'Income', expensesChart: 'Expenses',
     // Dark Mode
     darkMode: 'Dark Mode',
+    // Pay cycle
+    payCycleTitle: '📅 Pay Cycle', paydayLabel: 'Salary day',
+    paydayHint: 'Each budget month starts on this day (moves earlier to Friday if it lands on a weekend).',
+    cycleLabelLabel: 'Name each cycle after', cycleLabelEnd: 'Month it ends in', cycleLabelStart: 'Month it starts in',
+    cycleLabelHint: 'e.g. Jun 28 – Jul 27',
     // Budgets
     budgetProgress: 'Budget Progress', setBudgets: 'Set Budgets', budget: 'Budget',
     noBudgets: 'No budgets set', noBudgetsSub: 'Set monthly limits per category',
@@ -561,6 +566,10 @@ const LANGS = {
     dataRestored: '✅ กู้คืนข้อมูลแล้ว!', dataCleared: 'ลบข้อมูลทั้งหมดแล้ว',
     incomeChart: 'รายรับ', expensesChart: 'รายจ่าย',
     darkMode: 'โหมดมืด',
+    payCycleTitle: '📅 รอบเงินเดือน', paydayLabel: 'วันรับเงินเดือน',
+    paydayHint: 'แต่ละรอบเริ่มนับจากวันนี้ (ถ้าตรงกับวันเสาร์-อาทิตย์จะเลื่อนมาเป็นวันศุกร์)',
+    cycleLabelLabel: 'ตั้งชื่อรอบตาม', cycleLabelEnd: 'เดือนที่รอบสิ้นสุด', cycleLabelStart: 'เดือนที่รอบเริ่ม',
+    cycleLabelHint: 'เช่น 28 มิ.ย. – 27 ก.ค.',
     budgetProgress: 'ความคืบหน้างบประมาณ', setBudgets: 'ตั้งงบประมาณ', budget: 'งบประมาณ',
     noBudgets: 'ยังไม่ได้ตั้งงบประมาณ', noBudgetsSub: 'ตั้งวงเงินรายเดือนตามหมวดหมู่',
     budgetOf: 'จาก', budgetOver: 'เกินงบ', budgetRemaining: 'เหลือ',
@@ -603,6 +612,44 @@ const mkLabel = d => d.toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-U
 });
 const todayStr = () => new Date().toISOString().split('T')[0];
 const inMonth = (ds, mk) => ds && ds.startsWith(mk);
+
+// ── Pay-cycle (salary-day) helpers ──
+// The budget "month" runs from the salary day (default 28th) to the day before the next
+// salary day. If the salary day lands on a weekend it moves earlier to the Friday
+// (Sat → −1, Sun → −2), because the company transfers before the weekend.
+let PAYDAY = 28;          // salary day = start of each cycle
+let CYCLE_LABEL = 'end';  // 'end' = cycle named after the month it ends in; 'start' = the month it begins in
+const isoLocal = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const payBoundary = (y, m, payday = PAYDAY) => {
+  const dim = new Date(y, m + 1, 0).getDate();
+  const d = new Date(y, m, Math.min(payday, dim));
+  const wd = d.getDay();
+  if (wd === 6) d.setDate(d.getDate() - 1);      // Saturday → Friday
+  else if (wd === 0) d.setDate(d.getDate() - 2); // Sunday → Friday
+  return d;
+};
+// [start, end) range (inclusive start, exclusive end) for the cycle whose label month is the anchor's month.
+const cycleRange = (anchor, payday = PAYDAY, label = CYCLE_LABEL) => {
+  const y = anchor.getFullYear(), m = anchor.getMonth();
+  const s = payBoundary(y, label === 'start' ? m : m - 1, payday);
+  const e = payBoundary(y, label === 'start' ? m + 1 : m, payday);
+  return { start: s, end: e, startISO: isoLocal(s), endISO: isoLocal(e) };
+};
+// The label-month anchor (Date at the 1st) that a given calendar date belongs to.
+const cycleAnchor = (date, payday = PAYDAY, label = CYCLE_LABEL) => {
+  const y = date.getFullYear(), m = date.getMonth();
+  const onOrAfter = isoLocal(date) >= isoLocal(payBoundary(y, m, payday));
+  const off = label === 'start' ? (onOrAfter ? 0 : -1) : (onOrAfter ? 1 : 0);
+  return new Date(y, m + off, 1);
+};
+const inCycle = (ds, range) => !!ds && ds >= range.startISO && ds < range.endISO;
+const cycleRangeLabel = (anchor, payday = PAYDAY, label = CYCLE_LABEL) => {
+  const { start, end } = cycleRange(anchor, payday, label);
+  const last = new Date(end); last.setDate(last.getDate() - 1);
+  const loc = currentLang === 'th' ? 'th-TH' : 'en-US';
+  const opt = { month: 'short', day: 'numeric' };
+  return `${start.toLocaleDateString(loc, opt)} – ${last.toLocaleDateString(loc, opt)}`;
+};
 const toMonthly = (amt, freq) => {
   const n = Number(amt) || 0;
   return freq === 'weekly' ? n * 4.333 : freq === 'biweekly' ? n * 2.167 : freq === 'yearly' ? n / 12 : freq === 'one-time' ? 0 : n;
@@ -1358,21 +1405,22 @@ function InstallForm({
 // ══ DASHBOARD ══
 function Dashboard({
   sym,
-  currentMonth
+  currentMonth,
+  payday
 }) {
   const [d, setD] = useState(null);
   const [budgetModal, setBudgetModal] = useState(false);
   const [budgetDrafts, setBudgetDrafts] = useState({});
   const [btoast, showBToast] = useToast();
   const load = useCallback(async () => {
-    const mk = mkKey(currentMonth);
+    const cr = cycleRange(currentMonth, payday);
     const [allInc, allRec, allCards, allInst, allSav, allBudgets] = await Promise.all([db.income.toArray(), db.recurring.toArray(), db.cards.toArray(), db.installments.toArray(), db.savings.toArray(), db.budgets.toArray()]);
-    const exps = await db.expenses.where('date').startsWith(mk).toArray();
+    const exps = await db.expenses.where('date').between(cr.startISO, cr.endISO, true, false).toArray();
     let totalInc = 0;
     for (const inc of allInc) {
       if (!inc.isActive) continue;
       if (inc.frequency === 'one-time') {
-        if (inMonth(inc.date, mk)) totalInc += Number(inc.amount);
+        if (inCycle(inc.date, cr)) totalInc += Number(inc.amount);
       } else totalInc += toMonthly(inc.amount, inc.frequency);
     }
     let fixed = 0;
@@ -1402,19 +1450,19 @@ function Dashboard({
     const monthly = [];
     for (let i = 5; i >= 0; i--) {
       const md = addMonths(currentMonth, -i);
-      const mmk = mkKey(md);
+      const mcr = cycleRange(md, payday);
       let mI = 0;
       for (const inc of allInc) {
         if (!inc.isActive) continue;
         if (inc.frequency === 'one-time') {
-          if (inMonth(inc.date, mmk)) mI += Number(inc.amount);
+          if (inCycle(inc.date, mcr)) mI += Number(inc.amount);
         } else mI += toMonthly(inc.amount, inc.frequency);
       }
       let mF = 0;
       for (const r of allRec) {
         if (isActiveInMonth(r, md)) mF += Number(r.amount);
       }
-      const me = await db.expenses.where('date').startsWith(mmk).toArray();
+      const me = await db.expenses.where('date').between(mcr.startISO, mcr.endISO, true, false).toArray();
       const mInst = allInst.filter(i => !i.isComplete).reduce((s, i) => s + Number(i.monthlyPayment), 0);
       monthly.push({
         label: md.toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-US', {
@@ -1425,9 +1473,9 @@ function Dashboard({
       });
     }
     const recent = await db.expenses.orderBy('date').reverse().limit(6).toArray();
-    // Previous month expenses for insights
-    const prevMk = mkKey(addMonths(currentMonth, -1));
-    const prevExps = await db.expenses.where('date').startsWith(prevMk).toArray();
+    // Previous cycle expenses for insights
+    const pcr = cycleRange(addMonths(currentMonth, -1), payday);
+    const prevExps = await db.expenses.where('date').between(pcr.startISO, pcr.endISO, true, false).toArray();
     let prevFixed = 0;
     for (const r of allRec) { if (isActiveInMonth(r, addMonths(currentMonth, -1))) prevFixed += Number(r.amount); }
     const prevVarExp = prevExps.reduce((s, e) => s + Number(e.amount), 0);
@@ -1447,7 +1495,7 @@ function Dashboard({
       exps,
       prevTotal
     });
-  }, [currentMonth]);
+  }, [currentMonth, payday]);
   useEffect(() => {
     load();
   }, [load]);
@@ -1629,12 +1677,12 @@ function Dashboard({
   }, /*#__PURE__*/React.createElement("div", {
     className: "ctitle mb10"
   }, t('insights')), (() => {
-    const mk = mkKey(currentMonth);
-    const now = new Date();
-    const dayOfMonth = now.getDate();
-    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-    const dailyRate = dayOfMonth > 0 ? varExp / dayOfMonth : 0;
-    const projectedVar = dailyRate * daysInMonth;
+    const cr = cycleRange(currentMonth, payday);
+    const DAY = 86400000;
+    const cycleLen = Math.max(1, Math.round((cr.end - cr.start) / DAY));
+    const elapsed = Math.min(cycleLen, Math.max(1, Math.floor((Date.now() - cr.start) / DAY) + 1));
+    const dailyRate = varExp / elapsed;
+    const projectedVar = dailyRate * cycleLen;
     const projectedTotal = fixed + projectedVar + instTotal;
     const projectedRemaining = totalInc - projectedTotal;
     const biggest = exps.length > 0 ? exps.reduce((a, b) => Number(a.amount) > Number(b.amount) ? a : b) : null;
@@ -1764,7 +1812,8 @@ function Dashboard({
 // ══ EXPENSES TAB ══
 function ExpensesTab({
   sym,
-  currentMonth
+  currentMonth,
+  payday
 }) {
   const [sub, setSub] = useState('variable');
   const [varExps, setVarExps] = useState([]);
@@ -1777,12 +1826,13 @@ function ExpensesTab({
   const [catFilter, setCatFilter] = useState('');
   const mk = mkKey(currentMonth);
   const load = useCallback(async () => {
-    const [e, r, c, i] = await Promise.all([db.expenses.where('date').startsWith(mk).toArray(), db.recurring.toArray(), db.cards.toArray(), db.installments.toArray()]);
+    const cr = cycleRange(currentMonth, payday);
+    const [e, r, c, i] = await Promise.all([db.expenses.where('date').between(cr.startISO, cr.endISO, true, false).toArray(), db.recurring.toArray(), db.cards.toArray(), db.installments.toArray()]);
     setVarExps(e.sort((a, b) => b.date.localeCompare(a.date)));
     setRecs(r);
     setCards(c);
     setInsts(i.filter(inst => !inst.isComplete));
-  }, [mk]);
+  }, [mk, payday]);
   useEffect(() => {
     load();
   }, [load]);
@@ -2083,12 +2133,13 @@ function ExpensesTab({
 // ══ INCOME TAB ══
 function IncomeTab({
   sym,
-  currentMonth
+  currentMonth,
+  payday
 }) {
   const [incs, setIncs] = useState([]);
   const [modal, setModal] = useState(null);
   const [toast, showToast] = useToast();
-  const mk = mkKey(currentMonth);
+  const cr = cycleRange(currentMonth, payday);
   const load = async () => {
     const a = await db.income.toArray();
     setIncs(a);
@@ -2121,7 +2172,7 @@ function IncomeTab({
   for (const inc of incs) {
     if (!inc.isActive) continue;
     if (inc.frequency === 'one-time') {
-      if (inMonth(inc.date, mk)) oneTime += Number(inc.amount);
+      if (inCycle(inc.date, cr)) oneTime += Number(inc.amount);
     } else totalMonthly += toMonthly(inc.amount, inc.frequency);
   }
   const total = totalMonthly + oneTime;
@@ -2159,7 +2210,7 @@ function IncomeTab({
     className: "card cp"
   }, incs.map(inc => {
     const cat = getICat(inc.category);
-    const mAmt = inc.frequency === 'one-time' ? inMonth(inc.date, mk) ? Number(inc.amount) : 0 : toMonthly(inc.amount, inc.frequency);
+    const mAmt = inc.frequency === 'one-time' ? inCycle(inc.date, cr) ? Number(inc.amount) : 0 : toMonthly(inc.amount, inc.frequency);
     return /*#__PURE__*/React.createElement("div", {
       key: inc.id,
       className: "li",
@@ -2227,7 +2278,8 @@ function IncomeTab({
 // ══ SAVINGS TAB ══
 function SavingsTab({
   sym,
-  currentMonth
+  currentMonth,
+  payday
 }) {
   const [goals, setGoals] = useState([]);
   const [totalInc, setTotalInc] = useState(0);
@@ -2235,15 +2287,15 @@ function SavingsTab({
   const [fundsGoal, setFundsGoal] = useState(null);
   const [fundsAmt, setFundsAmt] = useState('');
   const [toast, showToast] = useToast();
-  const mk = mkKey(currentMonth);
   const load = async () => {
+    const cr = cycleRange(currentMonth, payday);
     const [gs, incs] = await Promise.all([db.savings.toArray(), db.income.toArray()]);
     setGoals(gs);
     let t = 0;
     for (const inc of incs) {
       if (!inc.isActive) continue;
       if (inc.frequency === 'one-time') {
-        if (inMonth(inc.date, mk)) t += Number(inc.amount);
+        if (inCycle(inc.date, cr)) t += Number(inc.amount);
       } else t += toMonthly(inc.amount, inc.frequency);
     }
     setTotalInc(t);
@@ -2459,7 +2511,8 @@ function SavingsTab({
 // ══ CARDS TAB ══
 function CardsTab({
   sym,
-  currentMonth
+  currentMonth,
+  payday
 }) {
   const [cards, setCards] = useState([]);
   const [insts, setInsts] = useState([]);
@@ -2471,12 +2524,13 @@ function CardsTab({
   const [toast, showToast] = useToast();
   const mk = mkKey(currentMonth);
   const load = useCallback(async () => {
-    const [c, i, e, r] = await Promise.all([db.cards.toArray(), db.installments.toArray(), db.expenses.where('date').startsWith(mk).toArray(), db.recurring.toArray()]);
+    const cr = cycleRange(currentMonth, payday);
+    const [c, i, e, r] = await Promise.all([db.cards.toArray(), db.installments.toArray(), db.expenses.where('date').between(cr.startISO, cr.endISO, true, false).toArray(), db.recurring.toArray()]);
     setCards(c);
     setInsts(i);
     setExps(e);
     setRecs(r);
-  }, [mk]);
+  }, [mk, payday]);
   useEffect(() => {
     load();
   }, [load]);
@@ -2751,7 +2805,11 @@ function SettingsModal({
   lang,
   onLangChange,
   darkMode,
-  onDarkChange
+  onDarkChange,
+  payday,
+  onPaydayChange,
+  cycleLabel,
+  onCycleLabelChange
 }) {
   const [curr, setCurr] = useState(currCode);
   const doExportJSON = async () => {
@@ -2871,6 +2929,31 @@ function SettingsModal({
     style: {
       marginBottom: 10
     }
+  }, t('payCycleTitle')), /*#__PURE__*/React.createElement("div", {
+    className: "frow"
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: t('paydayLabel')
+  }, /*#__PURE__*/React.createElement(Sel, {
+    value: String(payday),
+    onChange: e => onPaydayChange(e.target.value),
+    options: Array.from({ length: 31 }, (_, i) => ({ value: String(i + 1), label: String(i + 1) }))
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: t('cycleLabelLabel')
+  }, /*#__PURE__*/React.createElement(Sel, {
+    value: cycleLabel,
+    onChange: e => onCycleLabelChange(e.target.value),
+    options: [{ value: 'end', label: t('cycleLabelEnd') }, { value: 'start', label: t('cycleLabelStart') }]
+  }))), /*#__PURE__*/React.createElement("p", {
+    className: "fhint"
+  }, t('paydayHint'))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 22
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "ctitle",
+    style: {
+      marginBottom: 10
+    }
   }, t('backupRestore')), /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
@@ -2970,6 +3053,8 @@ function App() {
   const [ready, setReady] = useState(false);
   const [lang, setLang] = useState('en');
   const [darkMode, setDarkMode] = useState(false);
+  const [payday, setPayday] = useState(PAYDAY);
+  const [cycleLabel, setCycleLabel] = useState(CYCLE_LABEL);
   const [toast, showToast] = useToast();
   useEffect(() => {
     Promise.all([
@@ -2992,9 +3077,31 @@ function App() {
           setDarkMode(true);
           document.documentElement.classList.add('dark');
         }
+      }),
+      db.settings.get('payday').then(r => {
+        if (r?.value) { PAYDAY = Number(r.value); setPayday(Number(r.value)); }
+      }),
+      db.settings.get('cycleLabel').then(r => {
+        if (r?.value) { CYCLE_LABEL = r.value; setCycleLabel(r.value); }
       })
-    ]).catch(() => {}).finally(() => setReady(true));
+    ]).catch(() => {}).finally(() => {
+      setMonth(cycleAnchor(new Date()));
+      setReady(true);
+    });
   }, []);
+  const updatePayday = async v => {
+    const n = Math.min(31, Math.max(1, Number(v) || 28));
+    PAYDAY = n;
+    await db.settings.put({ key: 'payday', value: n });
+    setPayday(n);
+    setMonth(cycleAnchor(new Date(), n, CYCLE_LABEL));
+  };
+  const updateCycleLabel = async v => {
+    CYCLE_LABEL = v;
+    await db.settings.put({ key: 'cycleLabel', value: v });
+    setCycleLabel(v);
+    setMonth(cycleAnchor(new Date(), PAYDAY, v));
+  };
   const updateLang = async l => {
     await db.settings.put({ key: 'language', value: l });
     currentLang = l;
@@ -3018,7 +3125,7 @@ function App() {
   };
   const prevM = () => setMonth(m => addMonths(m, -1));
   const nextM = () => setMonth(m => addMonths(m, 1));
-  const isCur = mkKey(month) === mkKey(new Date());
+  const isCur = mkKey(month) === mkKey(cycleAnchor(new Date(), payday, cycleLabel));
   const tabs = [{
     id: 'dashboard',
     label: t('home'),
@@ -3083,9 +3190,11 @@ function App() {
     onClick: prevM
   }, "‹"), /*#__PURE__*/React.createElement("div", {
     className: "mlbl"
-  }, /*#__PURE__*/React.createElement("div", null, mkLabel(month)), !isCur && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", null, mkLabel(month)), /*#__PURE__*/React.createElement("div", {
+    style: { fontSize: 10, color: 'var(--t3)', fontWeight: 600, marginTop: 1 }
+  }, cycleRangeLabel(month, payday, cycleLabel)), !isCur && /*#__PURE__*/React.createElement("div", {
     className: "mtoday",
-    onClick: () => setMonth(new Date())
+    onClick: () => setMonth(cycleAnchor(new Date(), payday, cycleLabel))
   }, t('today'))), /*#__PURE__*/React.createElement("button", {
     className: "mbtn",
     onClick: nextM
@@ -3093,19 +3202,24 @@ function App() {
     className: "main"
   }, tab === 'dashboard' && /*#__PURE__*/React.createElement(Dashboard, {
     sym: settings.sym,
-    currentMonth: month
+    currentMonth: month,
+    payday: payday
   }), tab === 'expenses' && /*#__PURE__*/React.createElement(ExpensesTab, {
     sym: settings.sym,
-    currentMonth: month
+    currentMonth: month,
+    payday: payday
   }), tab === 'income' && /*#__PURE__*/React.createElement(IncomeTab, {
     sym: settings.sym,
-    currentMonth: month
+    currentMonth: month,
+    payday: payday
   }), tab === 'savings' && /*#__PURE__*/React.createElement(SavingsTab, {
     sym: settings.sym,
-    currentMonth: month
+    currentMonth: month,
+    payday: payday
   }), tab === 'cards' && /*#__PURE__*/React.createElement(CardsTab, {
     sym: settings.sym,
-    currentMonth: month
+    currentMonth: month,
+    payday: payday
   })), /*#__PURE__*/React.createElement("nav", {
     className: "bnav"
   }, tabs.map(tb => /*#__PURE__*/React.createElement("button", {
@@ -3123,7 +3237,11 @@ function App() {
     lang: lang,
     onLangChange: updateLang,
     darkMode: darkMode,
-    onDarkChange: updateDark
+    onDarkChange: updateDark,
+    payday: payday,
+    onPaydayChange: updatePayday,
+    cycleLabel: cycleLabel,
+    onCycleLabelChange: updateCycleLabel
   }));
 }
 

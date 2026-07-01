@@ -2,7 +2,7 @@
 // Pre-caches the app shell AND the CDN libraries on install so the app
 // works fully offline after the first successful load, even after the
 // browser is closed or the phone is restarted.
-const C = 'cf-v3';
+const C = 'cf-v4';
 const ASSETS = [
   './',
   './index.html',
