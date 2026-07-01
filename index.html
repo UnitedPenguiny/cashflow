@@ -410,7 +410,7 @@ const LANGS = {
     installmentsLabel: '📦 Installments', noActiveInst: 'No active installments',
     thisMonthCharges: "📋 This Month's Charges",
     fixedDueDay: 'Fixed · due day',
-    addCard: 'Add Card', editCard: 'Edit Card', addInstallment: 'Add Installment',
+    addCard: 'Add Card', editCard: 'Edit Card', addInstallment: 'Add Installment', editInstallment: 'Edit Installment',
     deleteCardConfirm: 'Delete "', deleteCardConfirm2: '"? This will also remove all installments on this card.',
     paidOff: '✅ Paid off!', done: '✓ Done',
     // Forms
@@ -520,7 +520,7 @@ const LANGS = {
     installmentsLabel: '📦 ผ่อนชำระ', noActiveInst: 'ไม่มีรายการผ่อนชำระ',
     thisMonthCharges: '📋 รายการเดือนนี้',
     fixedDueDay: 'ประจำ · ครบกำหนดวันที่',
-    addCard: 'เพิ่มบัตร', editCard: 'แก้ไขบัตร', addInstallment: 'เพิ่มรายการผ่อนชำระ',
+    addCard: 'เพิ่มบัตร', editCard: 'แก้ไขบัตร', addInstallment: 'เพิ่มรายการผ่อนชำระ', editInstallment: 'แก้ไขรายการผ่อนชำระ',
     deleteCardConfirm: 'ลบ "', deleteCardConfirm2: '"? รายการผ่อนชำระทั้งหมดบนบัตรนี้จะถูกลบด้วย',
     paidOff: '✅ ชำระครบแล้ว!', done: '✓ เสร็จ',
     name: 'ชื่อ', amount: 'จำนวนเงิน', date: 'วันที่', category: 'หมวดหมู่',
@@ -1920,6 +1920,16 @@ function ExpensesTab({
     load();
     showToast(f.id ? t('updated') : t('installmentAdded'));
   };
+  const delInst = async id => {
+    await db.installments.delete(id);
+    load();
+    showToast(t('removed'));
+  };
+  const markInstDone = async id => {
+    await db.installments.update(id, { isComplete: true });
+    load();
+    showToast(t('paidOff'));
+  };
   const saveRec = async f => {
     if (f.id) await db.recurring.update(f.id, f);else await db.recurring.add(f);
     setModal(null);
@@ -1999,9 +2009,39 @@ function ExpensesTab({
       className: "lname"
     }, inst.name), /*#__PURE__*/React.createElement("div", {
       className: "lsub"
-    }, card ? card.name + ' ••••' + card.lastFour : '', " · ", (instMonthsLeft(inst, currentMonth) ?? inst.monthsRemaining), " ", t('monthsLeft'), " · ", fmt(inst.totalAmount, sym), " ", t('total'))), /*#__PURE__*/React.createElement("span", {
+    }, card ? card.name + ' ••••' + card.lastFour : '', " · ", (instMonthsLeft(inst, currentMonth) ?? inst.monthsRemaining), " ", t('monthsLeft'), " · ", fmt(inst.totalAmount, sym), " ", t('total'))), /*#__PURE__*/React.createElement("div", {
+      className: "fb g8",
+      style: { flexShrink: 0 }
+    }, /*#__PURE__*/React.createElement("span", {
       className: "lamt exp"
-    }, "−", fmt(inst.monthlyPayment, sym), "/mo"));
+    }, "−", fmt(inst.monthlyPayment, sym), "/mo"), /*#__PURE__*/React.createElement("button", {
+      onClick: () => markInstDone(inst.id),
+      title: t('done'),
+      style: {
+        background: 'var(--sl)',
+        border: 'none',
+        color: 'var(--success)',
+        borderRadius: 6,
+        padding: '3px 7px',
+        cursor: 'pointer',
+        fontSize: 11,
+        fontWeight: 700,
+        touchAction: 'manipulation'
+      }
+    }, t('done')), /*#__PURE__*/React.createElement("button", {
+      onClick: () => delInst(inst.id),
+      style: {
+        background: 'var(--dl)',
+        border: 'none',
+        color: 'var(--danger)',
+        cursor: 'pointer',
+        fontSize: 13,
+        padding: '5px 8px',
+        borderRadius: 'var(--rsm)',
+        fontWeight: 700,
+        touchAction: 'manipulation'
+      }
+    }, "✕")));
   }))), (() => {
   if (sub !== 'variable') return null;
   const filtered = varExps.filter(e => {
@@ -2189,7 +2229,7 @@ function ExpensesTab({
     className: "fab",
     onClick: () => setModal(sub === 'fixed' ? 'addFixed' : sub === 'installments' ? 'addInst' : 'addVar')
   }, "+"), (modal === 'addInst' || modal?.type === 'editInst') && (cards.length > 0 ? /*#__PURE__*/React.createElement(Modal, {
-    title: t('addInstallment'),
+    title: modal?.type ? t('editInstallment') : t('addInstallment'),
     onClose: () => setModal(null)
   }, /*#__PURE__*/React.createElement(InstallForm, {
     onSave: saveInst,
@@ -2630,7 +2670,10 @@ function CardsTab({
     showToast(f.id ? t('updated') : t('cardAdded'));
   };
   const delCard = async id => {
-    await db.cards.delete(id);
+    await db.transaction('rw', db.cards, db.installments, async () => {
+      await db.installments.where('cardId').equals(id).delete();
+      await db.cards.delete(id);
+    });
     load();
     showToast(t('cardRemoved'));
   };
@@ -2904,14 +2947,16 @@ function SettingsModal({
   const [curr, setCurr] = useState(currCode);
   const doExportJSON = async () => {
     const data = {
-      version: 1,
+      version: 2,
       exported: new Date().toISOString(),
       expenses: await db.expenses.toArray(),
       recurring: await db.recurring.toArray(),
       income: await db.income.toArray(),
       savings: await db.savings.toArray(),
       cards: await db.cards.toArray(),
-      installments: await db.installments.toArray()
+      installments: await db.installments.toArray(),
+      budgets: await db.budgets.toArray(),
+      settings: await db.settings.toArray()
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: 'application/json'
@@ -2924,8 +2969,8 @@ function SettingsModal({
     showToast(t('jsonExported'));
   };
   const doExportCSV = async () => {
-    const [e, r, inc] = await Promise.all([db.expenses.toArray(), db.recurring.toArray(), db.income.toArray()]);
-    const rows = [['Type', 'Name', 'Amount', 'Date / Frequency', 'Category', 'Notes', 'CardId'], ...e.map(x => ['variable_expense', x.name, x.amount, x.date, x.category, x.notes || '', x.cardId || '']), ...r.map(x => ['fixed_expense', x.name, x.amount, `monthly-day${x.dueDay}`, x.category, '', x.cardId || '']), ...inc.map(x => ['income', x.name, x.amount, x.frequency, x.category, '', ''])];
+    const [e, r, inc, inst, sav] = await Promise.all([db.expenses.toArray(), db.recurring.toArray(), db.income.toArray(), db.installments.toArray(), db.savings.toArray()]);
+    const rows = [['Type', 'Name', 'Amount', 'Date / Frequency', 'Category', 'Notes', 'CardId'], ...e.map(x => ['variable_expense', x.name, x.amount, x.date, x.category, x.notes || '', x.cardId || '']), ...r.map(x => ['fixed_expense', x.name, x.amount, `monthly-day${x.dueDay}`, x.category, '', x.cardId || '']), ...inc.map(x => ['income', x.name, x.amount, x.frequency, x.category, '', '']), ...inst.map(x => ['installment', x.name, x.monthlyPayment, `${x.monthsRemaining} months (total ${x.totalAmount})`, 'installments', x.isComplete ? 'complete' : '', x.cardId || '']), ...sav.map(x => ['savings_goal', x.name, x.currentAmount, `target ${x.targetAmount}`, 'savings', '', ''])];
     const csv = rows.map(r => r.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(',')).join('\n');
     const blob = new Blob([csv], {
       type: 'text/csv'
@@ -2949,7 +2994,7 @@ function SettingsModal({
         const data = JSON.parse(text);
         if (!data.version || !data.expenses) throw new Error('Invalid file');
         if (!confirm(t('importConfirm1') + (data.exported?.split('T')[0] || 'unknown date') + t('importConfirm2'))) return;
-        await db.transaction('rw', [db.expenses, db.recurring, db.income, db.savings, db.cards, db.installments], async () => {
+        await db.transaction('rw', [db.expenses, db.recurring, db.income, db.savings, db.cards, db.installments, db.budgets, db.settings], async () => {
           await db.expenses.clear();
           if (data.expenses?.length) await db.expenses.bulkAdd(data.expenses);
           await db.recurring.clear();
@@ -2962,6 +3007,9 @@ function SettingsModal({
           if (data.cards?.length) await db.cards.bulkAdd(data.cards);
           await db.installments.clear();
           if (data.installments?.length) await db.installments.bulkAdd(data.installments);
+          await db.budgets.clear();
+          if (data.budgets?.length) await db.budgets.bulkAdd(data.budgets);
+          if (data.settings?.length) await db.settings.bulkPut(data.settings);
         });
         showToast(t('dataRestored'));
         onClose();
@@ -2974,7 +3022,7 @@ function SettingsModal({
   };
   const doClear = async () => {
     if (!confirm(t('clearConfirm'))) return;
-    await Promise.all([db.expenses.clear(), db.recurring.clear(), db.income.clear(), db.savings.clear(), db.cards.clear(), db.installments.clear()]);
+    await Promise.all([db.expenses.clear(), db.recurring.clear(), db.income.clear(), db.savings.clear(), db.cards.clear(), db.installments.clear(), db.budgets.clear()]);
     showToast(t('dataCleared'));
     onClose();
     setTimeout(() => location.reload(), 400);
