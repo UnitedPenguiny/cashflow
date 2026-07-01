@@ -643,6 +643,7 @@ const cycleAnchor = (date, payday = PAYDAY, label = CYCLE_LABEL) => {
   return new Date(y, m + off, 1);
 };
 const inCycle = (ds, range) => !!ds && ds >= range.startISO && ds < range.endISO;
+const DAY = 86400000;
 // ── Installment auto-countdown ──
 // `monthsRemaining` is the payments left as of `startDate`. Each month since then one
 // payment is made, so the effective payments still left = monthsRemaining − months elapsed.
