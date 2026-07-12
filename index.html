@@ -26,13 +26,37 @@
   --border:#313047;--danger:#ff7c91;--dl:#401f2a;--success:#45d0a2;--sl:#173c35;
   --s1:0 1px 3px rgba(0,0,0,.3);--s2:0 4px 16px rgba(0,0,0,.4);--s3:0 8px 28px rgba(0,0,0,.5)
 }
+html.theme-ocean{
+  --p:#1687c9;--pd:#0869a4;--pl:#e2f4ff;
+  --bg:#f2f9fd;--card:rgba(255,255,255,.95);--t1:#102535;--t2:#587080;--t3:#8ca0ad;
+  --border:#dcecf4;--danger:#e65570;--dl:#fff0f3;--success:#129573;--sl:#e2f7f0;
+  --s1:0 2px 10px rgba(20,91,128,.06);--s2:0 12px 34px rgba(20,91,128,.12);--s3:0 18px 42px rgba(22,135,201,.25)
+}
+html.theme-forest{
+  --p:#178a63;--pd:#0e6c4d;--pl:#e2f7ee;
+  --bg:#f3f9f6;--card:rgba(255,255,255,.95);--t1:#142820;--t2:#5d7169;--t3:#90a29a;
+  --border:#deebe5;--danger:#e15c6f;--dl:#fff0f2;--success:#178a63;--sl:#e2f7ee;
+  --s1:0 2px 10px rgba(25,91,67,.055);--s2:0 12px 34px rgba(25,91,67,.12);--s3:0 18px 42px rgba(23,138,99,.24)
+}
+html.theme-rose{
+  --p:#d65386;--pd:#b6386b;--pl:#fde8f1;
+  --bg:#fff6fa;--card:rgba(255,255,255,.95);--t1:#321725;--t2:#7a5d6a;--t3:#aa909c;
+  --border:#f1dfe7;--danger:#df4e68;--dl:#fff0f3;--success:#179879;--sl:#e5f8f2;
+  --s1:0 2px 10px rgba(117,45,76,.055);--s2:0 12px 34px rgba(117,45,76,.12);--s3:0 18px 42px rgba(214,83,134,.24)
+}
+html.theme-sunset{
+  --p:#e26b3f;--pd:#bf4c24;--pl:#ffebe3;
+  --bg:#fff7f2;--card:rgba(255,255,255,.95);--t1:#342016;--t2:#7b675e;--t3:#ad968b;
+  --border:#f1e2da;--danger:#dc5368;--dl:#fff0f3;--success:#178e70;--sl:#e5f7f1;
+  --s1:0 2px 10px rgba(124,70,43,.055);--s2:0 12px 34px rgba(124,70,43,.12);--s3:0 18px 42px rgba(226,107,63,.25)
+}
 html{background:var(--card)}
 html,body{height:100%;height:100vh;overflow:hidden}
 body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:radial-gradient(circle at 50% -20%,#e9e6ff 0,transparent 42%),var(--bg);color:var(--t1);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 #root{display:flex;flex-direction:column;height:100%;height:100vh;max-width:460px;margin:0 auto;background:linear-gradient(180deg,rgba(255,255,255,.28),transparent 230px),var(--bg);position:relative;overflow:hidden;box-shadow:0 0 70px rgba(34,31,73,.08)}
 .hdr{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:460px;height:calc(var(--hdr) + var(--st));padding-top:var(--st);background:color-mix(in srgb,var(--card) 86%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid color-mix(in srgb,var(--border) 75%,transparent);display:flex;align-items:center;justify-content:space-between;padding-left:18px;padding-right:14px;z-index:110}
 .hdr-logo{display:flex;align-items:center;gap:8px}
-.hdr-icon{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,#776dfb,#4c43d7);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 7px 16px rgba(97,87,245,.28)}
+.hdr-icon{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,color-mix(in srgb,var(--p) 82%,#fff),var(--pd));color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 7px 16px color-mix(in srgb,var(--p) 28%,transparent)}
 .hdr-title{font-size:19px;font-weight:800;letter-spacing:-.55px}
 .hdr-right{display:flex;gap:8px}
 .ibtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--t2);display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;box-shadow:var(--s1)}
@@ -54,7 +78,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif
 .nemo{width:22px;height:22px;display:flex;align-items:center;justify-content:center;position:relative}
 .nemo::before{content:'';position:absolute;inset:-5px -9px;border-radius:11px;background:transparent;z-index:-1;transition:background .2s}
 .nitem.active .nemo::before{background:var(--pl)}
-.fab{position:absolute;bottom:calc(var(--nav) + var(--sbe) + 22px);right:18px;width:56px;height:56px;border-radius:18px;border:none;background:linear-gradient(145deg,#776dfb,#4b42d5);color:#fff;box-shadow:var(--s3);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:108;touch-action:manipulation;transition:transform .2s}
+.fab{position:absolute;bottom:calc(var(--nav) + var(--sbe) + 22px);right:18px;width:56px;height:56px;border-radius:18px;border:none;background:linear-gradient(145deg,color-mix(in srgb,var(--p) 82%,#fff),var(--pd));color:#fff;box-shadow:var(--s3);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:108;touch-action:manipulation;transition:transform .2s}
 .fab:active{transform:scale(.9)}
 .sec{padding:12px 12px 0}
 .card{background:var(--card);border-radius:var(--rlg);border:1px solid color-mix(in srgb,var(--border) 88%,transparent);box-shadow:var(--s1);overflow:hidden}
@@ -142,10 +166,26 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif
 .cdots{display:flex;gap:8px;flex-wrap:wrap}
 .cdot{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:border-color .15s;touch-action:manipulation}
 .cdot.sel{border-color:var(--t1)}
+.theme-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.theme-opt{position:relative;min-width:0;padding:7px;border:1.5px solid var(--border);border-radius:var(--rmd);background:var(--card);color:var(--t2);cursor:pointer;font-family:inherit;text-align:left;transition:border-color .18s,box-shadow .18s,transform .18s;touch-action:manipulation}
+.theme-opt:active{transform:scale(.97)}
+.theme-opt.active{border-color:var(--p);box-shadow:0 0 0 3px color-mix(in srgb,var(--p) 12%,transparent)}
+.theme-preview{height:52px;border-radius:10px;background:var(--theme-bg);border:1px solid color-mix(in srgb,var(--theme-primary) 16%,transparent);position:relative;overflow:hidden}
+.theme-preview::before{content:'';position:absolute;left:8px;top:8px;width:20px;height:20px;border-radius:7px;background:var(--theme-primary);box-shadow:0 5px 10px color-mix(in srgb,var(--theme-primary) 25%,transparent)}
+.theme-preview::after{content:'';position:absolute;left:8px;right:8px;bottom:7px;height:13px;border-radius:6px;background:var(--theme-card);box-shadow:0 2px 7px rgba(30,35,50,.09)}
+.theme-name{display:block;font-size:11px;font-weight:700;margin:7px 2px 1px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-opt.active .theme-name{color:var(--p)}
+.theme-check{position:absolute;right:11px;top:11px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--theme-primary);color:#fff;box-shadow:0 3px 8px color-mix(in srgb,var(--theme-primary) 32%,transparent)}
+.settings-btn{line-height:0}
+.settings-btn .icon{transform:translate(0,0)}
 .fb{display:flex;align-items:center}
 .fbet{display:flex;justify-content:space-between;align-items:center}
 .g8{gap:8px}.mt8{margin-top:8px}.mt10{margin-top:10px}.mt12{margin-top:12px}.mt14{margin-top:14px}.mb10{margin-bottom:10px}
 .dark body{background:radial-gradient(circle at 50% -20%,#292451 0,transparent 42%),var(--bg)}
+html.theme-ocean body{background:radial-gradient(circle at 50% -20%,#d8f1ff 0,transparent 42%),var(--bg)}
+html.theme-forest body{background:radial-gradient(circle at 50% -20%,#dcf4e8 0,transparent 42%),var(--bg)}
+html.theme-rose body{background:radial-gradient(circle at 50% -20%,#fde3ee 0,transparent 42%),var(--bg)}
+html.theme-sunset body{background:radial-gradient(circle at 50% -20%,#ffe5d8 0,transparent 42%),var(--bg)}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--p) 28%,transparent);outline-offset:2px}
 @media (hover:hover){.card{transition:transform .2s ease,box-shadow .2s ease}.ibtn:hover,.mbtn:hover{color:var(--p);border-color:color-mix(in srgb,var(--p) 35%,var(--border))}.copt:hover{background:color-mix(in srgb,var(--pl) 55%,transparent)}.btn:hover{filter:brightness(1.03)}}
 @media (min-width:700px){.overlay{align-items:center;padding:24px}.sheet{border-radius:var(--rxl);max-height:min(86dvh,760px);border-bottom:1px solid var(--border)}.shandle{display:none}}
@@ -222,7 +262,7 @@ const ICON_PATHS = {
   bulb: ['M9 18h6M10 22h4', 'M8 15a7 7 0 1 1 8 0c-1 1-1 2-1 3H9c0-1 0-2-1-3Z'],
   tag: ['M20 13 13 20 3 10V3h7l10 10Z', 'M7.5 7.5h.01'],
   dashboard: ['M4 4h6v7H4zM14 4h6v4h-6zM14 12h6v8h-6zM4 15h6v5H4z'],
-  settings: ['M10 2h4l.6 3a8 8 0 0 1 1.4.8l2.9-1 2 3.4-2.3 2a8 8 0 0 1 0 1.6l2.3 2-2 3.4-2.9-1a8 8 0 0 1-1.4.8L14 22h-4l-.6-3a8 8 0 0 1-1.4-.8l-2.9 1-2-3.4 2.3-2a8 8 0 0 1 0-1.6l-2.3-2 2-3.4 2.9 1a8 8 0 0 1 1.4-.8L10 2Z', 'M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z'],
+  settings: ['M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.38a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2Z', 'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z'],
   search: ['M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35'],
   calendar: ['M4 5h16v16H4zM8 2v6M16 2v6M4 10h16'],
   edit: ['M4 20h4L20 8l-4-4L4 16v4ZM14 6l4 4'],
@@ -431,6 +471,26 @@ const CURRS = [{
   sym: '฿'
 }];
 const CCOLORS = [['#776dfb', '#4b43d5'], ['#34bdd2', '#16869b'], ['#35bd91', '#168264'], ['#f2778a', '#c74460'], ['#a479f5', '#7148c9'], ['#ee74ad', '#bd4079'], ['#f2ad58', '#c87a24'], ['#35334b', '#1c1b2b']];
+const THEMES = [
+  { id: 'default', labelKey: 'themeDefault', className: '', dark: false, primary: '#6157f5', bg: '#f6f7fb', card: '#ffffff' },
+  { id: 'midnight', labelKey: 'themeMidnight', className: '', dark: true, primary: '#9b94ff', bg: '#11111b', card: '#1d1c2d' },
+  { id: 'ocean', labelKey: 'themeOcean', className: 'theme-ocean', dark: false, primary: '#1687c9', bg: '#f2f9fd', card: '#ffffff' },
+  { id: 'forest', labelKey: 'themeForest', className: 'theme-forest', dark: false, primary: '#178a63', bg: '#f3f9f6', card: '#ffffff' },
+  { id: 'rose', labelKey: 'themeRose', className: 'theme-rose', dark: false, primary: '#d65386', bg: '#fff6fa', card: '#ffffff' },
+  { id: 'sunset', labelKey: 'themeSunset', className: 'theme-sunset', dark: false, primary: '#e26b3f', bg: '#fff7f2', card: '#ffffff' }
+];
+const THEME_CLASSES = THEMES.map(x => x.className).filter(Boolean);
+const getTheme = id => THEMES.find(x => x.id === id) || THEMES[0];
+const applyTheme = id => {
+  const selected = getTheme(id);
+  document.documentElement.classList.remove('dark', ...THEME_CLASSES);
+  if (selected.className) document.documentElement.classList.add(selected.className);
+  if (selected.dark) document.documentElement.classList.add('dark');
+  document.documentElement.dataset.theme = selected.id;
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', selected.primary);
+  return selected.id;
+};
 
 // i18n
 let currentLang = 'en';
@@ -530,7 +590,7 @@ const LANGS = {
     // Chart
     incomeChart: 'Income', expensesChart: 'Expenses',
     // Dark Mode
-    darkMode: 'Dark Mode',
+    darkMode: 'Dark Mode', theme: 'Theme', themeDefault: 'Violet', themeMidnight: 'Midnight', themeOcean: 'Ocean', themeForest: 'Forest', themeRose: 'Rose', themeSunset: 'Sunset',
     // Pay cycle
     payCycleTitle: 'Pay Cycle', paydayLabel: 'Salary day',
     paydayHint: 'Each budget month starts on this day (moves earlier to Friday if it lands on a weekend).',
@@ -633,7 +693,7 @@ const LANGS = {
     jsonExported: 'ส่งออก JSON สำรองแล้ว', csvExported: 'ส่งออก CSV แล้ว',
     dataRestored: 'กู้คืนข้อมูลแล้ว!', dataCleared: 'ลบข้อมูลทั้งหมดแล้ว',
     incomeChart: 'รายรับ', expensesChart: 'รายจ่าย',
-    darkMode: 'โหมดมืด',
+    darkMode: 'โหมดมืด', theme: 'ธีม', themeDefault: 'ไวโอเล็ต', themeMidnight: 'มิดไนท์', themeOcean: 'โอเชียน', themeForest: 'ฟอเรสต์', themeRose: 'โรส', themeSunset: 'ซันเซ็ต',
     payCycleTitle: 'รอบเงินเดือน', paydayLabel: 'วันรับเงินเดือน',
     paydayHint: 'แต่ละรอบเริ่มนับจากวันนี้ (ถ้าตรงกับวันเสาร์-อาทิตย์จะเลื่อนมาเป็นวันศุกร์)',
     cycleLabelLabel: 'ตั้งชื่อรอบตาม', cycleLabelEnd: 'เดือนที่รอบสิ้นสุด', cycleLabelStart: 'เดือนที่รอบเริ่ม',
@@ -3143,8 +3203,8 @@ function SettingsModal({
   showToast,
   lang,
   onLangChange,
-  darkMode,
-  onDarkChange,
+  theme,
+  onThemeChange,
   payday,
   onPaydayChange,
   cycleLabel,
@@ -3244,14 +3304,25 @@ function SettingsModal({
     options: [{value:'en',label:'English'},{value:'th',label:'ไทย'}]
   })), /*#__PURE__*/React.createElement("div", {
     className: "fg"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "fbet"
   }, /*#__PURE__*/React.createElement("label", {
-    className: "flbl", style: { marginBottom: 0 }
-  }, t('darkMode')), /*#__PURE__*/React.createElement(Toggle, {
-    checked: darkMode,
-    onChange: () => onDarkChange(!darkMode)
-  }))), /*#__PURE__*/React.createElement(Field, {
+    className: "flbl"
+  }, t('theme')), /*#__PURE__*/React.createElement("div", {
+    className: "theme-grid"
+  }, THEMES.map(th => /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    key: th.id,
+    className: `theme-opt${theme === th.id ? ' active' : ''}`,
+    onClick: () => onThemeChange(th.id),
+    'aria-pressed': theme === th.id,
+    title: t(th.labelKey)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "theme-preview",
+    style: { '--theme-primary': th.primary, '--theme-bg': th.bg, '--theme-card': th.card }
+  }), theme === th.id && /*#__PURE__*/React.createElement("span", {
+    className: "theme-check"
+  }, /*#__PURE__*/React.createElement(Icon, { name: "check", size: 12, strokeWidth: 2.4 })), /*#__PURE__*/React.createElement("span", {
+    className: "theme-name"
+  }, t(th.labelKey)))))), /*#__PURE__*/React.createElement(Field, {
     label: t('currency')
   }, /*#__PURE__*/React.createElement(Sel, {
     value: curr,
@@ -3391,7 +3462,7 @@ function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [ready, setReady] = useState(false);
   const [lang, setLang] = useState('en');
-  const [darkMode, setDarkMode] = useState(false);
+  const [theme, setTheme] = useState('default');
   const [payday, setPayday] = useState(PAYDAY);
   const [cycleLabel, setCycleLabel] = useState(CYCLE_LABEL);
   const [toast, showToast] = useToast();
@@ -3411,11 +3482,10 @@ function App() {
           setLang(r.value);
         }
       }),
-      db.settings.get('darkMode').then(r => {
-        if (r?.value) {
-          setDarkMode(true);
-          document.documentElement.classList.add('dark');
-        }
+      Promise.all([db.settings.get('theme'), db.settings.get('darkMode')]).then(([themeSetting, legacyDark]) => {
+        const savedTheme = themeSetting?.value || (legacyDark?.value ? 'midnight' : 'default');
+        const applied = applyTheme(savedTheme);
+        setTheme(applied);
       }),
       db.settings.get('payday').then(r => {
         if (r?.value) { PAYDAY = Number(r.value); setPayday(Number(r.value)); }
@@ -3449,11 +3519,12 @@ function App() {
     currentLang = l;
     setLang(l);
   };
-  const updateDark = async v => {
-    await db.settings.put({ key: 'darkMode', value: v });
-    setDarkMode(v);
-    if (v) document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
+  const updateTheme = async id => {
+    const applied = applyTheme(id);
+    await db.settings.put({ key: 'theme', value: applied });
+    // Keep the legacy flag in sync so older backups/app versions still open in a sensible mode.
+    await db.settings.put({ key: 'darkMode', value: getTheme(applied).dark });
+    setTheme(applied);
   };
   const updateCurr = async c => {
     await db.settings.put({
@@ -3520,7 +3591,7 @@ function App() {
   }, "Cashflow")), /*#__PURE__*/React.createElement("div", {
     className: "hdr-right"
   }, /*#__PURE__*/React.createElement("button", {
-    className: "ibtn",
+    className: "ibtn settings-btn",
     onClick: () => setShowSettings(true),
     title: t('settings')
   }, /*#__PURE__*/React.createElement(Icon, { name: "settings", size: 19 })))), /*#__PURE__*/React.createElement("div", {
@@ -3576,8 +3647,8 @@ function App() {
     showToast: showToast,
     lang: lang,
     onLangChange: updateLang,
-    darkMode: darkMode,
-    onDarkChange: updateDark,
+    theme: theme,
+    onThemeChange: updateTheme,
     payday: payday,
     onPaydayChange: updatePayday,
     cycleLabel: cycleLabel,
