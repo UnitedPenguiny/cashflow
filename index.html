@@ -275,6 +275,8 @@ const CATS = [{
   bg: '#fae8ff',
   tc: '#86198f'
 }];
+let CUSTOM_CATS = [];
+const expenseCats = () => [...CATS, ...CUSTOM_CATS];
 const ICATS = [{
   id: 'salary',
   label: 'Salary',
@@ -585,6 +587,8 @@ const LANGS = {
 };
 const t = key => (LANGS[currentLang] || LANGS.en)[key] || LANGS.en[key] || key;
 const getCatLabel = id => {
+  const custom = CUSTOM_CATS.find(c => c.id === id);
+  if (custom) return custom.label;
   const map = {housing:'catHousing',food:'catFood',transport:'catTransport',health:'catHealth',entertainment:'catFun',shopping:'catShopping',bills:'catBills',insurance:'catInsurance',savings:'catSavings',other:'catOther',installments:'catInstallments'};
   return t(map[id] || 'catOther');
 };
@@ -598,7 +602,7 @@ const getFreqLabel = val => {
 };
 
 // Utils
-const getCat = id => CATS.find(c => c.id === id) || CATS.find(c => c.id === 'other');
+const getCat = id => expenseCats().find(c => c.id === id) || CATS.find(c => c.id === 'other');
 const getICat = id => ICATS.find(c => c.id === id) || ICATS[ICATS.length - 1];
 const fmt = (n, sym = '$') => sym + Math.abs(Number(n) || 0).toLocaleString(currentLang === 'th' ? 'th-TH' : 'en-US', {
   minimumFractionDigits: 2,
@@ -804,12 +808,12 @@ const Txa = p => /*#__PURE__*/React.createElement("textarea", {
 function CatPicker({
   value,
   onChange,
-  cats = CATS,
+  cats = null,
   labelFn
 }) {
   return /*#__PURE__*/React.createElement("div", {
     className: "catg"
-  }, cats.map(c => /*#__PURE__*/React.createElement("button", {
+  }, (cats || expenseCats()).map(c => /*#__PURE__*/React.createElement("button", {
     key: c.id,
     type: "button",
     className: `copt${value === c.id ? ' sel' : ''}`,
@@ -1891,6 +1895,8 @@ function ExpensesTab({
   const [toast, showToast] = useToast();
   const [search, setSearch] = useState('');
   const [catFilter, setCatFilter] = useState('');
+  const [day, setDay] = useState(todayStr());
+  const [customCat, setCustomCat] = useState({ label: '', emoji: '✨' });
   const mk = mkKey(currentMonth);
   const load = useCallback(async () => {
     const cr = cycleRange(currentMonth, payday);
@@ -1947,6 +1953,16 @@ function ExpensesTab({
     });
     load();
   };
+  const saveCustomCategory = async () => {
+    const label = customCat.label.trim();
+    if (!label) return;
+    const id = 'custom-' + Date.now();
+    CUSTOM_CATS = [...CUSTOM_CATS, { id, label, emoji: customCat.emoji.trim() || '✨', bg: '#ede9fe', tc: '#5b21b6' }];
+    await db.settings.put({ key: 'customCategories', value: CUSTOM_CATS });
+    setCustomCat({ label: '', emoji: '✨' });
+    setModal(null);
+    showToast('✅ Expense type added');
+  };
   const varTotal = varExps.reduce((s, e) => s + Number(e.amount), 0);
   const activeRecs = recs.filter(r => isActiveInMonth(r, currentMonth));
   const inactiveRecs = recs.filter(r => !isActiveInMonth(r, currentMonth));
@@ -1979,8 +1995,33 @@ function ExpensesTab({
       className: "fsel", style: { width: 'auto', minWidth: 100, height: 38, fontSize: 13 },
       value: catFilter, onChange: e => setCatFilter(e.target.value)
     }, /*#__PURE__*/React.createElement("option", { value: '' }, t('allCategories')),
-      CATS.map(c => /*#__PURE__*/React.createElement("option", { key: c.id, value: c.id }, c.emoji + ' ' + getCatLabel(c.id))))
-  )), sub === 'installments' && /*#__PURE__*/React.createElement("div", {
+      expenseCats().map(c => /*#__PURE__*/React.createElement("option", { key: c.id, value: c.id }, c.emoji + ' ' + getCatLabel(c.id)))),
+    /*#__PURE__*/React.createElement("button", { className: "btn", type: "button", onClick: () => setModal('addCategory'), style: { height: 38, padding: '0 12px', whiteSpace: 'nowrap' } }, "+ Type")
+  )), sub === 'variable' && /*#__PURE__*/React.createElement("div", { className: "sec" },
+    /*#__PURE__*/React.createElement("div", { className: "card cp" },
+      /*#__PURE__*/React.createElement("div", { className: "fb", style: { marginBottom: 10 } },
+        /*#__PURE__*/React.createElement("div", { className: "ctitle" }, "Daily summary"),
+        /*#__PURE__*/React.createElement("input", { className: "fi", type: "date", value: day, onChange: e => setDay(e.target.value), style: { width: 145, height: 36, fontSize: 12 } })
+      ), (() => {
+        const daily = varExps.filter(e => e.date === day);
+        const map = {}; daily.forEach(e => map[e.category] = (map[e.category] || 0) + Number(e.amount));
+        const rows = Object.entries(map).sort((a,b) => b[1] - a[1]);
+        const total = daily.reduce((s,e) => s + Number(e.amount), 0);
+        if (!daily.length) return /*#__PURE__*/React.createElement("div", { className: "empty", style: { padding: '16px 0' } },
+          /*#__PURE__*/React.createElement("div", { className: "eico" }, "📅"),
+          /*#__PURE__*/React.createElement("div", { className: "etxt" }, "No expenses on this day")
+        );
+        return /*#__PURE__*/React.createElement(React.Fragment, null,
+          /*#__PURE__*/React.createElement("div", { style: { textAlign: 'center', fontSize: 22, fontWeight: 800, marginBottom: 8 } }, fmt(total, sym)),
+          /*#__PURE__*/React.createElement(DonutChart, { labels: rows.map(([id]) => getCatLabel(id)), data: rows.map(([,amount]) => amount), colors: rows.map(([id]) => getCat(id).tc), sym: sym }),
+          /*#__PURE__*/React.createElement("div", { style: { marginTop: 8 } }, rows.map(([id, amount]) => /*#__PURE__*/React.createElement("div", { key: id, className: "fb", style: { padding: '6px 0', fontSize: 13 } },
+            /*#__PURE__*/React.createElement("span", null, getCat(id).emoji, ' ', getCatLabel(id)),
+            /*#__PURE__*/React.createElement("strong", null, fmt(amount, sym))
+          )))
+        );
+      })()
+    )
+  ), sub === 'installments' && /*#__PURE__*/React.createElement("div", {
     className: "sec",
     style: { paddingBottom: 14 }
   }, insts.length === 0 ? /*#__PURE__*/React.createElement("div", {
@@ -2228,7 +2269,13 @@ function ExpensesTab({
   })))), /*#__PURE__*/React.createElement("button", {
     className: "fab",
     onClick: () => setModal(sub === 'fixed' ? 'addFixed' : sub === 'installments' ? 'addInst' : 'addVar')
-  }, "+"), (modal === 'addInst' || modal?.type === 'editInst') && (cards.length > 0 ? /*#__PURE__*/React.createElement(Modal, {
+  }, "+"), modal === 'addCategory' && /*#__PURE__*/React.createElement(Modal, {
+    title: "Add expense type",
+    onClose: () => setModal(null)
+  }, /*#__PURE__*/React.createElement("div", { className: "frow" },
+    /*#__PURE__*/React.createElement(Field, { label: "Icon" }, /*#__PURE__*/React.createElement(Inp, { type: "text", value: customCat.emoji, maxLength: 8, onChange: e => setCustomCat(p => ({ ...p, emoji: e.target.value })), style: { fontSize: 22, textAlign: 'center' } })),
+    /*#__PURE__*/React.createElement(Field, { label: "Type name" }, /*#__PURE__*/React.createElement(Inp, { type: "text", placeholder: "e.g. Pets", value: customCat.label, onChange: e => setCustomCat(p => ({ ...p, label: e.target.value })), autoFocus: true }))
+  ), /*#__PURE__*/React.createElement("button", { className: "btn bpri", onClick: saveCustomCategory }, "Add expense type")), (modal === 'addInst' || modal?.type === 'editInst') && (cards.length > 0 ? /*#__PURE__*/React.createElement(Modal, {
     title: modal?.type ? t('editInstallment') : t('addInstallment'),
     onClose: () => setModal(null)
   }, /*#__PURE__*/React.createElement(InstallForm, {
@@ -3221,6 +3268,9 @@ function App() {
       }),
       db.settings.get('cycleLabel').then(r => {
         if (r?.value) { CYCLE_LABEL = r.value; setCycleLabel(r.value); }
+      }),
+      db.settings.get('customCategories').then(r => {
+        if (Array.isArray(r?.value)) CUSTOM_CATS = r.value;
       })
     ]).catch(() => {}).finally(() => {
       setMonth(cycleAnchor(new Date()));
