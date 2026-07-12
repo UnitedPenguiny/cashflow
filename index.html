@@ -6,65 +6,63 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Cashflow">
-<meta name="theme-color" content="#6157f5">
+<meta name="theme-color" content="#4f46e5">
 <link id="pwa-manifest" rel="manifest">
 <title>Cashflow</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --p:#6157f5;--pd:#4b43d5;--pl:#eeecff;
-  --bg:#f6f7fb;--card:rgba(255,255,255,.94);--t1:#17162b;--t2:#64627a;--t3:#9b99ad;
-  --border:#e9e8f1;--danger:#ed5b72;--dl:#fff0f3;--success:#18a77a;--sl:#e7f8f2;
+  --p:#4f46e5;--pd:#4338ca;--pl:#e0e7ff;
+  --bg:#f1f5f9;--card:#fff;--t1:#0f172a;--t2:#475569;--t3:#94a3b8;
+  --border:#e2e8f0;--danger:#ef4444;--dl:#fee2e2;--success:#10b981;--sl:#d1fae5;
   --nav:64px;--hdr:56px;--mnav:50px;
   --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--sbe:max(env(safe-area-inset-bottom,0px),20px);
-  --rsm:10px;--rmd:14px;--rlg:20px;--rxl:26px;
-  --s1:0 2px 10px rgba(38,35,79,.045);--s2:0 12px 34px rgba(38,35,79,.11);--s3:0 18px 42px rgba(73,64,190,.24)
+  --rsm:8px;--rmd:12px;--rlg:16px;--rxl:20px;
+  --s1:0 1px 3px rgba(0,0,0,.07);--s2:0 4px 16px rgba(0,0,0,.10);--s3:0 8px 28px rgba(0,0,0,.15)
 }
 .dark{
-  --p:#9b94ff;--pd:#7d74ff;--pl:#302c60;
-  --bg:#11111b;--card:rgba(29,28,45,.96);--t1:#f7f6ff;--t2:#aaa7c0;--t3:#747189;
-  --border:#313047;--danger:#ff7c91;--dl:#401f2a;--success:#45d0a2;--sl:#173c35;
+  --p:#818cf8;--pd:#6366f1;--pl:#312e81;
+  --bg:#0f172a;--card:#1e293b;--t1:#f1f5f9;--t2:#94a3b8;--t3:#64748b;
+  --border:#334155;--danger:#f87171;--dl:#450a0a;--success:#34d399;--sl:#064e3b;
   --s1:0 1px 3px rgba(0,0,0,.3);--s2:0 4px 16px rgba(0,0,0,.4);--s3:0 8px 28px rgba(0,0,0,.5)
 }
 html{background:var(--card)}
 html,body{height:100%;height:100vh;overflow:hidden}
-body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:radial-gradient(circle at 50% -20%,#e9e6ff 0,transparent 42%),var(--bg);color:var(--t1);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-#root{display:flex;flex-direction:column;height:100%;height:100vh;max-width:460px;margin:0 auto;background:linear-gradient(180deg,rgba(255,255,255,.28),transparent 230px),var(--bg);position:relative;overflow:hidden;box-shadow:0 0 70px rgba(34,31,73,.08)}
-.hdr{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:460px;height:calc(var(--hdr) + var(--st));padding-top:var(--st);background:color-mix(in srgb,var(--card) 86%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid color-mix(in srgb,var(--border) 75%,transparent);display:flex;align-items:center;justify-content:space-between;padding-left:18px;padding-right:14px;z-index:110}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:var(--bg);color:var(--t1);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+#root{display:flex;flex-direction:column;height:100%;height:100vh;max-width:430px;margin:0 auto;background:var(--bg);position:relative;overflow:hidden}
+.hdr{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:calc(var(--hdr) + var(--st));padding-top:var(--st);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding-left:18px;padding-right:14px;z-index:110;box-shadow:var(--s1)}
 .hdr-logo{display:flex;align-items:center;gap:8px}
-.hdr-icon{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,#776dfb,#4c43d7);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 7px 16px rgba(97,87,245,.28)}
-.hdr-title{font-size:19px;font-weight:800;letter-spacing:-.55px}
+.hdr-icon{width:30px;height:30px;border-radius:9px;background:var(--p);display:flex;align-items:center;justify-content:center;font-size:15px}
+.hdr-title{font-size:19px;font-weight:800;letter-spacing:-.4px}
 .hdr-right{display:flex;gap:8px}
-.ibtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--t2);display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;box-shadow:var(--s1)}
+.ibtn{width:36px;height:36px;border-radius:50%;border:none;background:var(--bg);color:var(--t2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;touch-action:manipulation}
 .ibtn:active{opacity:.6}
-.mnav{position:fixed;top:calc(var(--hdr) + var(--st));left:50%;transform:translateX(-50%);width:100%;max-width:460px;height:var(--mnav);background:color-mix(in srgb,var(--card) 86%,transparent);backdrop-filter:blur(18px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 14px;z-index:105}
+.mnav{position:fixed;top:calc(var(--hdr) + var(--st));left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:var(--mnav);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 14px;z-index:105}
 .mbtn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--t2);touch-action:manipulation}
 .mbtn:active{background:var(--bg)}
 .mlbl{font-size:15px;font-weight:700;text-align:center}
 .mtoday{font-size:11px;color:var(--p);cursor:pointer;text-align:center;margin-top:1px}
 .main{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-top:calc(var(--hdr) + var(--mnav) + var(--st));padding-bottom:20px}
 .main::-webkit-scrollbar{display:none}
-.bnav{width:calc(100% - 24px);height:calc(var(--nav) + var(--sbe));padding:0 6px var(--sbe);margin:0 12px 10px;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:22px;display:flex;align-items:flex-start;justify-content:space-around;z-index:110;box-shadow:var(--s2);flex-shrink:0}
-.bnav::after{content:'';position:absolute;bottom:-30px;left:-12px;right:-12px;height:32px;background:var(--bg);z-index:-1}
+.bnav{width:100%;height:calc(var(--nav) + var(--sbe));padding-bottom:var(--sbe);background:var(--card);border-top:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-around;z-index:110;box-shadow:0 -4px 16px rgba(0,0,0,.06);flex-shrink:0}
+.bnav::after{content:'';position:absolute;bottom:-200px;left:0;right:0;height:200px;background:var(--card)}
 .nitem{flex:1;height:var(--nav);display:flex;flex-direction:column;align-items:center;justify-content:center;border:none;background:none;color:var(--t3);font-size:10px;font-weight:600;gap:3px;cursor:pointer;touch-action:manipulation;font-family:inherit;transition:color .15s}
-.nitem{position:relative;gap:4px;transition:color .2s,transform .2s}
-.nitem.active{color:var(--p);transform:translateY(-1px)}
-.nitem.active::before{content:'';position:absolute;top:4px;width:34px;height:28px;border-radius:10px;background:var(--pl);z-index:-1}
-.nemo{width:22px;height:22px;display:flex;align-items:center;justify-content:center}
-.fab{position:absolute;bottom:calc(var(--nav) + var(--sbe) + 22px);right:18px;width:56px;height:56px;border-radius:18px;border:none;background:linear-gradient(145deg,#776dfb,#4b42d5);color:#fff;box-shadow:var(--s3);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:108;touch-action:manipulation;transition:transform .2s}
+.nitem.active{color:var(--p)}
+.nemo{font-size:22px;line-height:1}
+.fab{position:absolute;bottom:calc(var(--nav) + var(--sbe) + 14px);right:16px;width:54px;height:54px;border-radius:50%;border:none;background:var(--p);color:#fff;font-size:26px;font-weight:300;box-shadow:var(--s3);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:108;touch-action:manipulation;transition:transform .15s}
 .fab:active{transform:scale(.9)}
 .sec{padding:12px 12px 0}
-.card{background:var(--card);border-radius:var(--rlg);border:1px solid color-mix(in srgb,var(--border) 88%,transparent);box-shadow:var(--s1);overflow:hidden}
-.cp{padding:16px}
+.card{background:var(--card);border-radius:var(--rlg);border:1px solid var(--border);box-shadow:var(--s1);overflow:hidden}
+.cp{padding:14px}
 .ctitle{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.7px}
-.hero{border-radius:24px;padding:22px;color:#fff;position:relative;overflow:hidden;box-shadow:0 18px 35px rgba(54,48,160,.18)}
+.hero{border-radius:var(--rlg);padding:18px;color:#fff;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.10);top:-30px;right:-30px}
 .hero::after{content:'';position:absolute;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.06);bottom:-20px;right:40px}
 .hlbl{font-size:12px;font-weight:600;opacity:.8;margin-bottom:4px}
 .hamt{font-size:30px;font-weight:800;letter-spacing:-.5px;line-height:1}
 .hsub{font-size:12px;opacity:.7;margin-top:5px}
 .sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sc{background:var(--card);border-radius:var(--rlg);padding:16px;border:1px solid var(--border);box-shadow:var(--s1)}
+.sc{background:var(--card);border-radius:var(--rlg);padding:14px;border:1px solid var(--border);box-shadow:var(--s1)}
 .sc.full{grid-column:1/-1}
 .slbl{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
 .samt{font-size:20px;font-weight:800;letter-spacing:-.3px}
@@ -72,14 +70,14 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif
 .ssub{font-size:11px;color:var(--t3);margin-top:3px}
 .li{display:flex;align-items:center;padding:11px 0;gap:11px;border-bottom:1px solid var(--border)}
 .li:last-child{border-bottom:none}
-.lico{width:42px;height:42px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.lico{width:40px;height:40px;border-radius:var(--rmd);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .linf{flex:1;min-width:0}
 .lname{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lsub{font-size:12px;color:var(--t2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lamt{font-size:14px;font-weight:700;flex-shrink:0}
 .lamt.exp{color:var(--danger)}.lamt.inc{color:var(--success)}
-.overlay{position:fixed;top:0;left:0;right:0;bottom:0;height:100dvh;background:rgba(18,16,35,.55);backdrop-filter:blur(7px);z-index:200;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
-.sheet{background:var(--card);border:1px solid var(--border);border-bottom:none;border-radius:var(--rxl) var(--rxl) 0 0;width:100%;max-width:460px;max-height:90dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(16px + var(--sbe));box-shadow:0 -22px 60px rgba(18,16,35,.2);animation:slideUp .28s cubic-bezier(.22,1,.36,1)}
+.overlay{position:fixed;top:0;left:0;right:0;bottom:0;height:100dvh;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease}
+.sheet{background:var(--card);border-radius:var(--rxl) var(--rxl) 0 0;width:100%;max-width:430px;max-height:88dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:calc(16px + var(--sbe));animation:slideUp .28s cubic-bezier(.22,1,.36,1)}
 .sheet::-webkit-scrollbar{display:none}
 .shandle{width:36px;height:4px;border-radius:2px;background:var(--border);margin:10px auto 0}
 .shdr{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card);z-index:1}
@@ -89,7 +87,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif
 .fg{margin-bottom:14px}
 .flbl{display:block;font-size:12px;font-weight:700;color:var(--t2);margin-bottom:5px;letter-spacing:.2px}
 .fi{width:100%;height:44px;border:1.5px solid var(--border);border-radius:var(--rmd);padding:0 12px;font-size:15px;color:var(--t1);background:var(--card);outline:none;-webkit-appearance:none;font-family:inherit;transition:border-color .15s}
-.fi:focus{border-color:var(--p);box-shadow:0 0 0 4px color-mix(in srgb,var(--p) 12%,transparent)}
+.fi:focus{border-color:var(--p)}
 .fta{width:100%;min-height:72px;border:1.5px solid var(--border);border-radius:var(--rmd);padding:10px 12px;font-size:15px;color:var(--t1);background:var(--card);outline:none;resize:vertical;font-family:inherit;transition:border-color .15s}
 .fta:focus{border-color:var(--p)}
 .fsel{width:100%;height:44px;border:1.5px solid var(--border);border-radius:var(--rmd);padding:0 12px;font-size:15px;color:var(--t1);background:var(--card);outline:none;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2394a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;font-family:inherit;transition:border-color .15s}
@@ -116,12 +114,10 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif
 .catg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .copt{display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 4px;border-radius:var(--rmd);border:2px solid transparent;background:none;cursor:pointer;font-family:inherit;touch-action:manipulation;transition:all .15s}
 .copt.sel{border-color:var(--p);background:var(--pl)}
-.cico{width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:var(--t2)}
-.copt.sel .cico{color:var(--p)}
+.cico{font-size:22px;line-height:1}
 .clbl{font-size:9px;font-weight:700;color:var(--t2);text-align:center}
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px 20px;text-align:center}
-.eico{width:58px;height:58px;border-radius:20px;background:var(--pl);color:var(--p);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
-.icon{display:block;flex:none}
+.eico{font-size:48px;margin-bottom:14px}
 .etxt{font-size:15px;font-weight:600;color:var(--t2)}
 .esub{font-size:13px;color:var(--t3);margin-top:4px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--hdr) + var(--mnav) + var(--st) + 12px);background:var(--t1);color:#fff;padding:9px 18px;border-radius:var(--rlg);font-size:13px;font-weight:600;z-index:300;white-space:nowrap;box-shadow:var(--s2);animation:toastIn .2s ease}
@@ -142,26 +138,20 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif
 .fb{display:flex;align-items:center}
 .fbet{display:flex;justify-content:space-between;align-items:center}
 .g8{gap:8px}.mt8{margin-top:8px}.mt10{margin-top:10px}.mt12{margin-top:12px}.mt14{margin-top:14px}.mb10{margin-bottom:10px}
-.dark body{background:radial-gradient(circle at 50% -20%,#292451 0,transparent 42%),var(--bg)}
-button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid color-mix(in srgb,var(--p) 28%,transparent);outline-offset:2px}
-@media (hover:hover){.card{transition:transform .2s ease,box-shadow .2s ease}.ibtn:hover,.mbtn:hover{color:var(--p);border-color:color-mix(in srgb,var(--p) 35%,var(--border))}.copt:hover{background:color-mix(in srgb,var(--pl) 55%,transparent)}.btn:hover{filter:brightness(1.03)}}
-@media (min-width:700px){.overlay{align-items:center;padding:24px}.sheet{border-radius:var(--rxl);max-height:min(86dvh,760px);border-bottom:1px solid var(--border)}.shandle{display:none}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px"><div style="width:38px;height:38px;border:3px solid #e8e6ff;border-top-color:#6157f5;border-radius:50%;animation:spin .8s linear infinite"></div><div style="font-size:15px;color:#8b89a0;font-family:system-ui">Loading Cashflow…</div></div></div>
+<div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px"><div style="font-size:36px">💰</div><div style="font-size:15px;color:#94a3b8;font-family:system-ui">Loading Cashflow…</div></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.4/dexie.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
 (function(){
-  var m={name:"Cashflow — Expense Tracker",short_name:"Cashflow",description:"Track expenses, income & savings offline",start_url:"./",display:"standalone",background_color:"#f6f7fb",theme_color:"#6157f5",orientation:"portrait-primary",icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='46' fill='%236157f5'/%3E%3Cpath d='M48 62h92a14 14 0 0114 14v60a14 14 0 01-14 14H52a14 14 0 01-14-14V70a18 18 0 0118-18h70' fill='none' stroke='white' stroke-width='12' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M116 91h38v30h-38a15 15 0 010-30z' fill='none' stroke='white' stroke-width='12'/%3E%3C/svg%3E",sizes:"192x192",type:"image/svg+xml"}]};
+  var m={name:"Cashflow — Expense Tracker",short_name:"Cashflow",description:"Track expenses, income & savings offline",start_url:"./",display:"standalone",background_color:"#f1f5f9",theme_color:"#4f46e5",orientation:"portrait-primary",icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='42' fill='%234f46e5'/%3E%3Ctext x='96' y='140' text-anchor='middle' font-size='110' font-family='system-ui'%3E%F0%9F%92%B0%3C/text%3E%3C/svg%3E",sizes:"192x192",type:"image/svg+xml"}]};
   try{var b=new Blob([JSON.stringify(m)],{type:'application/manifest+json'});document.getElementById('pwa-manifest').href=URL.createObjectURL(b);}catch(e){}
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){});
@@ -177,7 +167,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   if (typeof Dexie === 'undefined') missing.push('Dexie');
   if (typeof Chart === 'undefined') missing.push('Chart.js');
   if (missing.length > 0) {
-    document.getElementById('root').innerHTML = '<div style="padding:24px;font-family:system-ui;color:#ef4444"><b>Required libraries not loaded:</b> ' + missing.join(', ') + '<br><br><span style="color:#475569;font-size:13px">Please open this file in a browser with internet access (not a local preview).</span></div>';
+    document.getElementById('root').innerHTML = '<div style="padding:24px;font-family:system-ui;color:#ef4444">' + '<div style="font-size:24px;margin-bottom:8px">⚠️</div>' + '<b>Required libraries not loaded:</b> ' + missing.join(', ') + '<br><br><span style="color:#475569;font-size:13px">' + 'Please open this file in a browser with internet access (not a local preview).' + '</span></div>';
     throw new Error('Missing dependencies: ' + missing.join(', '));
   }
 })();
@@ -188,59 +178,6 @@ const {
   useRef,
   useMemo
 } = React;
-
-// Hand-drawn outline icon system. Keeping icons in-app makes the interface
-// consistent, crisp at every size, and available offline.
-const ICON_PATHS = {
-  wallet: ['M3 7.5h15a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3h12', 'M16 12h6v5h-6a2.5 2.5 0 0 1 0-5Z'],
-  home: ['M3 11.5 12 4l9 7.5', 'M5.5 10v10h13V10', 'M9.5 20v-6h5v6'],
-  food: ['M7 3v7M4 3v4a3 3 0 0 0 6 0V3M7 10v11', 'M16 3v18M16 3c3 2 4 5 4 8h-4'],
-  car: ['M4 17v2M20 17v2', 'M3 14l2-6h14l2 6v4H3z', 'M6 14h.01M18 14h.01'],
-  health: ['M12 21s-8-4.8-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6.2-8 11-8 11Z', 'M12 8v6M9 11h6'],
-  game: ['M8 8h8a5 5 0 0 1 4.7 6.7l-1 3A2.5 2.5 0 0 1 15.5 19l-2-2h-3l-2 2a2.5 2.5 0 0 1-4.2-1.3l-1-3A5 5 0 0 1 8 8Z', 'M7 11v4M5 13h4M16 12h.01M18 14h.01'],
-  bag: ['M5 8h14l1 13H4L5 8Z', 'M9 9V6a3 3 0 0 1 6 0v3'],
-  receipt: ['M6 3h12v19l-3-2-3 2-3-2-3 2V3Z', 'M9 8h6M9 12h6M9 16h4'],
-  shield: ['M12 22S20 18 20 10V5l-8-3-8 3v5c0 8 8 12 8 12Z', 'm9 12 2 2 4-5'],
-  coins: ['M12 8c4.4 0 8-1.3 8-3s-3.6-3-8-3-8 1.3-8 3 3.6 3 8 3Z', 'M4 5v5c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 10v5c0 1.7 3.6 3 8 3s8-1.3 8-3v-5M4 15v4c0 1.7 3.6 3 8 3s8-1.3 8-3v-4'],
-  box: ['m4 7 8-4 8 4-8 4-8-4Z', 'M4 7v10l8 4 8-4V7M12 11v10'],
-  card: ['M3 6h18v13H3z', 'M3 10h18M7 15h4'],
-  briefcase: ['M4 7h16v13H4z', 'M9 7V4h6v3M4 12h16M10 12v2h4v-2'],
-  laptop: ['M5 4h14v12H5z', 'M2 20h20M9 20h6'],
-  trend: ['m4 17 6-6 4 4 6-8', 'M15 7h5v5'],
-  gift: ['M4 10h16v11H4zM3 6h18v4H3zM12 6v15', 'M12 6H8.5A2.5 2.5 0 1 1 12 2.5V6Zm0 0h3.5A2.5 2.5 0 1 0 12 2.5V6Z'],
-  building: ['M5 21V4h10v17M3 21h18M9 8h2M9 12h2M9 16h2M15 10h4v11'],
-  banknote: ['M3 6h18v12H3z', 'M7 9a3 3 0 0 1-1 2v2a3 3 0 0 1 1 2M17 9a3 3 0 0 0 1 2v2a3 3 0 0 0-1 2', 'M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z'],
-  target: ['M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z', 'M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z', 'M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z'],
-  plane: ['m22 2-8.5 20-2-8.5L3 10l19-8Z', 'm11.5 13.5 4-4'],
-  paw: ['M8 11c1.1 0 2-1.3 2-3s-.9-3-2-3-2 1.3-2 3 .9 3 2 3ZM16 11c1.1 0 2-1.3 2-3s-.9-3-2-3-2 1.3-2 3 .9 3 2 3Z', 'M12 10c-3 0-6 3.5-6 6.5S8.7 21 12 19c3.3 2 6 .5 6-2.5S15 10 12 10Z'],
-  coffee: ['M5 8h12v6a6 6 0 0 1-12 0V8Z', 'M17 10h2a2 2 0 0 1 0 4h-2M8 3v2M12 2v3M16 3v2M4 21h15'],
-  book: ['M4 4h6a3 3 0 0 1 3 3v14a3 3 0 0 0-3-3H4V4Z', 'M20 4h-4a3 3 0 0 0-3 3v14a3 3 0 0 1 3-3h4V4Z'],
-  music: ['M9 18V5l10-2v13', 'M6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM16 19a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM9 9l10-2'],
-  bulb: ['M9 18h6M10 22h4', 'M8 15a7 7 0 1 1 8 0c-1 1-1 2-1 3H9c0-1 0-2-1-3Z'],
-  tag: ['M20 13 13 20 3 10V3h7l10 10Z', 'M7.5 7.5h.01'],
-  dashboard: ['M4 4h6v7H4zM14 4h6v4h-6zM14 12h6v8h-6zM4 15h6v5H4z'],
-  settings: ['M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z', 'M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2 3.46-.08-.02a1.7 1.7 0 0 0-1.8.3l-.5.3a1.7 1.7 0 0 0-.92 1.58V22h-4v-.1a1.7 1.7 0 0 0-.92-1.58l-.5-.3a1.7 1.7 0 0 0-1.8-.3l-.08.02-2-3.46.06-.06A1.7 1.7 0 0 0 4.6 15v-.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2-3.46.08.02a1.7 1.7 0 0 0 1.8-.3l.5-.3A1.7 1.7 0 0 0 9.5 6.84V6h5v.84a1.7 1.7 0 0 0 .92 1.58l.5.3a1.7 1.7 0 0 0 1.8.3L17.8 9l2 3.46-.06.06a1.7 1.7 0 0 0-.34 1.88v.6Z'],
-  search: ['M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35'],
-  calendar: ['M4 5h16v16H4zM8 2v6M16 2v6M4 10h16'],
-  edit: ['M4 20h4L20 8l-4-4L4 16v4ZM14 6l4 4'],
-  trash: ['M4 7h16M9 3h6l1 4H8l1-4ZM6 7l1 14h10l1-14M10 11v6M14 11v6'],
-  close: ['M6 6l12 12M18 6 6 18'],
-  plus: ['M12 5v14M5 12h14'],
-  check: ['m5 12 4 4L19 6'],
-  alert: ['M12 3 2 21h20L12 3Z', 'M12 9v5M12 18h.01'],
-  arrowUp: ['M12 19V5M6 11l6-6 6 6'],
-  arrowDown: ['M12 5v14M6 13l6 6 6-6'],
-  download: ['M12 3v12M7 10l5 5 5-5M4 21h16'],
-  upload: ['M12 16V4M7 9l5-5 5 5M4 20h16']
-  ,chevronLeft: ['m15 18-6-6 6-6']
-  ,chevronRight: ['m9 18 6-6-6-6']
-};
-function Icon({ name = 'tag', size = 20, strokeWidth = 1.8, className = '' }) {
-  const paths = ICON_PATHS[name] || ICON_PATHS.tag;
-  return /*#__PURE__*/React.createElement('svg', { className: `icon ${className}`, width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth, strokeLinecap: 'round', strokeLinejoin: 'round', 'aria-hidden': true }, paths.map((d, i) => /*#__PURE__*/React.createElement('path', { key: i, d })));
-}
-const iconName = (item, fallback = 'tag') => item?.icon && ICON_PATHS[item.icon] ? item.icon : fallback;
-const CUSTOM_ICON_OPTIONS = ['tag', 'paw', 'coffee', 'book', 'plane', 'gift', 'health', 'music', 'bulb', 'game', 'bag', 'home'];
 
 // DB
 let db;
@@ -274,67 +211,67 @@ try {
 const CATS = [{
   id: 'housing',
   label: 'Housing',
-  icon: 'home',
+  emoji: '🏠',
   bg: '#dbeafe',
   tc: '#1e40af'
 }, {
   id: 'food',
   label: 'Food',
-  icon: 'food',
+  emoji: '🍔',
   bg: '#fce7f3',
   tc: '#9d174d'
 }, {
   id: 'transport',
   label: 'Transport',
-  icon: 'car',
+  emoji: '🚗',
   bg: '#d1fae5',
   tc: '#065f46'
 }, {
   id: 'health',
   label: 'Health',
-  icon: 'health',
+  emoji: '💊',
   bg: '#fee2e2',
   tc: '#991b1b'
 }, {
   id: 'entertainment',
   label: 'Fun',
-  icon: 'game',
+  emoji: '🎮',
   bg: '#ede9fe',
   tc: '#5b21b6'
 }, {
   id: 'shopping',
   label: 'Shopping',
-  icon: 'bag',
+  emoji: '🛍️',
   bg: '#fef3c7',
   tc: '#92400e'
 }, {
   id: 'bills',
   label: 'Bills',
-  icon: 'receipt',
+  emoji: '📱',
   bg: '#e0f2fe',
   tc: '#0369a1'
 }, {
   id: 'insurance',
   label: 'Insurance',
-  icon: 'shield',
+  emoji: '🛡️',
   bg: '#f0fdf4',
   tc: '#166534'
 }, {
   id: 'savings',
   label: 'Savings',
-  icon: 'coins',
+  emoji: '💰',
   bg: '#dcfce7',
   tc: '#15803d'
 }, {
   id: 'other',
   label: 'Other',
-  icon: 'box',
+  emoji: '📦',
   bg: '#f1f5f9',
   tc: '#475569'
 }, {
   id: 'installments',
   label: 'Installments',
-  icon: 'card',
+  emoji: '💳',
   bg: '#fae8ff',
   tc: '#86198f'
 }];
@@ -343,27 +280,27 @@ const expenseCats = () => [...CATS, ...CUSTOM_CATS];
 const ICATS = [{
   id: 'salary',
   label: 'Salary',
-  icon: 'briefcase'
+  emoji: '💼'
 }, {
   id: 'freelance',
   label: 'Freelance',
-  icon: 'laptop'
+  emoji: '💻'
 }, {
   id: 'investment',
   label: 'Invest',
-  icon: 'trend'
+  emoji: '📈'
 }, {
   id: 'bonus',
   label: 'Bonus',
-  icon: 'gift'
+  emoji: '🎁'
 }, {
   id: 'rental',
   label: 'Rental',
-  icon: 'building'
+  emoji: '🏘️'
 }, {
   id: 'other',
   label: 'Other',
-  icon: 'banknote'
+  emoji: '💵'
 }];
 const FREQS = [{
   value: 'monthly',
@@ -427,7 +364,7 @@ const CURRS = [{
   code: 'THB',
   sym: '฿'
 }];
-const CCOLORS = [['#776dfb', '#4b43d5'], ['#34bdd2', '#16869b'], ['#35bd91', '#168264'], ['#f2778a', '#c74460'], ['#a479f5', '#7148c9'], ['#ee74ad', '#bd4079'], ['#f2ad58', '#c87a24'], ['#35334b', '#1c1b2b']];
+const CCOLORS = [['#4f46e5', '#4338ca'], ['#0891b2', '#0e7490'], ['#059669', '#047857'], ['#dc2626', '#b91c1c'], ['#7c3aed', '#6d28d9'], ['#db2777', '#be185d'], ['#d97706', '#b45309'], ['#0f172a', '#1e293b']];
 
 // i18n
 let currentLang = 'en';
@@ -437,10 +374,10 @@ const LANGS = {
     home: 'Home', spend: 'Spend', income: 'Income', save: 'Save', cards: 'Cards',
     settings: 'Settings', today: '↩ Today', loading: 'Loading…',
     // Dashboard
-    netBalance: 'Net Balance', overBudget: 'Over Budget',
+    netBalance: '✅ Net Balance', overBudget: '⚠️ Over Budget',
     ofIncomeSpent: '% of income spent', addIncomeTrack: 'Add income to track budget health',
-    incomeLabel: 'Income', expensesLabel: 'Expenses', thisMonth: 'this month',
-    fixed: 'fixed', savingsGoals: 'Savings Goals', remaining: 'remaining',
+    incomeLabel: '💰 Income', expensesLabel: '💸 Expenses', thisMonth: 'this month',
+    fixed: 'fixed', savingsGoals: '🎯 Savings Goals', remaining: 'remaining',
     spendingByCategory: 'Spending by Category',
     incomeVsExpenses: 'Income vs Expenses (6 months)',
     creditCards: 'Credit Cards', avail: 'avail',
@@ -456,28 +393,28 @@ const LANGS = {
     addInstFromCards: 'Add installments from the Cards tab',
     monthsLeft: 'months left', total: 'total',
     // Income
-    totalMonthlyIncome: 'Total Monthly Income',
+    totalMonthlyIncome: '💰 Total Monthly Income',
     includes: 'Includes', oneTime: 'one-time',
     addIncomeSources: 'Add income sources below',
     noIncomeSources: 'No income sources', tapToAddIncome: 'Tap + to add income',
     perMonth: 'per month', addIncome: 'Add Income', editIncome: 'Edit Income',
     // Savings
-    totalSaved: 'Total Saved', ofMonthlyIncome: '% of monthly income',
+    totalSaved: '🎯 Total Saved', ofMonthlyIncome: '% of monthly income',
     goal: 'goal', goals: 'goals', toGo: 'to go',
     noSavingsGoals: 'No savings goals', tapToCreateGoal: 'Tap + to create a goal',
-    saved: 'saved', goalLabel: 'Goal:', reached: 'Reached!',
-    addFunds: 'Add Funds', amountToAdd: 'Amount to Add', addFundsBtn: 'Add Funds',
+    saved: 'saved', goalLabel: 'Goal:', reached: '✅ Reached!',
+    addFunds: 'Add Funds', amountToAdd: 'Amount to Add', addFundsBtn: 'Add Funds 💰',
     newSavingsGoal: 'New Savings Goal', editGoal: 'Edit Goal',
     // Cards
     noCreditCards: 'No credit cards', tapToAddCard: 'Tap + to add a card',
     limit: 'Limit:', statementDay: 'Statement day', dueDayLabel: 'Due day',
     spent: 'spent', available: 'available', used: 'used',
-    installmentsLabel: 'Installments', noActiveInst: 'No active installments',
-    thisMonthCharges: "This Month's Charges",
+    installmentsLabel: '📦 Installments', noActiveInst: 'No active installments',
+    thisMonthCharges: "📋 This Month's Charges",
     fixedDueDay: 'Fixed · due day',
     addCard: 'Add Card', editCard: 'Edit Card', addInstallment: 'Add Installment', editInstallment: 'Edit Installment',
     deleteCardConfirm: 'Delete "', deleteCardConfirm2: '"? This will also remove all installments on this card.',
-    paidOff: 'Paid off!', done: 'Done',
+    paidOff: '✅ Paid off!', done: '✓ Done',
     // Forms
     name: 'Name', amount: 'Amount', date: 'Date', category: 'Category',
     notesOptional: 'Notes (optional)', notes: 'Notes', anyNotes: 'Any notes…',
@@ -497,16 +434,16 @@ const LANGS = {
     monthlyPayment: 'Monthly Payment', monthsLeftForm: 'Months Left', startDate: 'Start Date',
     addInstallmentBtn: 'Add Installment',
     // Settings
-    settingsTitle: 'Settings', language: 'Language', currency: 'Currency',
-    backupRestore: 'Backup & Restore',
-    exportJSON: 'Export JSON Backup', exportCSV: 'Export CSV Spreadsheet',
-    importJSON: 'Import JSON Backup',
-    dangerZone: 'Danger Zone', clearAllData: 'Clear All Data',
+    settingsTitle: '⚙️ Settings', language: 'Language', currency: 'Currency',
+    backupRestore: '💾 Backup & Restore',
+    exportJSON: '📦 Export JSON Backup', exportCSV: '📊 Export CSV Spreadsheet',
+    importJSON: '📂 Import JSON Backup',
+    dangerZone: '⚠️ Danger Zone', clearAllData: '🗑️ Clear All Data',
     offlineUse: 'Offline use:', offlineInstructions: 'Open in Safari → Share → "Add to Home Screen" to install as a PWA. All data is stored on-device in IndexedDB. Export JSON regularly to protect against Safari storage clears.',
-    clearConfirm: 'Delete ALL data permanently? This cannot be undone.',
+    clearConfirm: '⚠️ Delete ALL data permanently? This cannot be undone.',
     importConfirm1: 'This will replace ALL current data with the backup from ',
     importConfirm2: '. Continue?',
-    invalidBackup: 'Invalid backup file',
+    invalidBackup: '❌ Invalid backup file',
     // Categories
     catHousing: 'Housing', catFood: 'Food', catTransport: 'Transport', catHealth: 'Health',
     catFun: 'Fun', catShopping: 'Shopping', catBills: 'Bills', catInsurance: 'Insurance',
@@ -517,19 +454,19 @@ const LANGS = {
     freqMonthly: 'Monthly', freqWeekly: 'Weekly', freqBiweekly: 'Bi-weekly',
     freqYearly: 'Yearly', freqOneTime: 'One-time',
     // Toasts
-    updated: 'Updated', expenseAdded: 'Expense added', deleted: 'Deleted',
-    fixedCostAdded: 'Fixed cost added', incomeAdded: 'Income added',
-    goalAdded: 'Goal added', fundsAdded: 'Funds added!',
-    cardAdded: 'Card added', cardRemoved: 'Card removed',
-    installmentAdded: 'Installment added', removed: 'Removed',
-    jsonExported: 'JSON backup exported', csvExported: 'CSV exported',
-    dataRestored: 'Data restored!', dataCleared: 'All data cleared',
+    updated: '✅ Updated', expenseAdded: '✅ Expense added', deleted: 'Deleted',
+    fixedCostAdded: '✅ Fixed cost added', incomeAdded: '✅ Income added',
+    goalAdded: '✅ Goal added', fundsAdded: '✅ Funds added!',
+    cardAdded: '✅ Card added', cardRemoved: 'Card removed',
+    installmentAdded: '✅ Installment added', removed: 'Removed',
+    jsonExported: '✅ JSON backup exported', csvExported: '✅ CSV exported',
+    dataRestored: '✅ Data restored!', dataCleared: 'All data cleared',
     // Chart
     incomeChart: 'Income', expensesChart: 'Expenses',
     // Dark Mode
     darkMode: 'Dark Mode',
     // Pay cycle
-    payCycleTitle: 'Pay Cycle', paydayLabel: 'Salary day',
+    payCycleTitle: '📅 Pay Cycle', paydayLabel: 'Salary day',
     paydayHint: 'Each budget month starts on this day (moves earlier to Friday if it lands on a weekend).',
     cycleLabelLabel: 'Name each cycle after', cycleLabelEnd: 'Month it ends in', cycleLabelStart: 'Month it starts in',
     cycleLabelHint: 'e.g. Jun 28 – Jul 27',
@@ -537,13 +474,13 @@ const LANGS = {
     budgetProgress: 'Budget Progress', setBudgets: 'Set Budgets', budget: 'Budget',
     noBudgets: 'No budgets set', noBudgetsSub: 'Set monthly limits per category',
     budgetOf: 'of', budgetOver: 'over budget', budgetRemaining: 'remaining',
-    saveBudgets: 'Save Budgets', budgetsSaved: 'Budgets saved',
+    saveBudgets: 'Save Budgets', budgetsSaved: '✅ Budgets saved',
     overBudgetAlert: 'Over budget in', categories: 'categories',
     // Search & Filter
     searchExpenses: 'Search expenses…', allCategories: 'All Categories',
     noResults: 'No matching expenses', results: 'results',
     // Insights
-    insights: 'Insights', projectedSpend: 'Projected monthly spend',
+    insights: '📈 Insights', projectedSpend: 'Projected monthly spend',
     projectedRemaining: 'Projected remaining', biggestExpense: 'Biggest expense',
     noExpensesYet: 'No expenses yet', vsLastMonth: 'vs last month',
     spending: 'spending', moreSpending: 'more spending', lessSpending: 'less spending',
@@ -551,10 +488,10 @@ const LANGS = {
   th: {
     home: 'หน้าหลัก', spend: 'รายจ่าย', income: 'รายรับ', save: 'ออมเงิน', cards: 'บัตร',
     settings: 'ตั้งค่า', today: '↩ วันนี้', loading: 'กำลังโหลด…',
-    netBalance: 'ยอดคงเหลือ', overBudget: 'เกินงบ',
+    netBalance: '✅ ยอดคงเหลือ', overBudget: '⚠️ เกินงบ',
     ofIncomeSpent: '% ของรายรับที่ใช้ไป', addIncomeTrack: 'เพิ่มรายรับเพื่อติดตามงบประมาณ',
-    incomeLabel: 'รายรับ', expensesLabel: 'รายจ่าย', thisMonth: 'เดือนนี้',
-    fixed: 'ค่าใช้จ่ายประจำ', savingsGoals: 'เป้าหมายออมเงิน', remaining: 'คงเหลือ',
+    incomeLabel: '💰 รายรับ', expensesLabel: '💸 รายจ่าย', thisMonth: 'เดือนนี้',
+    fixed: 'ค่าใช้จ่ายประจำ', savingsGoals: '🎯 เป้าหมายออมเงิน', remaining: 'คงเหลือ',
     spendingByCategory: 'รายจ่ายตามหมวดหมู่',
     incomeVsExpenses: 'รายรับ vs รายจ่าย (6 เดือน)',
     creditCards: 'บัตรเครดิต', avail: 'คงเหลือ',
@@ -568,26 +505,26 @@ const LANGS = {
     noActiveInstallments: 'ไม่มีรายการผ่อนชำระ',
     addInstFromCards: 'เพิ่มรายการผ่อนชำระจากแท็บบัตร',
     monthsLeft: 'เดือนที่เหลือ', total: 'รวม',
-    totalMonthlyIncome: 'รายรับรวมต่อเดือน',
+    totalMonthlyIncome: '💰 รายรับรวมต่อเดือน',
     includes: 'รวม', oneTime: 'ครั้งเดียว',
     addIncomeSources: 'เพิ่มแหล่งรายรับด้านล่าง',
     noIncomeSources: 'ยังไม่มีแหล่งรายรับ', tapToAddIncome: 'แตะ + เพื่อเพิ่มรายรับ',
     perMonth: 'ต่อเดือน', addIncome: 'เพิ่มรายรับ', editIncome: 'แก้ไขรายรับ',
-    totalSaved: 'ยอดออมทั้งหมด', ofMonthlyIncome: '% ของรายรับต่อเดือน',
+    totalSaved: '🎯 ยอดออมทั้งหมด', ofMonthlyIncome: '% ของรายรับต่อเดือน',
     goal: 'เป้าหมาย', goals: 'เป้าหมาย', toGo: 'อีก',
     noSavingsGoals: 'ยังไม่มีเป้าหมายออมเงิน', tapToCreateGoal: 'แตะ + เพื่อสร้างเป้าหมาย',
-    saved: 'ออมแล้ว', goalLabel: 'เป้าหมาย:', reached: 'สำเร็จ!',
-    addFunds: 'เพิ่มเงิน', amountToAdd: 'จำนวนเงินที่ต้องการเพิ่ม', addFundsBtn: 'เพิ่มเงิน',
+    saved: 'ออมแล้ว', goalLabel: 'เป้าหมาย:', reached: '✅ สำเร็จ!',
+    addFunds: 'เพิ่มเงิน', amountToAdd: 'จำนวนเงินที่ต้องการเพิ่ม', addFundsBtn: 'เพิ่มเงิน 💰',
     newSavingsGoal: 'เป้าหมายออมเงินใหม่', editGoal: 'แก้ไขเป้าหมาย',
     noCreditCards: 'ยังไม่มีบัตรเครดิต', tapToAddCard: 'แตะ + เพื่อเพิ่มบัตร',
     limit: 'วงเงิน:', statementDay: 'วันสรุปยอด', dueDayLabel: 'วันครบกำหนด',
     spent: 'ใช้ไป', available: 'คงเหลือ', used: 'ใช้ไป',
-    installmentsLabel: 'ผ่อนชำระ', noActiveInst: 'ไม่มีรายการผ่อนชำระ',
-    thisMonthCharges: 'รายการเดือนนี้',
+    installmentsLabel: '📦 ผ่อนชำระ', noActiveInst: 'ไม่มีรายการผ่อนชำระ',
+    thisMonthCharges: '📋 รายการเดือนนี้',
     fixedDueDay: 'ประจำ · ครบกำหนดวันที่',
     addCard: 'เพิ่มบัตร', editCard: 'แก้ไขบัตร', addInstallment: 'เพิ่มรายการผ่อนชำระ', editInstallment: 'แก้ไขรายการผ่อนชำระ',
     deleteCardConfirm: 'ลบ "', deleteCardConfirm2: '"? รายการผ่อนชำระทั้งหมดบนบัตรนี้จะถูกลบด้วย',
-    paidOff: 'ชำระครบแล้ว!', done: 'เสร็จ',
+    paidOff: '✅ ชำระครบแล้ว!', done: '✓ เสร็จ',
     name: 'ชื่อ', amount: 'จำนวนเงิน', date: 'วันที่', category: 'หมวดหมู่',
     notesOptional: 'บันทึก (ไม่บังคับ)', notes: 'บันทึก', anyNotes: 'บันทึกเพิ่มเติม…',
     cardOptional: 'บัตร (ไม่บังคับ)', cashDebit: 'เงินสด / เดบิต',
@@ -605,16 +542,16 @@ const LANGS = {
     description: 'รายละเอียด', card: 'บัตร', totalAmount: 'ยอดรวม',
     monthlyPayment: 'ค่างวดต่อเดือน', monthsLeftForm: 'จำนวนเดือนที่เหลือ', startDate: 'วันที่เริ่ม',
     addInstallmentBtn: 'เพิ่มรายการผ่อนชำระ',
-    settingsTitle: 'ตั้งค่า', language: 'ภาษา', currency: 'สกุลเงิน',
-    backupRestore: 'สำรอง & กู้คืนข้อมูล',
-    exportJSON: 'ส่งออก JSON สำรอง', exportCSV: 'ส่งออก CSV สเปรดชีต',
-    importJSON: 'นำเข้า JSON สำรอง',
-    dangerZone: 'โซนอันตราย', clearAllData: 'ลบข้อมูลทั้งหมด',
+    settingsTitle: '⚙️ ตั้งค่า', language: 'ภาษา', currency: 'สกุลเงิน',
+    backupRestore: '💾 สำรอง & กู้คืนข้อมูล',
+    exportJSON: '📦 ส่งออก JSON สำรอง', exportCSV: '📊 ส่งออก CSV สเปรดชีต',
+    importJSON: '📂 นำเข้า JSON สำรอง',
+    dangerZone: '⚠️ โซนอันตราย', clearAllData: '🗑️ ลบข้อมูลทั้งหมด',
     offlineUse: 'ใช้งานออฟไลน์:', offlineInstructions: 'เปิดใน Safari → แชร์ → "เพิ่มไปที่หน้าจอหลัก" เพื่อติดตั้งเป็น PWA ข้อมูลทั้งหมดถูกเก็บในอุปกรณ์ผ่าน IndexedDB ส่งออก JSON เป็นประจำเพื่อป้องกันข้อมูลหาย',
-    clearConfirm: 'ลบข้อมูลทั้งหมดอย่างถาวร? ไม่สามารถกู้คืนได้',
+    clearConfirm: '⚠️ ลบข้อมูลทั้งหมดอย่างถาวร? ไม่สามารถกู้คืนได้',
     importConfirm1: 'ข้อมูลปัจจุบันทั้งหมดจะถูกแทนที่ด้วยข้อมูลสำรองจาก ',
     importConfirm2: ' ดำเนินการต่อ?',
-    invalidBackup: 'ไฟล์สำรองไม่ถูกต้อง',
+    invalidBackup: '❌ ไฟล์สำรองไม่ถูกต้อง',
     catHousing: 'ที่อยู่', catFood: 'อาหาร', catTransport: 'เดินทาง', catHealth: 'สุขภาพ',
     catFun: 'บันเทิง', catShopping: 'ช้อปปิ้ง', catBills: 'บิล', catInsurance: 'ประกัน',
     catSavings: 'ออมเงิน', catOther: 'อื่นๆ', catInstallments: 'ผ่อนชำระ',
@@ -622,27 +559,27 @@ const LANGS = {
     icatBonus: 'โบนัส', icatRental: 'ค่าเช่า', icatOther: 'อื่นๆ',
     freqMonthly: 'รายเดือน', freqWeekly: 'รายสัปดาห์', freqBiweekly: 'ทุก 2 สัปดาห์',
     freqYearly: 'รายปี', freqOneTime: 'ครั้งเดียว',
-    updated: 'อัปเดตแล้ว', expenseAdded: 'เพิ่มรายจ่ายแล้ว', deleted: 'ลบแล้ว',
-    fixedCostAdded: 'เพิ่มค่าใช้จ่ายประจำแล้ว', incomeAdded: 'เพิ่มรายรับแล้ว',
-    goalAdded: 'เพิ่มเป้าหมายแล้ว', fundsAdded: 'เพิ่มเงินแล้ว!',
-    cardAdded: 'เพิ่มบัตรแล้ว', cardRemoved: 'ลบบัตรแล้ว',
-    installmentAdded: 'เพิ่มรายการผ่อนชำระแล้ว', removed: 'ลบแล้ว',
-    jsonExported: 'ส่งออก JSON สำรองแล้ว', csvExported: 'ส่งออก CSV แล้ว',
-    dataRestored: 'กู้คืนข้อมูลแล้ว!', dataCleared: 'ลบข้อมูลทั้งหมดแล้ว',
+    updated: '✅ อัปเดตแล้ว', expenseAdded: '✅ เพิ่มรายจ่ายแล้ว', deleted: 'ลบแล้ว',
+    fixedCostAdded: '✅ เพิ่มค่าใช้จ่ายประจำแล้ว', incomeAdded: '✅ เพิ่มรายรับแล้ว',
+    goalAdded: '✅ เพิ่มเป้าหมายแล้ว', fundsAdded: '✅ เพิ่มเงินแล้ว!',
+    cardAdded: '✅ เพิ่มบัตรแล้ว', cardRemoved: 'ลบบัตรแล้ว',
+    installmentAdded: '✅ เพิ่มรายการผ่อนชำระแล้ว', removed: 'ลบแล้ว',
+    jsonExported: '✅ ส่งออก JSON สำรองแล้ว', csvExported: '✅ ส่งออก CSV แล้ว',
+    dataRestored: '✅ กู้คืนข้อมูลแล้ว!', dataCleared: 'ลบข้อมูลทั้งหมดแล้ว',
     incomeChart: 'รายรับ', expensesChart: 'รายจ่าย',
     darkMode: 'โหมดมืด',
-    payCycleTitle: 'รอบเงินเดือน', paydayLabel: 'วันรับเงินเดือน',
+    payCycleTitle: '📅 รอบเงินเดือน', paydayLabel: 'วันรับเงินเดือน',
     paydayHint: 'แต่ละรอบเริ่มนับจากวันนี้ (ถ้าตรงกับวันเสาร์-อาทิตย์จะเลื่อนมาเป็นวันศุกร์)',
     cycleLabelLabel: 'ตั้งชื่อรอบตาม', cycleLabelEnd: 'เดือนที่รอบสิ้นสุด', cycleLabelStart: 'เดือนที่รอบเริ่ม',
     cycleLabelHint: 'เช่น 28 มิ.ย. – 27 ก.ค.',
     budgetProgress: 'ความคืบหน้างบประมาณ', setBudgets: 'ตั้งงบประมาณ', budget: 'งบประมาณ',
     noBudgets: 'ยังไม่ได้ตั้งงบประมาณ', noBudgetsSub: 'ตั้งวงเงินรายเดือนตามหมวดหมู่',
     budgetOf: 'จาก', budgetOver: 'เกินงบ', budgetRemaining: 'เหลือ',
-    saveBudgets: 'บันทึกงบประมาณ', budgetsSaved: 'บันทึกงบประมาณแล้ว',
+    saveBudgets: 'บันทึกงบประมาณ', budgetsSaved: '✅ บันทึกงบประมาณแล้ว',
     overBudgetAlert: 'เกินงบใน', categories: 'หมวดหมู่',
     searchExpenses: 'ค้นหารายจ่าย…', allCategories: 'ทุกหมวดหมู่',
     noResults: 'ไม่พบรายจ่ายที่ตรงกัน', results: 'ผลลัพธ์',
-    insights: 'วิเคราะห์', projectedSpend: 'รายจ่ายคาดการณ์ทั้งเดือน',
+    insights: '📈 วิเคราะห์', projectedSpend: 'รายจ่ายคาดการณ์ทั้งเดือน',
     projectedRemaining: 'คาดว่าเหลือ', biggestExpense: 'รายจ่ายสูงสุด',
     noExpensesYet: 'ยังไม่มีรายจ่าย', vsLastMonth: 'เทียบเดือนที่แล้ว',
     spending: 'รายจ่าย', moreSpending: 'จ่ายเพิ่มขึ้น', lessSpending: 'จ่ายลดลง',
@@ -834,9 +771,8 @@ function Modal({
     className: "stitle"
   }, title), /*#__PURE__*/React.createElement("button", {
     className: "sclose",
-    onClick: onClose,
-    'aria-label': "Close"
-  }, /*#__PURE__*/React.createElement(Icon, { name: "close", size: 17 }))), /*#__PURE__*/React.createElement("div", {
+    onClick: onClose
+  }, "✕")), /*#__PURE__*/React.createElement("div", {
     className: "sbody"
   }, children))), document.body);
 }
@@ -884,7 +820,7 @@ function CatPicker({
     onClick: () => onChange(c.id)
   }, /*#__PURE__*/React.createElement("span", {
     className: "cico"
-  }, /*#__PURE__*/React.createElement(Icon, { name: iconName(c), size: 22 })), /*#__PURE__*/React.createElement("span", {
+  }, c.emoji), /*#__PURE__*/React.createElement("span", {
     className: "clbl"
   }, labelFn ? labelFn(c.id) : c.label))));
 }
@@ -1289,7 +1225,7 @@ function SavingsForm({
     targetAmount: '',
     currentAmount: 0,
     notes: '',
-    icon: initial?.icon || 'target',
+    emoji: '🎯',
     ...initial,
     targetAmount: initial?.targetAmount ?? '',
     currentAmount: initial?.currentAmount ?? 0
@@ -1306,7 +1242,7 @@ function SavingsForm({
       currentAmount: Number(f.currentAmount || 0)
     });
   };
-  const goalIcons = ['target', 'coins', 'car', 'home', 'laptop', 'plane', 'gift', 'book', 'health', 'paw', 'music', 'bulb'];
+  const emos = ['🎯', '🏖️', '🚗', '🏠', '💻', '✈️', '💍', '🎓', '💊', '🐾', '🎸', '💡'];
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
     label: t('goalName')
   }, /*#__PURE__*/React.createElement(Inp, {
@@ -1322,14 +1258,14 @@ function SavingsForm({
     style: {
       gridTemplateColumns: 'repeat(6,1fr)'
     }
-  }, goalIcons.map(e => /*#__PURE__*/React.createElement("button", {
+  }, emos.map(e => /*#__PURE__*/React.createElement("button", {
     key: e,
     type: "button",
-    className: `copt${f.icon === e ? ' sel' : ''}`,
-    onClick: () => s('icon', e)
+    className: `copt${f.emoji === e ? ' sel' : ''}`,
+    onClick: () => s('emoji', e)
   }, /*#__PURE__*/React.createElement("span", {
     className: "cico"
-  }, /*#__PURE__*/React.createElement(Icon, { name: e, size: 22 })))))), /*#__PURE__*/React.createElement("div", {
+  }, e))))), /*#__PURE__*/React.createElement("div", {
     className: "frow"
   }, /*#__PURE__*/React.createElement(Field, {
     label: t('target')
@@ -1666,7 +1602,7 @@ function Dashboard({
   }, /*#__PURE__*/React.createElement("div", {
     className: "hero",
     style: {
-      background: `linear-gradient(135deg,${net >= 0 ? '#7066f6,#28aa91' : '#f06f84,#cc405c'})`
+      background: `linear-gradient(135deg,${net >= 0 ? '#10b981,#059669' : '#ef4444,#dc2626'})`
     }
   }, /*#__PURE__*/React.createElement("div", {
     className: "hlbl"
@@ -1740,7 +1676,7 @@ function Dashboard({
     style: {
       fontSize: 14
     }
-  }, /*#__PURE__*/React.createElement(Icon, { name: iconName(c), size: 20 })), /*#__PURE__*/React.createElement("span", {
+  }, c.emoji), /*#__PURE__*/React.createElement("span", {
     style: {
       fontSize: 13,
       fontWeight: 600
@@ -1779,7 +1715,7 @@ function Dashboard({
       }, /*#__PURE__*/React.createElement("div", {
         className: "fbet", style: { marginBottom: 4 }
       }, /*#__PURE__*/React.createElement("div", { className: "fb g8" },
-        /*#__PURE__*/React.createElement(Icon, { name: iconName(cat), size: 17 }),
+        /*#__PURE__*/React.createElement("span", { style: { fontSize: 14 } }, cat.emoji),
         /*#__PURE__*/React.createElement("span", { style: { fontSize: 13, fontWeight: 600 } }, getCatLabel(b.category))
       ), /*#__PURE__*/React.createElement("span", {
         style: { fontSize: 12, fontWeight: 700, color: color }
@@ -1837,7 +1773,7 @@ function Dashboard({
       /*#__PURE__*/React.createElement("div", { style: { marginBottom: 12, padding: '10px 12px', background: 'var(--bg)', borderRadius: 'var(--rmd)' } },
         /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: 'var(--t3)', fontWeight: 600, marginBottom: 3 } }, t('biggestExpense')),
         biggest ? /*#__PURE__*/React.createElement("div", { className: "fb g8" },
-          /*#__PURE__*/React.createElement(Icon, { name: iconName(getCat(biggest.category)), size: 19 }),
+          /*#__PURE__*/React.createElement("span", { style: { fontSize: 16 } }, getCat(biggest.category).emoji),
           /*#__PURE__*/React.createElement("div", null,
             /*#__PURE__*/React.createElement("div", { style: { fontSize: 14, fontWeight: 700 } }, biggest.name),
             /*#__PURE__*/React.createElement("div", { style: { fontSize: 11, color: 'var(--t3)' } }, biggest.date)
@@ -1848,7 +1784,7 @@ function Dashboard({
       prevTotal > 0 && /*#__PURE__*/React.createElement("div", { style: { padding: '10px 12px', background: 'var(--bg)', borderRadius: 'var(--rmd)' } },
         /*#__PURE__*/React.createElement("div", { style: { fontSize: 12, color: 'var(--t3)', fontWeight: 600, marginBottom: 3 } }, t('vsLastMonth')),
         /*#__PURE__*/React.createElement("div", { style: { fontSize: 16, fontWeight: 800, color: momUp ? 'var(--danger)' : 'var(--success)' } },
-          /*#__PURE__*/React.createElement(Icon, { name: momUp ? 'arrowUp' : 'arrowDown', size: 16 }), ' ', Math.abs(momChange).toFixed(1), '% ', momUp ? t('moreSpending') : t('lessSpending'))
+          momUp ? '↑' : '↓', ' ', Math.abs(momChange).toFixed(1), '% ', momUp ? t('moreSpending') : t('lessSpending'))
       )
     );
   })())), allCards.length > 0 && /*#__PURE__*/React.createElement("div", {
@@ -1917,7 +1853,7 @@ function Dashboard({
         background: cat.bg,
         color: cat.tc
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: iconName(cat), size: 20 })), /*#__PURE__*/React.createElement("div", {
+    }, cat.emoji), /*#__PURE__*/React.createElement("div", {
       className: "linf"
     }, /*#__PURE__*/React.createElement("div", {
       className: "lname"
@@ -1931,7 +1867,7 @@ function Dashboard({
     onClose: () => setBudgetModal(false)
   }, CATS.filter(c => c.id !== 'installments').map(c => /*#__PURE__*/React.createElement(Field, {
     key: c.id,
-    label: getCatLabel(c.id)
+    label: c.emoji + ' ' + getCatLabel(c.id)
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number", placeholder: "0.00", step: "0.01", inputMode: "decimal",
     value: budgetDrafts[c.id] || '',
@@ -1968,7 +1904,7 @@ function ExpensesTab({
   const [summaryMode, setSummaryMode] = useState('daily');
   const [categoryModal, setCategoryModal] = useState(null);
   const [replacementCat, setReplacementCat] = useState('other');
-  const [customCat, setCustomCat] = useState({ label: '', icon: 'tag' });
+  const [customCat, setCustomCat] = useState({ label: '', emoji: '✨' });
   const mk = mkKey(currentMonth);
   const load = useCallback(async () => {
     const cr = cycleRange(currentMonth, payday);
@@ -2029,15 +1965,15 @@ function ExpensesTab({
     const label = customCat.label.trim();
     if (!label) return;
     if (customCat.id) {
-      CUSTOM_CATS = CUSTOM_CATS.map(c => c.id === customCat.id ? { ...c, label, icon: iconName(customCat) } : c);
+      CUSTOM_CATS = CUSTOM_CATS.map(c => c.id === customCat.id ? { ...c, label, emoji: customCat.emoji.trim() || '✨' } : c);
     } else {
       const id = 'custom-' + Date.now();
-      CUSTOM_CATS = [...CUSTOM_CATS, { id, label, icon: iconName(customCat), bg: '#eeecff', tc: '#5148d8' }];
+      CUSTOM_CATS = [...CUSTOM_CATS, { id, label, emoji: customCat.emoji.trim() || '✨', bg: '#ede9fe', tc: '#5b21b6' }];
     }
     await db.settings.put({ key: 'customCategories', value: CUSTOM_CATS });
-    setCustomCat({ label: '', icon: 'tag' });
+    setCustomCat({ label: '', emoji: '✨' });
     setCategoryModal('manage');
-    showToast(customCat.id ? 'Expense type updated' : 'Expense type added');
+    showToast(customCat.id ? '✅ Expense type updated' : '✅ Expense type added');
   };
   const askDeleteCategory = async cat => {
     const [expenseCount, fixedCount] = await Promise.all([
@@ -2098,7 +2034,7 @@ function ExpensesTab({
       className: "fsel", style: { width: 'auto', minWidth: 100, height: 38, fontSize: 13 },
       value: catFilter, onChange: e => setCatFilter(e.target.value)
     }, /*#__PURE__*/React.createElement("option", { value: '' }, t('allCategories')),
-      expenseCats().map(c => /*#__PURE__*/React.createElement("option", { key: c.id, value: c.id }, getCatLabel(c.id))))
+      expenseCats().map(c => /*#__PURE__*/React.createElement("option", { key: c.id, value: c.id }, c.emoji + ' ' + getCatLabel(c.id))))
   )), sub === 'variable' && /*#__PURE__*/React.createElement("div", { className: "sec" },
     /*#__PURE__*/React.createElement("div", { className: "card cp" },
       /*#__PURE__*/React.createElement("div", { className: "fb", style: { marginBottom: 10 } },
@@ -2131,14 +2067,14 @@ function ExpensesTab({
         const rows = Object.entries(map).sort((a,b) => b[1] - a[1]);
         const total = rows.reduce((s,[,amount]) => s + amount, 0);
         if (!rows.length) return /*#__PURE__*/React.createElement("div", { className: "empty", style: { padding: '16px 0' } },
-          /*#__PURE__*/React.createElement("div", { className: "eico" }, /*#__PURE__*/React.createElement(Icon, { name: "calendar", size: 28 })),
+          /*#__PURE__*/React.createElement("div", { className: "eico" }, "📅"),
           /*#__PURE__*/React.createElement("div", { className: "etxt" }, summaryMode === 'daily' ? "No expenses on this day" : "No expenses this week")
         );
         return /*#__PURE__*/React.createElement(React.Fragment, null,
           /*#__PURE__*/React.createElement("div", { style: { textAlign: 'center', fontSize: 22, fontWeight: 800, marginBottom: 8 } }, fmt(total, sym)),
           /*#__PURE__*/React.createElement(DonutChart, { labels: rows.map(([id]) => getCatLabel(id)), data: rows.map(([,amount]) => amount), colors: rows.map(([id]) => getCat(id).tc), sym: sym }),
           /*#__PURE__*/React.createElement("div", { style: { marginTop: 8 } }, rows.map(([id, amount]) => /*#__PURE__*/React.createElement("div", { key: id, className: "fb", style: { padding: '6px 0', fontSize: 13 } },
-            /*#__PURE__*/React.createElement("span", { className: "fb g8" }, /*#__PURE__*/React.createElement(Icon, { name: iconName(getCat(id)), size: 17 }), getCatLabel(id)),
+            /*#__PURE__*/React.createElement("span", null, getCat(id).emoji, ' ', getCatLabel(id)),
             /*#__PURE__*/React.createElement("strong", null, fmt(amount, sym))
           )))
         );
@@ -2151,7 +2087,7 @@ function ExpensesTab({
     className: "empty"
   }, /*#__PURE__*/React.createElement("div", {
     className: "eico"
-  }, /*#__PURE__*/React.createElement(Icon, { name: "card", size: 26 })), /*#__PURE__*/React.createElement("div", {
+  }, "💳"), /*#__PURE__*/React.createElement("div", {
     className: "etxt"
   }, t('noActiveInstallments')), /*#__PURE__*/React.createElement("div", {
     className: "esub"
@@ -2165,7 +2101,7 @@ function ExpensesTab({
     }, /*#__PURE__*/React.createElement("div", {
       className: "lico",
       style: { background: '#fae8ff', color: '#86198f', fontSize: 14 }
-    }, /*#__PURE__*/React.createElement(Icon, { name: "card", size: 20 })), /*#__PURE__*/React.createElement("div", {
+    }, "💳"), /*#__PURE__*/React.createElement("div", {
       className: "linf",
       onClick: () => setModal({ type: 'editInst', data: inst }),
       style: { cursor: 'pointer' }
@@ -2205,7 +2141,7 @@ function ExpensesTab({
         fontWeight: 700,
         touchAction: 'manipulation'
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: "close", size: 14 }))));
+    }, "✕")));
   }))), (() => {
   if (sub !== 'variable') return null;
   const filtered = varExps.filter(e => {
@@ -2224,7 +2160,7 @@ function ExpensesTab({
     className: "empty"
   }, /*#__PURE__*/React.createElement("div", {
     className: "eico"
-  }, /*#__PURE__*/React.createElement(Icon, { name: (search || catFilter) ? "search" : "receipt", size: 28 })), /*#__PURE__*/React.createElement("div", {
+  }, (search || catFilter) ? "🔍" : "🧾"), /*#__PURE__*/React.createElement("div", {
     className: "etxt"
   }, (search || catFilter) ? t('noResults') : t('noExpensesMonth')), /*#__PURE__*/React.createElement("div", {
     className: "esub"
@@ -2242,7 +2178,7 @@ function ExpensesTab({
         background: cat.bg,
         color: cat.tc
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: iconName(cat), size: 20 })), /*#__PURE__*/React.createElement("div", {
+    }, cat.emoji), /*#__PURE__*/React.createElement("div", {
       className: "linf",
       onClick: () => setModal({
         type: 'editVar',
@@ -2272,7 +2208,7 @@ function ExpensesTab({
         fontWeight: 700,
         touchAction: 'manipulation'
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: "close", size: 14 }))));
+    }, "✕")));
   })));
   })(), sub === 'fixed' && /*#__PURE__*/React.createElement("div", {
     className: "sec",
@@ -2283,7 +2219,7 @@ function ExpensesTab({
     className: "empty"
   }, /*#__PURE__*/React.createElement("div", {
     className: "eico"
-  }, /*#__PURE__*/React.createElement(Icon, { name: "calendar", size: 28 })), /*#__PURE__*/React.createElement("div", {
+  }, "📅"), /*#__PURE__*/React.createElement("div", {
     className: "etxt"
   }, t('noFixedCosts')), /*#__PURE__*/React.createElement("div", {
     className: "esub"
@@ -2303,7 +2239,7 @@ function ExpensesTab({
         background: cat.bg,
         color: cat.tc
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: iconName(cat), size: 20 })), /*#__PURE__*/React.createElement("div", {
+    }, cat.emoji), /*#__PURE__*/React.createElement("div", {
       className: "linf",
       onClick: () => setModal({
         type: 'editFixed',
@@ -2336,7 +2272,7 @@ function ExpensesTab({
         fontWeight: 700,
         touchAction: 'manipulation'
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: "close", size: 14 }))));
+    }, "✕")));
   })), inactiveRecs.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "card cp"
   }, /*#__PURE__*/React.createElement("div", {
@@ -2355,7 +2291,7 @@ function ExpensesTab({
         background: cat.bg,
         color: cat.tc
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: iconName(cat), size: 20 })), /*#__PURE__*/React.createElement("div", {
+    }, cat.emoji), /*#__PURE__*/React.createElement("div", {
       className: "linf",
       onClick: () => setModal({
         type: 'editFixed',
@@ -2388,11 +2324,11 @@ function ExpensesTab({
         fontWeight: 700,
         touchAction: 'manipulation'
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: "close", size: 14 }))));
+    }, "✕")));
   })))), /*#__PURE__*/React.createElement("button", {
     className: "fab",
     onClick: () => setModal(sub === 'fixed' ? 'addFixed' : sub === 'installments' ? 'addInst' : 'addVar')
-  }, /*#__PURE__*/React.createElement(Icon, { name: "plus", size: 25 })), (modal === 'addInst' || modal?.type === 'editInst') && (cards.length > 0 ? /*#__PURE__*/React.createElement(Modal, {
+  }, "+"), (modal === 'addInst' || modal?.type === 'editInst') && (cards.length > 0 ? /*#__PURE__*/React.createElement(Modal, {
     title: modal?.type ? t('editInstallment') : t('addInstallment'),
     onClose: () => setModal(null)
   }, /*#__PURE__*/React.createElement(InstallForm, {
@@ -2424,13 +2360,13 @@ function ExpensesTab({
     onClose: () => setCategoryModal(null)
   }, /*#__PURE__*/React.createElement("button", {
     className: "btn bpri",
-    onClick: () => { setCustomCat({ label: '', icon: 'tag' }); setCategoryModal('add'); },
+    onClick: () => { setCustomCat({ label: '', emoji: '✨' }); setCategoryModal('add'); },
     style: { marginBottom: 12 }
   }, "+ Add expense type"), CUSTOM_CATS.length === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "empty", style: { padding: '18px 0' }
   }, /*#__PURE__*/React.createElement("div", { className: "etxt" }, "No custom expense types yet")) : CUSTOM_CATS.map(cat => /*#__PURE__*/React.createElement("div", {
     key: cat.id, className: "li"
-  }, /*#__PURE__*/React.createElement("div", { className: "lico", style: { background: cat.bg, color: cat.tc } }, /*#__PURE__*/React.createElement(Icon, { name: iconName(cat), size: 20 })),
+  }, /*#__PURE__*/React.createElement("div", { className: "lico", style: { background: cat.bg, color: cat.tc } }, cat.emoji),
   /*#__PURE__*/React.createElement("div", { className: "linf" }, /*#__PURE__*/React.createElement("div", { className: "lname" }, cat.label)),
   /*#__PURE__*/React.createElement("button", {
     type: "button", onClick: () => { setCustomCat({ ...cat }); setCategoryModal('edit'); },
@@ -2441,11 +2377,10 @@ function ExpensesTab({
   }, "Remove")))), (categoryModal === 'add' || categoryModal === 'edit') && /*#__PURE__*/React.createElement(Modal, {
     title: categoryModal === 'edit' ? "Edit expense type" : "Add expense type",
     onClose: () => setCategoryModal('manage')
-  }, /*#__PURE__*/React.createElement(Field, { label: "Type name" }, /*#__PURE__*/React.createElement(Inp, { type: "text", placeholder: "e.g. Pets", value: customCat.label, onChange: e => setCustomCat(p => ({ ...p, label: e.target.value })), autoFocus: true })),
-  /*#__PURE__*/React.createElement(Field, { label: "Choose an icon" }, /*#__PURE__*/React.createElement("div", { className: "catg", style: { gridTemplateColumns: 'repeat(6,1fr)' } }, CUSTOM_ICON_OPTIONS.map(name => /*#__PURE__*/React.createElement("button", {
-    key: name, type: "button", className: `copt${customCat.icon === name ? ' sel' : ''}`, onClick: () => setCustomCat(p => ({ ...p, icon: name })), 'aria-label': name
-  }, /*#__PURE__*/React.createElement("span", { className: "cico" }, /*#__PURE__*/React.createElement(Icon, { name, size: 22 })))))),
-  /*#__PURE__*/React.createElement("button", { className: "btn bpri", onClick: saveCustomCategory }, categoryModal === 'edit' ? "Save changes" : "Add expense type")), categoryModal?.type === 'delete' && /*#__PURE__*/React.createElement(Modal, {
+  }, /*#__PURE__*/React.createElement("div", { className: "frow" },
+    /*#__PURE__*/React.createElement(Field, { label: "Icon" }, /*#__PURE__*/React.createElement(Inp, { type: "text", value: customCat.emoji, maxLength: 8, onChange: e => setCustomCat(p => ({ ...p, emoji: e.target.value })), style: { fontSize: 22, textAlign: 'center' } })),
+    /*#__PURE__*/React.createElement(Field, { label: "Type name" }, /*#__PURE__*/React.createElement(Inp, { type: "text", placeholder: "e.g. Pets", value: customCat.label, onChange: e => setCustomCat(p => ({ ...p, label: e.target.value })), autoFocus: true }))
+  ), /*#__PURE__*/React.createElement("button", { className: "btn bpri", onClick: saveCustomCategory }, categoryModal === 'edit' ? "Save changes" : "Add expense type")), categoryModal?.type === 'delete' && /*#__PURE__*/React.createElement(Modal, {
     title: "Remove expense type?",
     onClose: () => setCategoryModal('manage')
   }, /*#__PURE__*/React.createElement("p", { style: { fontSize: 14, lineHeight: 1.5, color: 'var(--t2)', marginBottom: 14 } },
@@ -2453,7 +2388,7 @@ function ExpensesTab({
   ), categoryModal.count > 0 && /*#__PURE__*/React.createElement(Field, { label: "Move existing spending to" }, /*#__PURE__*/React.createElement(Sel, {
     value: replacementCat,
     onChange: e => setReplacementCat(e.target.value),
-    options: expenseCats().filter(c => c.id !== categoryModal.cat.id).map(c => ({ value: c.id, label: getCatLabel(c.id) }))
+    options: expenseCats().filter(c => c.id !== categoryModal.cat.id).map(c => ({ value: c.id, label: `${c.emoji} ${getCatLabel(c.id)}` }))
   })), /*#__PURE__*/React.createElement("button", {
     className: "btn", onClick: () => deleteCustomCategory(categoryModal.cat),
     style: { background: 'var(--danger)', color: '#fff' }
@@ -2532,7 +2467,7 @@ function IncomeTab({
     className: "empty"
   }, /*#__PURE__*/React.createElement("div", {
     className: "eico"
-  }, /*#__PURE__*/React.createElement(Icon, { name: "briefcase", size: 28 })), /*#__PURE__*/React.createElement("div", {
+  }, "💼"), /*#__PURE__*/React.createElement("div", {
     className: "etxt"
   }, t('noIncomeSources')), /*#__PURE__*/React.createElement("div", {
     className: "esub"
@@ -2553,7 +2488,7 @@ function IncomeTab({
         background: '#d1fae5',
         color: '#065f46'
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: iconName(cat), size: 20 })), /*#__PURE__*/React.createElement("div", {
+    }, cat.emoji), /*#__PURE__*/React.createElement("div", {
       className: "linf",
       onClick: () => setModal(inc),
       style: {
@@ -2592,11 +2527,11 @@ function IncomeTab({
         fontWeight: 700,
         touchAction: 'manipulation'
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: "close", size: 14 }))));
+    }, "✕")));
   }))), /*#__PURE__*/React.createElement("button", {
     className: "fab",
     onClick: () => setModal('new')
-  }, /*#__PURE__*/React.createElement(Icon, { name: "plus", size: 25 })), modal && /*#__PURE__*/React.createElement(Modal, {
+  }, "+"), modal && /*#__PURE__*/React.createElement(Modal, {
     title: modal === 'new' ? t('addIncome') : t('editIncome'),
     onClose: () => setModal(null)
   }, /*#__PURE__*/React.createElement(IncomeForm, {
@@ -2698,7 +2633,7 @@ function SavingsTab({
     className: "empty"
   }, /*#__PURE__*/React.createElement("div", {
     className: "eico"
-  }, /*#__PURE__*/React.createElement(Icon, { name: "target", size: 28 })), /*#__PURE__*/React.createElement("div", {
+  }, "🎯"), /*#__PURE__*/React.createElement("div", {
     className: "etxt"
   }, t('noSavingsGoals')), /*#__PURE__*/React.createElement("div", {
     className: "esub"
@@ -2722,7 +2657,7 @@ function SavingsTab({
       style: {
         fontSize: 24
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: iconName(goal, 'target'), size: 22 })), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    }, goal.emoji || '🎯'), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
       style: {
         fontWeight: 700,
         fontSize: 15
@@ -2749,10 +2684,10 @@ function SavingsTab({
     }, "+ Add"), /*#__PURE__*/React.createElement("button", {
       className: "btn bsm bghost",
       onClick: () => setModal(goal)
-    }, /*#__PURE__*/React.createElement(Icon, { name: "edit", size: 16 })), /*#__PURE__*/React.createElement("button", {
+    }, "✏️"), /*#__PURE__*/React.createElement("button", {
       className: "btn bsm bdanger",
       onClick: () => del(goal.id)
-    }, /*#__PURE__*/React.createElement(Icon, { name: "trash", size: 16 })))), /*#__PURE__*/React.createElement("div", {
+    }, "🗑️"))), /*#__PURE__*/React.createElement("div", {
       className: "fbet",
       style: {
         marginBottom: 6
@@ -2789,7 +2724,7 @@ function SavingsTab({
   })), /*#__PURE__*/React.createElement("button", {
     className: "fab",
     onClick: () => setModal('new')
-  }, /*#__PURE__*/React.createElement(Icon, { name: "plus", size: 25 })), fundsGoal && /*#__PURE__*/React.createElement(Modal, {
+  }, "+"), fundsGoal && /*#__PURE__*/React.createElement(Modal, {
     title: t('addFunds'),
     onClose: () => setFundsGoal(null)
   }, (() => {
@@ -2803,7 +2738,7 @@ function SavingsTab({
       style: {
         fontSize: 36
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: iconName(g, 'target'), size: 20 })), /*#__PURE__*/React.createElement("div", {
+    }, g.emoji || '🎯'), /*#__PURE__*/React.createElement("div", {
       style: {
         fontWeight: 700,
         fontSize: 16,
@@ -2916,7 +2851,7 @@ function CardsTab({
     className: "empty"
   }, /*#__PURE__*/React.createElement("div", {
     className: "eico"
-  }, /*#__PURE__*/React.createElement(Icon, { name: "card", size: 28 })), /*#__PURE__*/React.createElement("div", {
+  }, "💳"), /*#__PURE__*/React.createElement("div", {
     className: "etxt"
   }, t('noCreditCards')), /*#__PURE__*/React.createElement("div", {
     className: "esub"
@@ -2984,7 +2919,7 @@ function CardsTab({
         alignItems: 'center',
         justifyContent: 'center'
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: "edit", size: 16 })), /*#__PURE__*/React.createElement("button", {
+    }, "✏️"), /*#__PURE__*/React.createElement("button", {
       onClick: () => { if (confirm(t('deleteCardConfirm') + card.name + t('deleteCardConfirm2'))) delCard(card.id); },
       style: {
         background: 'rgba(255,255,255,.2)',
@@ -2999,7 +2934,7 @@ function CardsTab({
         alignItems: 'center',
         justifyContent: 'center'
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: "trash", size: 15 })))), isExp && /*#__PURE__*/React.createElement("div", {
+    }, "×"))), isExp && /*#__PURE__*/React.createElement("div", {
       className: "card cp",
       style: {
         marginTop: 8
@@ -3068,7 +3003,7 @@ function CardsTab({
         fontWeight: 700,
         touchAction: 'manipulation'
       }
-    }, /*#__PURE__*/React.createElement(Icon, { name: "close", size: 14 }))))), (cardRecs.length > 0 || cardExps.length > 0) && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    }, "✕")))), (cardRecs.length > 0 || cardExps.length > 0) && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
       className: "ctitle mt12 mb10"
     }, t('thisMonthCharges')), cardRecs.map(r => {
       const cat = getCat(r.category);
@@ -3082,7 +3017,7 @@ function CardsTab({
           color: cat.tc,
           fontSize: 14
         }
-      }, /*#__PURE__*/React.createElement(Icon, { name: iconName(cat), size: 20 })), /*#__PURE__*/React.createElement("div", {
+      }, cat.emoji), /*#__PURE__*/React.createElement("div", {
         className: "linf"
       }, /*#__PURE__*/React.createElement("div", {
         className: "lname"
@@ -3103,7 +3038,7 @@ function CardsTab({
           color: cat.tc,
           fontSize: 14
         }
-      }, /*#__PURE__*/React.createElement(Icon, { name: iconName(cat), size: 20 })), /*#__PURE__*/React.createElement("div", {
+      }, cat.emoji), /*#__PURE__*/React.createElement("div", {
         className: "linf"
       }, /*#__PURE__*/React.createElement("div", {
         className: "lname"
@@ -3116,7 +3051,7 @@ function CardsTab({
   })), /*#__PURE__*/React.createElement("button", {
     className: "fab",
     onClick: () => setModal('new')
-  }, /*#__PURE__*/React.createElement(Icon, { name: "plus", size: 25 })), instModal && cards.length > 0 && /*#__PURE__*/React.createElement(Modal, {
+  }, "+"), instModal && cards.length > 0 && /*#__PURE__*/React.createElement(Modal, {
     title: t('addInstallment'),
     onClose: () => setInstModal(null)
   }, /*#__PURE__*/React.createElement(InstallForm, {
@@ -3363,7 +3298,12 @@ class ErrorBoundary extends React.Component {
           fontFamily: 'system-ui',
           color: '#ef4444'
         }
-      }, React.createElement(Icon, { name: 'alert', size: 26 }), React.createElement('b', null, 'App error: '), React.createElement('code', {
+      }, React.createElement('div', {
+        style: {
+          fontSize: 24,
+          marginBottom: 8
+        }
+      }, '⚠️'), React.createElement('b', null, 'App error: '), React.createElement('code', {
         style: {
           fontSize: 12,
           display: 'block',
@@ -3421,7 +3361,7 @@ function App() {
         if (r?.value) { CYCLE_LABEL = r.value; setCycleLabel(r.value); }
       }),
       db.settings.get('customCategories').then(r => {
-        if (Array.isArray(r?.value)) CUSTOM_CATS = r.value.map(c => ({ ...c, icon: iconName(c) }));
+        if (Array.isArray(r?.value)) CUSTOM_CATS = r.value;
       })
     ]).catch(() => {}).finally(() => {
       setMonth(cycleAnchor(new Date()));
@@ -3468,23 +3408,23 @@ function App() {
   const tabs = [{
     id: 'dashboard',
     label: t('home'),
-    icon: 'dashboard'
+    emoji: '📊'
   }, {
     id: 'expenses',
     label: t('spend'),
-    icon: 'receipt'
+    emoji: '💸'
   }, {
     id: 'income',
     label: t('income'),
-    icon: 'trend'
+    emoji: '💰'
   }, {
     id: 'savings',
     label: t('save'),
-    icon: 'target'
+    emoji: '🎯'
   }, {
     id: 'cards',
     label: t('cards'),
-    icon: 'card'
+    emoji: '💳'
   }];
   if (!ready) return /*#__PURE__*/React.createElement("div", {
     style: {
@@ -3496,8 +3436,10 @@ function App() {
       gap: 12
     }
   }, /*#__PURE__*/React.createElement("div", {
-    style: { width: 38, height: 38, border: '3px solid var(--pl)', borderTopColor: 'var(--p)', borderRadius: '50%', animation: 'spin .8s linear infinite' }
-  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 36
+    }
+  }, "💰"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 15,
       color: '#94a3b8',
@@ -3512,7 +3454,7 @@ function App() {
     className: "hdr-logo"
   }, /*#__PURE__*/React.createElement("div", {
     className: "hdr-icon"
-  }, /*#__PURE__*/React.createElement(Icon, { name: "wallet", size: 20 })), /*#__PURE__*/React.createElement("span", {
+  }, "💰"), /*#__PURE__*/React.createElement("span", {
     className: "hdr-title"
   }, "Cashflow")), /*#__PURE__*/React.createElement("div", {
     className: "hdr-right"
@@ -3520,12 +3462,12 @@ function App() {
     className: "ibtn",
     onClick: () => setShowSettings(true),
     title: t('settings')
-  }, /*#__PURE__*/React.createElement(Icon, { name: "settings", size: 19 })))), /*#__PURE__*/React.createElement("div", {
+  }, "⚙️"))), /*#__PURE__*/React.createElement("div", {
     className: "mnav"
   }, /*#__PURE__*/React.createElement("button", {
     className: "mbtn",
     onClick: prevM
-  }, /*#__PURE__*/React.createElement(Icon, { name: "chevronLeft", size: 19 })), /*#__PURE__*/React.createElement("div", {
+  }, "‹"), /*#__PURE__*/React.createElement("div", {
     className: "mlbl"
   }, /*#__PURE__*/React.createElement("div", null, mkLabel(month)), /*#__PURE__*/React.createElement("div", {
     style: { fontSize: 10, color: 'var(--t3)', fontWeight: 600, marginTop: 1 }
@@ -3535,7 +3477,7 @@ function App() {
   }, t('today'))), /*#__PURE__*/React.createElement("button", {
     className: "mbtn",
     onClick: nextM
-  }, /*#__PURE__*/React.createElement(Icon, { name: "chevronRight", size: 19 }))), /*#__PURE__*/React.createElement("main", {
+  }, "›")), /*#__PURE__*/React.createElement("main", {
     className: "main"
   }, tab === 'dashboard' && /*#__PURE__*/React.createElement(Dashboard, {
     sym: settings.sym,
@@ -3565,7 +3507,7 @@ function App() {
     onClick: () => setTab(tb.id)
   }, /*#__PURE__*/React.createElement("span", {
     className: "nemo"
-  }, /*#__PURE__*/React.createElement(Icon, { name: tb.icon, size: 21 })), /*#__PURE__*/React.createElement("span", null, tb.label)))), showSettings && /*#__PURE__*/React.createElement(SettingsModal, {
+  }, tb.emoji), /*#__PURE__*/React.createElement("span", null, tb.label)))), showSettings && /*#__PURE__*/React.createElement(SettingsModal, {
     sym: settings.sym,
     currCode: settings.currency,
     onCurrChange: updateCurr,
