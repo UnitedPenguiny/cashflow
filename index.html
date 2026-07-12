@@ -968,7 +968,7 @@ function BarChart({
 function ExpenseForm({
   onSave,
   cards,
-  onAddCategory,
+  onManageCategories,
   initial = null
 }) {
   const [f, sf] = useState({
@@ -1022,9 +1022,9 @@ function ExpenseForm({
     label: t('category')
   }, /*#__PURE__*/React.createElement("button", {
     type: "button",
-    onClick: onAddCategory,
+    onClick: onManageCategories,
     style: { width: 'fit-content', padding: '7px 11px', marginBottom: 10, border: '1px solid var(--bd)', borderRadius: 8, background: 'var(--bg)', color: 'var(--p)', fontWeight: 700, cursor: 'pointer' }
-  }, "+ Add expense type"), /*#__PURE__*/React.createElement(CatPicker, {
+  }, "Manage expense types"), /*#__PURE__*/React.createElement(CatPicker, {
     value: f.category,
     onChange: v => s('category', v),
     labelFn: getCatLabel
@@ -1902,7 +1902,8 @@ function ExpensesTab({
   const [catFilter, setCatFilter] = useState('');
   const [day, setDay] = useState(todayStr());
   const [summaryMode, setSummaryMode] = useState('daily');
-  const [categoryModal, setCategoryModal] = useState(false);
+  const [categoryModal, setCategoryModal] = useState(null);
+  const [replacementCat, setReplacementCat] = useState('other');
   const [customCat, setCustomCat] = useState({ label: '', emoji: '✨' });
   const mk = mkKey(currentMonth);
   const load = useCallback(async () => {
@@ -1963,12 +1964,43 @@ function ExpensesTab({
   const saveCustomCategory = async () => {
     const label = customCat.label.trim();
     if (!label) return;
-    const id = 'custom-' + Date.now();
-    CUSTOM_CATS = [...CUSTOM_CATS, { id, label, emoji: customCat.emoji.trim() || '✨', bg: '#ede9fe', tc: '#5b21b6' }];
+    if (customCat.id) {
+      CUSTOM_CATS = CUSTOM_CATS.map(c => c.id === customCat.id ? { ...c, label, emoji: customCat.emoji.trim() || '✨' } : c);
+    } else {
+      const id = 'custom-' + Date.now();
+      CUSTOM_CATS = [...CUSTOM_CATS, { id, label, emoji: customCat.emoji.trim() || '✨', bg: '#ede9fe', tc: '#5b21b6' }];
+    }
     await db.settings.put({ key: 'customCategories', value: CUSTOM_CATS });
     setCustomCat({ label: '', emoji: '✨' });
-    setCategoryModal(false);
-    showToast('✅ Expense type added');
+    setCategoryModal('manage');
+    showToast(customCat.id ? '✅ Expense type updated' : '✅ Expense type added');
+  };
+  const askDeleteCategory = async cat => {
+    const [expenseCount, fixedCount] = await Promise.all([
+      db.expenses.where('category').equals(cat.id).count(),
+      db.recurring.where('category').equals(cat.id).count()
+    ]);
+    setReplacementCat('other');
+    setCategoryModal({ type: 'delete', cat, count: expenseCount + fixedCount });
+  };
+  const deleteCustomCategory = async cat => {
+    const nextCats = CUSTOM_CATS.filter(c => c.id !== cat.id);
+    await db.transaction('rw', [db.expenses, db.recurring, db.budgets, db.settings], async () => {
+      await db.expenses.where('category').equals(cat.id).modify({ category: replacementCat });
+      await db.recurring.where('category').equals(cat.id).modify({ category: replacementCat });
+      const oldBudget = await db.budgets.get(cat.id);
+      if (oldBudget) {
+        const targetBudget = await db.budgets.get(replacementCat);
+        await db.budgets.put({ category: replacementCat, amount: Number(targetBudget?.amount || 0) + Number(oldBudget.amount || 0) });
+        await db.budgets.delete(cat.id);
+      }
+      await db.settings.put({ key: 'customCategories', value: nextCats });
+    });
+    CUSTOM_CATS = nextCats;
+    if (catFilter === cat.id) setCatFilter('');
+    setCategoryModal('manage');
+    load();
+    showToast('Expense type removed');
   };
   const varTotal = varExps.reduce((s, e) => s + Number(e.amount), 0);
   const activeRecs = recs.filter(r => isActiveInMonth(r, currentMonth));
@@ -2314,7 +2346,7 @@ function ExpensesTab({
   }, /*#__PURE__*/React.createElement(ExpenseForm, {
     onSave: saveVar,
     cards: cards,
-    onAddCategory: () => setCategoryModal(true),
+    onManageCategories: () => setCategoryModal('manage'),
     initial: modal?.data
   })), (modal === 'addFixed' || modal?.type === 'editFixed') && /*#__PURE__*/React.createElement(Modal, {
     title: modal?.type ? t('editFixedCost') : t('addFixedCost'),
@@ -2323,13 +2355,44 @@ function ExpensesTab({
     onSave: saveRec,
     cards: cards,
     initial: modal?.data
-  })), categoryModal && /*#__PURE__*/React.createElement(Modal, {
-    title: "Add expense type",
-    onClose: () => setCategoryModal(false)
+  })), categoryModal === 'manage' && /*#__PURE__*/React.createElement(Modal, {
+    title: "Manage expense types",
+    onClose: () => setCategoryModal(null)
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn bpri",
+    onClick: () => { setCustomCat({ label: '', emoji: '✨' }); setCategoryModal('add'); },
+    style: { marginBottom: 12 }
+  }, "+ Add expense type"), CUSTOM_CATS.length === 0 ? /*#__PURE__*/React.createElement("div", {
+    className: "empty", style: { padding: '18px 0' }
+  }, /*#__PURE__*/React.createElement("div", { className: "etxt" }, "No custom expense types yet")) : CUSTOM_CATS.map(cat => /*#__PURE__*/React.createElement("div", {
+    key: cat.id, className: "li"
+  }, /*#__PURE__*/React.createElement("div", { className: "lico", style: { background: cat.bg, color: cat.tc } }, cat.emoji),
+  /*#__PURE__*/React.createElement("div", { className: "linf" }, /*#__PURE__*/React.createElement("div", { className: "lname" }, cat.label)),
+  /*#__PURE__*/React.createElement("button", {
+    type: "button", onClick: () => { setCustomCat({ ...cat }); setCategoryModal('edit'); },
+    style: { border: 'none', background: 'var(--pl)', color: 'var(--p)', borderRadius: 7, padding: '6px 9px', cursor: 'pointer', fontWeight: 700 }
+  }, "Edit"), /*#__PURE__*/React.createElement("button", {
+    type: "button", onClick: () => askDeleteCategory(cat),
+    style: { border: 'none', background: 'var(--dl)', color: 'var(--danger)', borderRadius: 7, padding: '6px 9px', cursor: 'pointer', fontWeight: 700 }
+  }, "Remove")))), (categoryModal === 'add' || categoryModal === 'edit') && /*#__PURE__*/React.createElement(Modal, {
+    title: categoryModal === 'edit' ? "Edit expense type" : "Add expense type",
+    onClose: () => setCategoryModal('manage')
   }, /*#__PURE__*/React.createElement("div", { className: "frow" },
     /*#__PURE__*/React.createElement(Field, { label: "Icon" }, /*#__PURE__*/React.createElement(Inp, { type: "text", value: customCat.emoji, maxLength: 8, onChange: e => setCustomCat(p => ({ ...p, emoji: e.target.value })), style: { fontSize: 22, textAlign: 'center' } })),
     /*#__PURE__*/React.createElement(Field, { label: "Type name" }, /*#__PURE__*/React.createElement(Inp, { type: "text", placeholder: "e.g. Pets", value: customCat.label, onChange: e => setCustomCat(p => ({ ...p, label: e.target.value })), autoFocus: true }))
-  ), /*#__PURE__*/React.createElement("button", { className: "btn bpri", onClick: saveCustomCategory }, "Add expense type")));
+  ), /*#__PURE__*/React.createElement("button", { className: "btn bpri", onClick: saveCustomCategory }, categoryModal === 'edit' ? "Save changes" : "Add expense type")), categoryModal?.type === 'delete' && /*#__PURE__*/React.createElement(Modal, {
+    title: "Remove expense type?",
+    onClose: () => setCategoryModal('manage')
+  }, /*#__PURE__*/React.createElement("p", { style: { fontSize: 14, lineHeight: 1.5, color: 'var(--t2)', marginBottom: 14 } },
+    categoryModal.count > 0 ? `${categoryModal.count} expense${categoryModal.count === 1 ? '' : 's'} currently use “${categoryModal.cat.label}”. Choose where those expenses should move before removing it.` : `“${categoryModal.cat.label}” is not used by any expenses and can be safely removed.`
+  ), categoryModal.count > 0 && /*#__PURE__*/React.createElement(Field, { label: "Move existing spending to" }, /*#__PURE__*/React.createElement(Sel, {
+    value: replacementCat,
+    onChange: e => setReplacementCat(e.target.value),
+    options: expenseCats().filter(c => c.id !== categoryModal.cat.id).map(c => ({ value: c.id, label: `${c.emoji} ${getCatLabel(c.id)}` }))
+  })), /*#__PURE__*/React.createElement("button", {
+    className: "btn", onClick: () => deleteCustomCategory(categoryModal.cat),
+    style: { background: 'var(--danger)', color: '#fff' }
+  }, categoryModal.count > 0 ? "Move spending and remove" : "Remove expense type")));
 }
 
 // ══ INCOME TAB ══
