@@ -496,22 +496,35 @@ const THEMES = [
   { id: 'rose', labelKey: 'themeRose', className: 'theme-rose', dark: false, primary: '#c93875', bg: '#fde3ee', card: '#fff7fb' },
   { id: 'sunset', labelKey: 'themeSunset', className: 'theme-sunset', dark: false, primary: '#d85b25', bg: '#ffe3d2', card: '#fff9f5' }
 ];
-const SUMMARY_CHART_PALETTES = {
-  default: ['#4f46e5','#7c3aed','#a855f7','#d946ef','#ec4899','#6366f1','#3b82f6','#8b5cf6','#c026d3','#4338ca','#9333ea'],
-  midnight: ['#a78bfa','#818cf8','#60a5fa','#22d3ee','#2dd4bf','#f472b6','#c084fc','#f59e0b','#4ade80','#fb7185','#38bdf8'],
-  ocean: ['#0369a1','#0284c7','#0ea5e9','#06b6d4','#0891b2','#0f766e','#14b8a6','#2563eb','#38bdf8','#155e75','#0d9488'],
-  forest: ['#166534','#15803d','#16a34a','#22c55e','#65a30d','#4d7c0f','#0f766e','#059669','#84cc16','#a16207','#3f6212'],
-  rose: ['#be185d','#db2777','#ec4899','#f43f5e','#e11d48','#a21caf','#c026d3','#fb7185','#f9738a','#9d174d','#d946ef'],
-  sunset: ['#c2410c','#ea580c','#f97316','#fb923c','#f59e0b','#e11d48','#f43f5e','#db2777','#a855f7','#b45309','#ef4444']
-};
-const summaryPalette = () => SUMMARY_CHART_PALETTES[document.documentElement.dataset.theme || 'default'] || SUMMARY_CHART_PALETTES.default;
-const summaryColorFor = (categoryId, fallbackIndex = 0) => {
-  const palette = summaryPalette();
+// Muted loft-inspired chart tones. These stay independent from the selected UI theme
+// so charts remain calm, consistent, and easy to compare across themes.
+const SOFT_CHART_TONES = [
+  { light:'#DCE7F0', base:'#A5BACD', dark:'#7F9AB2' }, // dusty blue
+  { light:'#E2E9DD', base:'#AABDA2', dark:'#82977D' }, // sage
+  { light:'#F0E1D8', base:'#CBA58F', dark:'#A9806B' }, // clay
+  { light:'#E9DFE9', base:'#BCA5BE', dark:'#957C99' }, // mauve
+  { light:'#EEE8D6', base:'#C7B785', dark:'#A28E5F' }, // muted ochre
+  { light:'#DCEBE8', base:'#9DBFBA', dark:'#739C96' }, // sea glass
+  { light:'#E3E2ED', base:'#AAA8C8', dark:'#8381A6' }, // lavender grey
+  { light:'#EFE0E3', base:'#C7A5AD', dark:'#A17F88' }, // dusty rose
+  { light:'#E1E6E9', base:'#9FAEB7', dark:'#788A95' }, // blue slate
+  { light:'#E8E9D9', base:'#B5B88F', dark:'#919568' }, // soft olive
+  { light:'#F2E4D8', base:'#D0AD91', dark:'#A9856C' }  // warm sand
+];
+const chartToneFor = (categoryId, fallbackIndex = 0) => {
   const known = expenseCats().findIndex(c => c.id === categoryId);
-  if (known >= 0) return palette[known % palette.length];
+  if (known >= 0) return SOFT_CHART_TONES[known % SOFT_CHART_TONES.length];
   let hash = 0;
   for (const ch of String(categoryId || '')) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  return palette[(hash || fallbackIndex) % palette.length];
+  return SOFT_CHART_TONES[(hash || fallbackIndex) % SOFT_CHART_TONES.length];
+};
+const chartToneCss = tone => `linear-gradient(135deg,${tone.light} 0%,${tone.base} 52%,${tone.dark} 100%)`;
+const chartCanvasFill = (ctx, tone, width, height) => {
+  const gradient = ctx.createLinearGradient(0, 0, Math.max(width, 1), Math.max(height, 1));
+  gradient.addColorStop(0, tone.light);
+  gradient.addColorStop(.52, tone.base);
+  gradient.addColorStop(1, tone.dark);
+  return gradient;
 };
 const THEME_CLASSES = THEMES.map(x => x.className).filter(Boolean);
 const getTheme = id => THEMES.find(x => x.id === id) || THEMES[0];
@@ -1050,13 +1063,22 @@ function DonutChart({
     inst.current?.destroy();
     const css = getComputedStyle(document.documentElement);
     const chartBorder = css.getPropertyValue('--card').trim() || '#fff';
+    const ctx = ref.current.getContext('2d');
+    const width = ref.current.clientWidth || ref.current.width || 320;
+    const height = ref.current.clientHeight || ref.current.height || 170;
+    const fills = (colors || []).map(color => {
+      if (color && typeof color === 'object' && color.light && color.base && color.dark) {
+        return chartCanvasFill(ctx, color, width, height);
+      }
+      return color;
+    });
     inst.current = new Chart(ref.current, {
       type: 'doughnut',
       data: {
         labels,
         datasets: [{
           data,
-          backgroundColor: colors,
+          backgroundColor: fills,
           borderWidth: 3,
           borderColor: chartBorder,
           hoverOffset: 5
@@ -1099,11 +1121,23 @@ function BarChart({
   useEffect(() => {
     if (!ref.current) return;
     inst.current?.destroy();
+    const ctx = ref.current.getContext('2d');
+    const width = ref.current.clientWidth || ref.current.width || 320;
+    const height = ref.current.clientHeight || ref.current.height || 175;
+    const preparedDatasets = datasets.map(ds => {
+      if (!ds.gradient) return ds;
+      return {
+        ...ds,
+        backgroundColor: chartCanvasFill(ctx, ds.gradient, width, height),
+        borderColor: ds.gradient.dark,
+        borderWidth: 1
+      };
+    });
     inst.current = new Chart(ref.current, {
       type: 'bar',
       data: {
         labels,
-        datasets
+        datasets: preparedDatasets
       },
       options: {
         responsive: true,
@@ -1845,11 +1879,13 @@ function Dashboard({
   }, t('spendingByCategory')), /*#__PURE__*/React.createElement(DonutChart, {
     data: cats.map(c => c.amt),
     labels: cats.map(c => getCatLabel(c.id)),
-    colors: cats.map(c => c.tc),
+    colors: cats.map((c, index) => chartToneFor(c.id, index)),
     sym: sym
   }), /*#__PURE__*/React.createElement("div", {
     className: "mt10"
-  }, cats.map(c => /*#__PURE__*/React.createElement("div", {
+  }, cats.map((c, index) => {
+    const tone = chartToneFor(c.id, index);
+    return /*#__PURE__*/React.createElement("div", {
     key: c.id,
     className: "fbet",
     style: {
@@ -1860,7 +1896,7 @@ function Dashboard({
     className: "fb g8"
   }, /*#__PURE__*/React.createElement("span", {
     className: "summary-swatch",
-    style: { background: c.tc, color: c.tc },
+    style: { background: chartToneCss(tone), color: tone.base },
     'aria-hidden': true
   }), /*#__PURE__*/React.createElement("span", {
     style: {
@@ -1876,7 +1912,8 @@ function Dashboard({
       fontSize: 13,
       fontWeight: 700
     }
-  }, fmt(c.amt, sym))))))), /*#__PURE__*/React.createElement("div", {
+  }, fmt(c.amt, sym)));
+  })))), /*#__PURE__*/React.createElement("div", {
     className: "sec"
   }, /*#__PURE__*/React.createElement("div", {
     className: "card cp"
@@ -1927,13 +1964,13 @@ function Dashboard({
     datasets: [{
       label: t('incomeChart'),
       data: monthly.map(m => m.inc),
-      backgroundColor: '#86efac',
-      borderRadius: 4
+      gradient: { light:'#E0ECE2', base:'#A9C1AD', dark:'#78957E' },
+      borderRadius: 5
     }, {
       label: t('expensesChart'),
       data: monthly.map(m => m.exp),
-      backgroundColor: '#fca5a5',
-      borderRadius: 4
+      gradient: { light:'#F0E1DC', base:'#C9A69B', dark:'#9F7D74' },
+      borderRadius: 5
     }]
   }))), /*#__PURE__*/React.createElement("div", {
     className: "sec"
@@ -2263,12 +2300,12 @@ function ExpensesTab({
         );
         return /*#__PURE__*/React.createElement(React.Fragment, null,
           /*#__PURE__*/React.createElement("div", { style: { textAlign: 'center', fontSize: 22, fontWeight: 800, marginBottom: 8 } }, fmt(total, sym)),
-          /*#__PURE__*/React.createElement(DonutChart, { labels: rows.map(([id]) => getCatLabel(id)), data: rows.map(([,amount]) => amount), colors: rows.map(([id], index) => summaryColorFor(id, index)), sym: sym }),
+          /*#__PURE__*/React.createElement(DonutChart, { labels: rows.map(([id]) => getCatLabel(id)), data: rows.map(([,amount]) => amount), colors: rows.map(([id], index) => chartToneFor(id, index)), sym: sym }),
           /*#__PURE__*/React.createElement("div", { style: { marginTop: 8 } }, rows.map(([id, amount], index) => {
-            const summaryColor = summaryColorFor(id, index);
+            const summaryTone = chartToneFor(id, index);
             return /*#__PURE__*/React.createElement("div", { key: id, className: "summary-row" },
               /*#__PURE__*/React.createElement("span", { className: "summary-row-label" },
-                /*#__PURE__*/React.createElement("span", { className: "summary-swatch", style: { background: summaryColor, color: summaryColor }, 'aria-hidden': true }),
+                /*#__PURE__*/React.createElement("span", { className: "summary-swatch", style: { background: chartToneCss(summaryTone), color: summaryTone.base }, 'aria-hidden': true }),
                 /*#__PURE__*/React.createElement(Icon, { name: iconName(getCat(id)), size: 17 }),
                 /*#__PURE__*/React.createElement("span", null, getCatLabel(id))
               ),
