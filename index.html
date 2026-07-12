@@ -50,8 +50,10 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif
 .nitem{position:relative;gap:4px;transition:color .2s,transform .2s}
 .nitem.active{color:var(--p);transform:translateY(-1px)}
 .nitem>*{position:relative;z-index:1}
-.nitem.active::before{content:'';position:absolute;top:5px;left:50%;transform:translateX(-50%);width:40px;height:30px;border-radius:11px;background:var(--pl);z-index:0}
-.nemo{width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+.nitem.active::before{display:none}
+.nemo{width:22px;height:22px;display:flex;align-items:center;justify-content:center;position:relative}
+.nemo::before{content:'';position:absolute;inset:-5px -9px;border-radius:11px;background:transparent;z-index:-1;transition:background .2s}
+.nitem.active .nemo::before{background:var(--pl)}
 .fab{position:absolute;bottom:calc(var(--nav) + var(--sbe) + 22px);right:18px;width:56px;height:56px;border-radius:18px;border:none;background:linear-gradient(145deg,#776dfb,#4b42d5);color:#fff;box-shadow:var(--s3);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:108;touch-action:manipulation;transition:transform .2s}
 .fab:active{transform:scale(.9)}
 .sec{padding:12px 12px 0}
@@ -220,7 +222,7 @@ const ICON_PATHS = {
   bulb: ['M9 18h6M10 22h4', 'M8 15a7 7 0 1 1 8 0c-1 1-1 2-1 3H9c0-1 0-2-1-3Z'],
   tag: ['M20 13 13 20 3 10V3h7l10 10Z', 'M7.5 7.5h.01'],
   dashboard: ['M4 4h6v7H4zM14 4h6v4h-6zM14 12h6v8h-6zM4 15h6v5H4z'],
-  settings: ['M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z', 'M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9 7 7M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1'],
+  settings: ['M10 2h4l.6 3a8 8 0 0 1 1.4.8l2.9-1 2 3.4-2.3 2a8 8 0 0 1 0 1.6l2.3 2-2 3.4-2.9-1a8 8 0 0 1-1.4.8L14 22h-4l-.6-3a8 8 0 0 1-1.4-.8l-2.9 1-2-3.4 2.3-2a8 8 0 0 1 0-1.6l-2.3-2 2-3.4 2.9 1a8 8 0 0 1 1.4-.8L10 2Z', 'M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z'],
   search: ['M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16ZM21 21l-4.35-4.35'],
   calendar: ['M4 5h16v16H4zM8 2v6M16 2v6M4 10h16'],
   edit: ['M4 20h4L20 8l-4-4L4 16v4ZM14 6l4 4'],
