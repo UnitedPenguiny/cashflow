@@ -188,8 +188,15 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif
 .theme-name{display:block;font-size:12px;font-weight:800;margin:8px 2px 2px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .theme-opt.active .theme-name{color:var(--p)}
 .theme-check{position:absolute;right:12px;top:12px;width:22px;height:22px;border:2px solid rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--theme-primary);color:#fff;box-shadow:0 4px 10px color-mix(in srgb,var(--theme-primary) 38%,transparent);z-index:2}
+.summary-head{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:10px}
+.summary-head .ctitle{flex:1;min-width:0}
+.summary-date{flex:0 0 126px;width:126px!important;height:32px!important;padding:0 7px!important;border-radius:10px!important;font-size:11px!important}
 .summary-range{margin:-3px 0 12px;padding:8px 10px;border-radius:10px;background:color-mix(in srgb,var(--pl) 62%,transparent);color:var(--t2);font-size:11px;font-weight:700;text-align:center;border:1px solid color-mix(in srgb,var(--p) 14%,var(--border))}
+.summary-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:6px 0;font-size:13px}
+.summary-row-label{display:flex;align-items:center;gap:8px;min-width:0}
+.summary-row strong{margin-left:auto;white-space:nowrap}
 .summary-swatch{width:11px;height:11px;border-radius:4px;display:inline-block;flex:none;box-shadow:0 0 0 2px color-mix(in srgb,currentColor 12%,transparent)}
+@media (max-width:360px){.summary-head{gap:12px}.summary-date{flex-basis:116px;width:116px!important}}
 .settings-btn{line-height:0}
 .settings-btn .icon{transform:translate(0,0)}
 .fb{display:flex;align-items:center}
@@ -489,6 +496,23 @@ const THEMES = [
   { id: 'rose', labelKey: 'themeRose', className: 'theme-rose', dark: false, primary: '#c93875', bg: '#fde3ee', card: '#fff7fb' },
   { id: 'sunset', labelKey: 'themeSunset', className: 'theme-sunset', dark: false, primary: '#d85b25', bg: '#ffe3d2', card: '#fff9f5' }
 ];
+const SUMMARY_CHART_PALETTES = {
+  default: ['#4f46e5','#7c3aed','#a855f7','#d946ef','#ec4899','#6366f1','#3b82f6','#8b5cf6','#c026d3','#4338ca','#9333ea'],
+  midnight: ['#a78bfa','#818cf8','#60a5fa','#22d3ee','#2dd4bf','#f472b6','#c084fc','#f59e0b','#4ade80','#fb7185','#38bdf8'],
+  ocean: ['#0369a1','#0284c7','#0ea5e9','#06b6d4','#0891b2','#0f766e','#14b8a6','#2563eb','#38bdf8','#155e75','#0d9488'],
+  forest: ['#166534','#15803d','#16a34a','#22c55e','#65a30d','#4d7c0f','#0f766e','#059669','#84cc16','#a16207','#3f6212'],
+  rose: ['#be185d','#db2777','#ec4899','#f43f5e','#e11d48','#a21caf','#c026d3','#fb7185','#f9738a','#9d174d','#d946ef'],
+  sunset: ['#c2410c','#ea580c','#f97316','#fb923c','#f59e0b','#e11d48','#f43f5e','#db2777','#a855f7','#b45309','#ef4444']
+};
+const summaryPalette = () => SUMMARY_CHART_PALETTES[document.documentElement.dataset.theme || 'default'] || SUMMARY_CHART_PALETTES.default;
+const summaryColorFor = (categoryId, fallbackIndex = 0) => {
+  const palette = summaryPalette();
+  const known = expenseCats().findIndex(c => c.id === categoryId);
+  if (known >= 0) return palette[known % palette.length];
+  let hash = 0;
+  for (const ch of String(categoryId || '')) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return palette[(hash || fallbackIndex) % palette.length];
+};
 const THEME_CLASSES = THEMES.map(x => x.className).filter(Boolean);
 const getTheme = id => THEMES.find(x => x.id === id) || THEMES[0];
 const applyTheme = id => {
@@ -2203,9 +2227,9 @@ function ExpensesTab({
       expenseCats().map(c => /*#__PURE__*/React.createElement("option", { key: c.id, value: c.id }, getCatLabel(c.id))))
   )), sub === 'variable' && /*#__PURE__*/React.createElement("div", { className: "sec" },
     /*#__PURE__*/React.createElement("div", { className: "card cp" },
-      /*#__PURE__*/React.createElement("div", { className: "fb", style: { marginBottom: 10 } },
+      /*#__PURE__*/React.createElement("div", { className: "summary-head" },
         /*#__PURE__*/React.createElement("div", { className: "ctitle" }, summaryMode === 'daily' ? "Daily summary" : "Weekly summary"),
-        /*#__PURE__*/React.createElement("input", { className: "fi", type: "date", value: day, onChange: e => setDay(e.target.value), style: { width: 145, height: 36, fontSize: 12 } })
+        /*#__PURE__*/React.createElement("input", { className: "fi summary-date", type: "date", value: day, onChange: e => setDay(e.target.value), 'aria-label': summaryMode === 'daily' ? 'Summary date' : 'Week date' })
       ), /*#__PURE__*/React.createElement("div", { className: "seg", style: { marginBottom: 12 } },
         /*#__PURE__*/React.createElement("button", { className: `sbtn${summaryMode === 'daily' ? ' active' : ''}`, onClick: () => setSummaryMode('daily') }, "Day"),
         /*#__PURE__*/React.createElement("button", { className: `sbtn${summaryMode === 'weekly' ? ' active' : ''}`, onClick: () => setSummaryMode('weekly') }, "Week")
@@ -2239,15 +2263,18 @@ function ExpensesTab({
         );
         return /*#__PURE__*/React.createElement(React.Fragment, null,
           /*#__PURE__*/React.createElement("div", { style: { textAlign: 'center', fontSize: 22, fontWeight: 800, marginBottom: 8 } }, fmt(total, sym)),
-          /*#__PURE__*/React.createElement(DonutChart, { labels: rows.map(([id]) => getCatLabel(id)), data: rows.map(([,amount]) => amount), colors: rows.map(([id]) => getCat(id).tc), sym: sym }),
-          /*#__PURE__*/React.createElement("div", { style: { marginTop: 8 } }, rows.map(([id, amount]) => /*#__PURE__*/React.createElement("div", { key: id, className: "fb", style: { padding: '6px 0', fontSize: 13 } },
-            /*#__PURE__*/React.createElement("span", { className: "fb g8" },
-              /*#__PURE__*/React.createElement("span", { className: "summary-swatch", style: { background: getCat(id).tc, color: getCat(id).tc }, 'aria-hidden': true }),
-              /*#__PURE__*/React.createElement(Icon, { name: iconName(getCat(id)), size: 17 }),
-              /*#__PURE__*/React.createElement("span", null, getCatLabel(id))
-            ),
-            /*#__PURE__*/React.createElement("strong", null, fmt(amount, sym))
-          )))
+          /*#__PURE__*/React.createElement(DonutChart, { labels: rows.map(([id]) => getCatLabel(id)), data: rows.map(([,amount]) => amount), colors: rows.map(([id], index) => summaryColorFor(id, index)), sym: sym }),
+          /*#__PURE__*/React.createElement("div", { style: { marginTop: 8 } }, rows.map(([id, amount], index) => {
+            const summaryColor = summaryColorFor(id, index);
+            return /*#__PURE__*/React.createElement("div", { key: id, className: "summary-row" },
+              /*#__PURE__*/React.createElement("span", { className: "summary-row-label" },
+                /*#__PURE__*/React.createElement("span", { className: "summary-swatch", style: { background: summaryColor, color: summaryColor }, 'aria-hidden': true }),
+                /*#__PURE__*/React.createElement(Icon, { name: iconName(getCat(id)), size: 17 }),
+                /*#__PURE__*/React.createElement("span", null, getCatLabel(id))
+              ),
+              /*#__PURE__*/React.createElement("strong", null, fmt(amount, sym))
+            );
+          }))
         );
       })()
     )
