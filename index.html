@@ -12,18 +12,18 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --p:#5b4df2;--pd:#4034c9;--pl:#ddd8ff;
+  --p:#5b4df2;--pl:#ddd8ff;
   --bg:#eeeafe;--card:rgba(255,255,255,.97);--t1:#17142f;--t2:#5c5877;--t3:#8984a3;
   --border:#d6cff8;--danger:#e94f6a;--dl:#ffe8ee;--success:#0e9f72;--sl:#dff7ee;
   --chrome:rgba(247,245,255,.95);--root-top:#dcd6ff;--glow:#c4bbff;
   --hero-a:#5547eb;--hero-b:#8b5cf6;--hero-shadow:rgba(82,65,224,.32);
   --nav:64px;--hdr:56px;--mnav:58px;
-  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--sbe:max(env(safe-area-inset-bottom,0px),20px);
+  --st:env(safe-area-inset-top,0px);--sbe:max(env(safe-area-inset-bottom,0px),20px);
   --rsm:10px;--rmd:14px;--rlg:20px;--rxl:26px;
   --s1:0 3px 12px rgba(61,48,150,.09);--s2:0 14px 36px rgba(61,48,150,.17);--s3:0 18px 42px rgba(75,61,205,.34)
 }
 .dark{
-  --p:#9d8cff;--pd:#6f5bf1;--pl:#3b3277;
+  --p:#9d8cff;--pl:#3b3277;
   --bg:#0b0a18;--card:rgba(25,23,48,.98);--t1:#fbfaff;--t2:#bbb5d8;--t3:#817a9f;
   --border:#4b4276;--danger:#ff718a;--dl:#461d2a;--success:#4ad7a7;--sl:#163f35;
   --chrome:rgba(18,16,38,.96);--root-top:#211a50;--glow:#4c3ca5;
@@ -31,7 +31,7 @@
   --s1:0 3px 12px rgba(0,0,0,.38);--s2:0 14px 38px rgba(0,0,0,.52);--s3:0 18px 44px rgba(0,0,0,.62)
 }
 html.theme-ocean{
-  --p:#057dbb;--pd:#005f91;--pl:#bfe9ff;
+  --p:#057dbb;--pl:#bfe9ff;
   --bg:#dff3ff;--card:rgba(246,252,255,.98);--t1:#08283b;--t2:#3f687f;--t3:#7699ac;
   --border:#a9d9ef;--danger:#e44e69;--dl:#ffe8ee;--success:#078b70;--sl:#d9f5ed;
   --chrome:rgba(232,247,255,.96);--root-top:#afe1fb;--glow:#75c9f4;
@@ -39,7 +39,7 @@ html.theme-ocean{
   --s1:0 3px 12px rgba(0,91,139,.10);--s2:0 14px 36px rgba(0,91,139,.18);--s3:0 18px 42px rgba(0,124,187,.36)
 }
 html.theme-forest{
-  --p:#147a4f;--pd:#0a5938;--pl:#c8ead5;
+  --p:#147a4f;--pl:#c8ead5;
   --bg:#dff2e6;--card:rgba(247,253,249,.98);--t1:#102c1e;--t2:#496c5a;--t3:#7d9b8b;
   --border:#acd8bd;--danger:#df5269;--dl:#ffe9ee;--success:#11784f;--sl:#d9f2e4;
   --chrome:rgba(234,248,239,.96);--root-top:#b9e3c8;--glow:#82c99e;
@@ -47,7 +47,7 @@ html.theme-forest{
   --s1:0 3px 12px rgba(17,91,56,.10);--s2:0 14px 36px rgba(17,91,56,.18);--s3:0 18px 42px rgba(20,122,79,.34)
 }
 html.theme-rose{
-  --p:#e88fa1;--pd:#cf6f84;--pl:#f7e3e5;
+  --p:#e88fa1;--pl:#f7e3e5;
   --bg:#f7efed;--card:rgba(255,251,250,.98);--t1:#66424c;--t2:#8b6872;--t3:#b2969e;
   --border:#eddcdd;--danger:#db7288;--dl:#fbe9ec;--success:#7fa58e;--sl:#e8f2ea;
   --chrome:rgba(255,250,249,.88);--root-top:#faf5f3;--glow:#f3dcdf;
@@ -92,7 +92,7 @@ html.theme-rose .chart-label{font-size:14px;font-weight:500;font-family:Iowan Ol
 html.theme-rose .chart-amount{font-size:14px;font-weight:700;font-family:Iowan Old Style,Georgia,Times New Roman,serif;color:#5a434b}
 html.theme-rose .summary-swatch{display:inline-block}
 html.theme-sunset{
-  --p:#d85b25;--pd:#a83d12;--pl:#ffcbb2;
+  --p:#d85b25;--pl:#ffcbb2;
   --bg:#ffe3d2;--card:rgba(255,249,245,.98);--t1:#351b10;--t2:#7a5848;--t3:#a77e6c;
   --border:#efb99d;--danger:#d7475e;--dl:#ffe5eb;--success:#0b8769;--sl:#dcf3eb;
   --chrome:rgba(255,238,228,.96);--root-top:#ffc4a2;--glow:#f59b68;
@@ -181,9 +181,9 @@ html.theme-rose .premium-stat .stat-badge{right:14px;top:14px;transform:none;wid
 html.theme-rose .premium-stat .slbl{margin-bottom:22px}
 html.theme-rose .premium-stat .samt{font-size:clamp(20px,5.8vw,26px);white-space:nowrap;letter-spacing:-.045em}
 html{background:var(--card)}
-html,body{height:100%;height:100vh;overflow:hidden}
+html,body{height:100%;height:100vh;height:100dvh;overflow:hidden}
 body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:radial-gradient(circle at 50% -12%,var(--glow) 0,transparent 48%),var(--bg);color:var(--t1);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-#root{display:flex;flex-direction:column;height:100%;height:100vh;max-width:460px;margin:0 auto;background:linear-gradient(180deg,var(--root-top) 0,color-mix(in srgb,var(--root-top) 42%,var(--bg)) 170px,var(--bg) 340px);position:relative;overflow:hidden;box-shadow:0 0 72px color-mix(in srgb,var(--p) 16%,transparent)}
+#root{display:flex;flex-direction:column;height:100%;height:100vh;height:100dvh;max-width:460px;margin:0 auto;background:linear-gradient(180deg,var(--root-top) 0,color-mix(in srgb,var(--root-top) 42%,var(--bg)) 170px,var(--bg) 340px);position:relative;overflow:hidden;box-shadow:0 0 72px color-mix(in srgb,var(--p) 16%,transparent)}
 .hdr{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:460px;height:calc(var(--hdr) + var(--st));padding-top:var(--st);background:var(--chrome);backdrop-filter:blur(18px);border-bottom:1px solid color-mix(in srgb,var(--p) 24%,var(--border));display:flex;align-items:center;justify-content:space-between;padding-left:18px;padding-right:14px;z-index:110}
 .hdr-logo{display:flex;align-items:center;gap:8px}
 .hdr-icon{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,var(--hero-b),var(--hero-a));color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 7px 18px var(--hero-shadow)}
@@ -245,6 +245,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif
 .sbody{padding:18px 18px 4px}
 .fg{margin-bottom:14px}
 .flbl{display:block;font-size:12px;font-weight:700;color:var(--t2);margin-bottom:5px;letter-spacing:.2px}
+.form-err{background:var(--dl);color:var(--danger);font-size:13px;font-weight:600;padding:9px 12px;border-radius:var(--rmd);margin-bottom:12px}
 .fi{width:100%;height:44px;border:1.5px solid var(--border);border-radius:var(--rmd);padding:0 12px;font-size:15px;color:var(--t1);background:var(--card);outline:none;-webkit-appearance:none;font-family:inherit;transition:border-color .15s}
 .fi:focus{border-color:var(--p);box-shadow:0 0 0 4px color-mix(in srgb,var(--p) 12%,transparent)}
 .fta{width:100%;min-height:72px;border:1.5px solid var(--border);border-radius:var(--rmd);padding:10px 12px;font-size:15px;color:var(--t1);background:var(--card);outline:none;resize:vertical;font-family:inherit;transition:border-color .15s}
@@ -366,17 +367,17 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 </style>
 </head>
 <body>
-<div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:12px"><div style="width:38px;height:38px;border:3px solid #e8e6ff;border-top-color:#6157f5;border-radius:50%;animation:spin .8s linear infinite"></div><div style="font-size:15px;color:#8b89a0;font-family:system-ui">Loading Cashflow…</div></div></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.4/dexie.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;height:100dvh;flex-direction:column;gap:12px"><div style="width:38px;height:38px;border:3px solid #e8e6ff;border-top-color:#6157f5;border-radius:50%;animation:spin .8s linear infinite"></div><div style="font-size:15px;color:#8b89a0;font-family:system-ui">Loading Cashflow…</div></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.4/dexie.min.js" integrity="sha384-vG8R9Zn5YZHCeXt9gLNp8MnsUCqmIy7HPxhdOdLGa/30/c8uZXFrrN0iKGID/ZvC" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" integrity="sha384-tMH8h3BGESGckSAVGZ82T9n90ztNXxvdwvdM6UoR56cYcf+0iGXBliJ29D+wZ/x8" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" integrity="sha384-bm7MnzvK++ykSwVJ2tynSE5TRdN+xL418osEVF2DE/L/gfWHj91J2Sphe582B1Bh" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha384-bs/nf9FbdNouRbMiFcrcZfLXYPKiPaGVGplVbv7dLGECccEXDW+S3zjqSKR5ZEaD" crossorigin="anonymous"></script>
 <script>
 (function(){
   var m={name:"Cashflow — Expense Tracker",short_name:"Cashflow",description:"Track expenses, income & savings offline",start_url:"./",display:"standalone",background_color:"#f6f7fb",theme_color:"#6157f5",orientation:"portrait-primary",icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='46' fill='%236157f5'/%3E%3Cpath d='M48 62h92a14 14 0 0114 14v60a14 14 0 01-14 14H52a14 14 0 01-14-14V70a18 18 0 0118-18h70' fill='none' stroke='white' stroke-width='12' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M116 91h38v30h-38a15 15 0 010-30z' fill='none' stroke='white' stroke-width='12'/%3E%3C/svg%3E",sizes:"192x192",type:"image/svg+xml"}]};
   try{var b=new Blob([JSON.stringify(m)],{type:'application/manifest+json'});document.getElementById('pwa-manifest').href=URL.createObjectURL(b);}catch(e){}
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(){});
+    navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(function(e){ console.warn('Service worker registration failed:', e); });
   }
 })();
 </script>
@@ -506,6 +507,71 @@ try {
   document.getElementById('root').innerHTML = '<div style="padding:24px;font-family:system-ui;color:#ef4444"><b>Database error:</b> ' + e + '</div>';
   throw e;
 }
+
+// ── Backup validation ──
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const isFiniteNum = v => typeof v === 'number' && Number.isFinite(v);
+const isPlainObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+const validateArray = (arr, name, checkRecord) => {
+  // Every table the restore is about to clear() must be present in the backup as an
+  // array (empty is fine) — a missing key here is exactly what let a partial backup
+  // silently wipe tables it never mentioned.
+  if (!Array.isArray(arr)) return `${name} is missing or not an array`;
+  for (let i = 0; i < arr.length; i++) {
+    const rec = arr[i];
+    if (!isPlainObj(rec)) return `${name}[${i}] is not a valid record`;
+    if (rec.id !== undefined && !isFiniteNum(rec.id)) return `${name}[${i}] has an invalid id`;
+    const err = checkRecord(rec, i);
+    if (err) return `${name}[${i}]: ${err}`;
+  }
+  return null;
+};
+const validateBackup = data => {
+  if (!isPlainObj(data)) return { ok: false, reason: 'Not a valid backup object' };
+  if (!isFiniteNum(data.version) || data.version < 1 || data.version > 2) return { ok: false, reason: 'Unsupported or missing backup version' };
+  const checks = [
+    validateArray(data.expenses, 'expenses', r => {
+      if (!r.name || typeof r.name !== 'string' || !r.name.trim()) return 'invalid name';
+      if (!isFiniteNum(r.amount)) return 'invalid amount';
+      if (!r.date || !ISO_DATE_RE.test(r.date)) return 'invalid date';
+      if (r.cardId !== undefined && r.cardId !== '' && !isFiniteNum(Number(r.cardId))) return 'invalid cardId';
+    }),
+    validateArray(data.recurring, 'recurring', r => {
+      if (!r.name || typeof r.name !== 'string' || !r.name.trim()) return 'invalid name';
+      if (!isFiniteNum(r.amount)) return 'invalid amount';
+      if (r.dueDay !== undefined && (!isFiniteNum(r.dueDay) || r.dueDay < 1 || r.dueDay > 31)) return 'invalid dueDay';
+    }),
+    validateArray(data.income, 'income', r => {
+      if (!r.name || typeof r.name !== 'string' || !r.name.trim()) return 'invalid name';
+      if (!isFiniteNum(r.amount)) return 'invalid amount';
+    }),
+    validateArray(data.savings, 'savings', r => {
+      if (!r.name || typeof r.name !== 'string' || !r.name.trim()) return 'invalid name';
+      if (r.currentAmount !== undefined && !isFiniteNum(r.currentAmount)) return 'invalid currentAmount';
+      if (r.targetAmount !== undefined && !isFiniteNum(r.targetAmount)) return 'invalid targetAmount';
+    }),
+    validateArray(data.cards, 'cards', r => {
+      if (!r.name || typeof r.name !== 'string' || !r.name.trim()) return 'invalid name';
+      if (r.creditLimit !== undefined && !isFiniteNum(r.creditLimit)) return 'invalid creditLimit';
+    }),
+    validateArray(data.installments, 'installments', r => {
+      if (!r.name || typeof r.name !== 'string' || !r.name.trim()) return 'invalid name';
+      if (!isFiniteNum(r.monthlyPayment)) return 'invalid monthlyPayment';
+      if (!isFiniteNum(r.totalAmount)) return 'invalid totalAmount';
+      if (!isFiniteNum(r.monthsRemaining) || !Number.isInteger(r.monthsRemaining)) return 'invalid monthsRemaining';
+      if (r.cardId !== undefined && r.cardId !== '' && !isFiniteNum(Number(r.cardId))) return 'invalid cardId';
+    }),
+    validateArray(data.budgets, 'budgets', r => {
+      if (!r.category || typeof r.category !== 'string') return 'invalid category';
+      if (!isFiniteNum(r.amount)) return 'invalid amount';
+    }),
+    validateArray(data.settings, 'settings', r => {
+      if (!r.key || typeof r.key !== 'string') return 'invalid key';
+    })
+  ].filter(Boolean);
+  if (checks.length) return { ok: false, reason: checks[0] };
+  return { ok: true };
+};
 
 // Constants
 const CATS = [{
@@ -774,8 +840,27 @@ const LANGS = {
     thisMonthCharges: "This Month's Charges",
     fixedDueDay: 'Fixed · due day',
     addCard: 'Add Card', editCard: 'Edit Card', addInstallment: 'Add Installment', editInstallment: 'Edit Installment',
-    deleteCardConfirm: 'Delete "', deleteCardConfirm2: '"? This will also remove all installments on this card.',
+    deleteCardConfirm: 'Delete "', deleteCardConfirm2: '"? This will remove all installments on this card. Past expenses and fixed costs charged to it will be kept but unlinked from the card.',
     paidOff: 'Paid off!', done: 'Done',
+    errName: 'Please enter a name.', errAmount: 'Amount must be a number greater than 0.',
+    errDate: 'Please enter a valid date.', errCardId: 'Please select a valid card.',
+    errDueDay: 'Due day must be a whole number between 1 and 31.',
+    errMonths: 'Months remaining must be a whole number greater than 0.',
+    errLastFour: 'Card number must be exactly 4 digits.',
+    errEndBeforeStart: 'End month cannot be before start month.',
+    errorOccurred: 'Something went wrong. Please try again.',
+    dailySummary: 'Daily Summary', weeklySummary: 'Weekly Summary',
+    dayLabel: 'Day', weekLabel: 'Week', mondaySunday: 'Monday–Sunday',
+    manageExpenseTypes: 'Manage expense types', addExpenseType: '+ Add expense type',
+    noCustomExpenseTypes: 'No custom expense types yet',
+    editBtn: 'Edit', removeBtn: 'Remove',
+    moveAndRemove: 'Move spending and remove', removeExpenseType: 'Remove expense type',
+    typeName: 'Type name', chooseIcon: 'Choose an icon',
+    expenseTypeUpdated: 'Expense type updated', expenseTypeAdded: 'Expense type added', expenseTypeRemoved: 'Expense type removed',
+    editExpenseTypeTitle: 'Edit expense type', addExpenseTypeTitle: 'Add expense type',
+    removeExpenseTypeTitle: 'Remove expense type?', moveExistingTo: 'Move existing spending to',
+    catInUsePrefix: 'expense(s) currently use', catInUseSuffix: '. Choose where those expenses should move before removing it.',
+    catNotUsedPrefix: '', catNotUsedSuffix: 'is not used by any expenses and can be safely removed.',
     // Forms
     name: 'Name', amount: 'Amount', date: 'Date', category: 'Category',
     notesOptional: 'Notes (optional)', notes: 'Notes', anyNotes: 'Any notes…',
@@ -884,8 +969,27 @@ const LANGS = {
     thisMonthCharges: 'รายการเดือนนี้',
     fixedDueDay: 'ประจำ · ครบกำหนดวันที่',
     addCard: 'เพิ่มบัตร', editCard: 'แก้ไขบัตร', addInstallment: 'เพิ่มรายการผ่อนชำระ', editInstallment: 'แก้ไขรายการผ่อนชำระ',
-    deleteCardConfirm: 'ลบ "', deleteCardConfirm2: '"? รายการผ่อนชำระทั้งหมดบนบัตรนี้จะถูกลบด้วย',
+    deleteCardConfirm: 'ลบ "', deleteCardConfirm2: '"? รายการผ่อนชำระทั้งหมดบนบัตรนี้จะถูกลบ ส่วนรายจ่ายและค่าใช้จ่ายประจำในอดีตจะยังคงอยู่แต่จะไม่ผูกกับบัตรนี้อีกต่อไป',
     paidOff: 'ชำระครบแล้ว!', done: 'เสร็จ',
+    errName: 'กรุณาใส่ชื่อ', errAmount: 'จำนวนเงินต้องเป็นตัวเลขที่มากกว่า 0',
+    errDate: 'กรุณาใส่วันที่ที่ถูกต้อง', errCardId: 'กรุณาเลือกบัตรที่ถูกต้อง',
+    errDueDay: 'วันครบกำหนดต้องเป็นจำนวนเต็มระหว่าง 1 ถึง 31',
+    errMonths: 'จำนวนเดือนที่เหลือต้องเป็นจำนวนเต็มที่มากกว่า 0',
+    errLastFour: 'หมายเลขบัตรต้องมี 4 หลักพอดี',
+    errEndBeforeStart: 'เดือนสิ้นสุดต้องไม่ก่อนเดือนเริ่มต้น',
+    errorOccurred: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง',
+    dailySummary: 'สรุปรายวัน', weeklySummary: 'สรุปรายสัปดาห์',
+    dayLabel: 'วัน', weekLabel: 'สัปดาห์', mondaySunday: 'จันทร์–อาทิตย์',
+    manageExpenseTypes: 'จัดการประเภทรายจ่าย', addExpenseType: '+ เพิ่มประเภทรายจ่าย',
+    noCustomExpenseTypes: 'ยังไม่มีประเภทรายจ่ายที่กำหนดเอง',
+    editBtn: 'แก้ไข', removeBtn: 'ลบ',
+    moveAndRemove: 'ย้ายรายจ่ายและลบ', removeExpenseType: 'ลบประเภทรายจ่าย',
+    typeName: 'ชื่อประเภท', chooseIcon: 'เลือกไอคอน',
+    expenseTypeUpdated: 'อัปเดตประเภทรายจ่ายแล้ว', expenseTypeAdded: 'เพิ่มประเภทรายจ่ายแล้ว', expenseTypeRemoved: 'ลบประเภทรายจ่ายแล้ว',
+    editExpenseTypeTitle: 'แก้ไขประเภทรายจ่าย', addExpenseTypeTitle: 'เพิ่มประเภทรายจ่าย',
+    removeExpenseTypeTitle: 'ลบประเภทรายจ่าย?', moveExistingTo: 'ย้ายรายจ่ายที่มีอยู่ไปยัง',
+    catInUsePrefix: 'มีรายจ่าย', catInUseSuffix: 'รายการที่ใช้ประเภทนี้ กรุณาเลือกว่าจะย้ายรายจ่ายเหล่านั้นไปที่ใดก่อนลบ',
+    catNotUsedPrefix: '', catNotUsedSuffix: 'ไม่ถูกใช้งานโดยรายจ่ายใด สามารถลบได้อย่างปลอดภัย',
     name: 'ชื่อ', amount: 'จำนวนเงิน', date: 'วันที่', category: 'หมวดหมู่',
     notesOptional: 'บันทึก (ไม่บังคับ)', notes: 'บันทึก', anyNotes: 'บันทึกเพิ่มเติม…',
     cardOptional: 'บัตร (ไม่บังคับ)', cashDebit: 'เงินสด / เดบิต',
@@ -975,8 +1079,7 @@ const mkLabel = d => d.toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-U
   month: 'long',
   year: 'numeric'
 });
-const todayStr = () => new Date().toISOString().split('T')[0];
-const inMonth = (ds, mk) => ds && ds.startsWith(mk);
+const todayStr = () => isoLocal(new Date());
 
 // ── Pay-cycle (salary-day) helpers ──
 // The budget "month" runs from the salary day (default 28th) to the day before the next
@@ -1013,28 +1116,48 @@ const DAY = 86400000;
 // `monthsRemaining` is the payments left as of `startDate`. Each month since then one
 // payment is made, so the effective payments still left = monthsRemaining − months elapsed.
 // Returns null when we can't tell (no months/start date) → callers fall back to old behavior.
+// Whole months elapsed between the installment's start date and asOf. Negative when
+// asOf is before the start date (the installment hasn't begun yet). Null if there's no
+// usable start date, meaning "assume it's already running" for legacy records.
+const instElapsedMonths = (i, asOf) => {
+  if (!i.startDate) return null;
+  const s = new Date(i.startDate + 'T00:00:00');
+  if (isNaN(s.getTime())) return null;
+  return (asOf.getFullYear() - s.getFullYear()) * 12 + (asOf.getMonth() - s.getMonth());
+};
 const instMonthsLeft = (i, asOf) => {
   const orig = Number(i.monthsRemaining);
   if (!(orig > 0)) return null;
-  if (!i.startDate) return orig;
-  const s = new Date(i.startDate + 'T00:00:00');
-  if (isNaN(s.getTime())) return orig;
-  const elapsed = (asOf.getFullYear() - s.getFullYear()) * 12 + (asOf.getMonth() - s.getMonth());
+  const elapsed = instElapsedMonths(i, asOf);
+  if (elapsed == null) return orig;
+  if (elapsed < 0) return orig; // not started yet — instActive() gates on the start date separately
   return Math.max(0, Math.min(orig, orig - elapsed));
 };
 // An installment still runs (counts toward spend / card balance) as of the given month.
+// It must have started (start date <= asOf) and not yet be complete.
 const instActive = (i, asOf) => {
   if (i.isComplete) return false;
+  const elapsed = instElapsedMonths(i, asOf);
+  if (elapsed != null && elapsed < 0) return false;
   const left = instMonthsLeft(i, asOf);
   return left == null || left > 0;
 };
 // Balance still owed — what a card reserves against its limit (full remaining amount, not
-// one monthly payment), shrinking each month via the effective months left.
+// one monthly payment), shrinking each month via the effective months left. Anchored to
+// totalAmount so the reserved balance never exceeds what was actually financed, even if
+// monthlyPayment * monthsRemaining doesn't exactly equal totalAmount.
 const instRemaining = (i, asOf) => {
+  const tot = Number(i.totalAmount) || 0;
+  const mp = Number(i.monthlyPayment) || 0;
+  const orig = Number(i.monthsRemaining);
+  const elapsed = instElapsedMonths(i, asOf);
+  if (tot > 0 && orig > 0 && elapsed != null) {
+    const paidMonths = Math.max(0, Math.min(orig, elapsed));
+    return Math.max(0, tot - paidMonths * mp);
+  }
   const left = instMonthsLeft(i, asOf);
-  if (left != null) return (Number(i.monthlyPayment) || 0) * left;
-  const tot = Number(i.totalAmount);
-  return tot > 0 ? tot : (Number(i.monthlyPayment) || 0);
+  if (left != null) return Math.min(tot > 0 ? tot : Infinity, mp * left);
+  return tot > 0 ? tot : mp;
 };
 // ── Credit-card statement cycle ──
 // A card carries a real-world outstanding balance driven by its own statement
@@ -1068,9 +1191,18 @@ const cardChargeStart = (card, asOf) => {
 // Sum of a card's outstanding one-off charges as of `asOf` (given all its expenses).
 const cardExpOutstanding = (card, cardExps, asOf) => {
   const startISO = isoLocal(cardChargeStart(card, asOf));
+  const endISO = isoLocal(asOf);
   return cardExps
-    .filter(e => Number(e.cardId) === card.id && e.date >= startISO)
+    .filter(e => Number(e.cardId) === card.id && e.date >= startISO && e.date <= endISO)
     .reduce((s, e) => s + Number(e.amount), 0);
+};
+// Single source of truth for what a card currently owes: outstanding one-off charges,
+// active recurring fixed costs billed to the card, and remaining installment balances.
+const calculateCardBalance = (card, cardExps, recs, insts, asOf) => {
+  const expOutstanding = cardExpOutstanding(card, cardExps, asOf);
+  const recBal = recs.filter(r => Number(r.cardId) === card.id && isActiveInMonth(r, asOf)).reduce((s, r) => s + Number(r.amount), 0);
+  const instBal = insts.filter(i => Number(i.cardId) === card.id && instActive(i, asOf)).reduce((s, i) => s + instRemaining(i, asOf), 0);
+  return expOutstanding + recBal + instBal;
 };
 const cycleRangeLabel = (anchor, payday = PAYDAY, label = CYCLE_LABEL) => {
   const { start, end } = cycleRange(anchor, payday, label);
@@ -1103,17 +1235,27 @@ const toMonthly = (amt, freq) => {
   return freq === 'weekly' ? n * 4.333 : freq === 'biweekly' ? n * 2.167 : freq === 'yearly' ? n / 12 : freq === 'one-time' ? 0 : n;
 };
 const isActiveInMonth = (rec, md) => {
-  if (!rec.isActive) return false;
   const mk = mkKey(md);
+  // Never active before its own start month, regardless of active/paused state — otherwise
+  // pausing something the same month it was created could invent activity in earlier months.
   if (rec.startMonth && rec.startMonth > mk) return false;
+  if (!rec.isActive) {
+    // Paused: if we recorded an explicit end month, honor history up to that point.
+    // Legacy records paused before effective-period tracking existed have no end month,
+    // so they stay hidden everywhere (we have no data to reconstruct their history).
+    return rec.endMonth ? mk <= rec.endMonth : false;
+  }
   if (rec.endMonth && rec.endMonth < mk) return false;
   return true;
 };
+const isIncomeActiveInMonth = (inc, md) => isActiveInMonth(inc, md);
 function useToast() {
   const [msg, setMsg] = useState(null);
+  const timer = useRef(null);
   const show = useCallback(m => {
+    if (timer.current) clearTimeout(timer.current);
     setMsg(m);
-    setTimeout(() => setMsg(null), 2600);
+    timer.current = setTimeout(() => setMsg(null), 2600);
   }, []);
   return [msg, show];
 }
@@ -1123,32 +1265,64 @@ function Toast({
   msg
 }) {
   return msg ? /*#__PURE__*/React.createElement("div", {
-    className: "toast"
+    className: "toast",
+    role: "status",
+    'aria-live': "polite"
   }, msg) : null;
 }
+let modalIdCounter = 0;
+let openModalCount = 0;
 function Modal({
   title,
   onClose,
   children
 }) {
+  const titleId = useRef(`modal-title-${++modalIdCounter}`).current;
+  const sheetRef = useRef(null);
   useEffect(() => {
     const p = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    const prevFocus = document.activeElement;
+    const appRoot = document.getElementById('root');
+    if (++openModalCount === 1) appRoot?.setAttribute('inert', '');
+    sheetRef.current?.focus();
+    const onKeyDown = e => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab' || !sheetRef.current) return;
+      const focusable = sheetRef.current.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (!focusable.length) return;
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', onKeyDown);
     return () => {
       document.body.style.overflow = p;
+      document.removeEventListener('keydown', onKeyDown);
+      if (--openModalCount === 0) appRoot?.removeAttribute('inert');
+      prevFocus?.focus?.();
     };
   }, []);
   return /*#__PURE__*/ReactDOM.createPortal(/*#__PURE__*/React.createElement("div", {
     className: "overlay",
     onClick: e => e.target === e.currentTarget && onClose()
   }, /*#__PURE__*/React.createElement("div", {
-    className: "sheet"
+    className: "sheet",
+    role: "dialog",
+    'aria-modal': "true",
+    'aria-labelledby': titleId,
+    tabIndex: -1,
+    ref: sheetRef
   }, /*#__PURE__*/React.createElement("div", {
     className: "shandle"
   }), /*#__PURE__*/React.createElement("div", {
     className: "shdr"
   }, /*#__PURE__*/React.createElement("span", {
-    className: "stitle"
+    className: "stitle",
+    id: titleId
   }, title), /*#__PURE__*/React.createElement("button", {
     className: "sclose",
     onClick: onClose,
@@ -1157,17 +1331,23 @@ function Modal({
     className: "sbody"
   }, children))), document.body);
 }
+let fieldIdCounter = 0;
 const Field = ({
   label,
   children,
   hint
-}) => /*#__PURE__*/React.createElement("div", {
-  className: "fg"
-}, label && /*#__PURE__*/React.createElement("label", {
-  className: "flbl"
-}, label), children, hint && /*#__PURE__*/React.createElement("p", {
-  className: "fhint"
-}, hint));
+}) => {
+  const id = useRef(`field-${++fieldIdCounter}`).current;
+  const child = React.isValidElement(children) ? React.cloneElement(children, { id: children.props.id || id }) : children;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "fg"
+  }, label && /*#__PURE__*/React.createElement("label", {
+    className: "flbl",
+    htmlFor: id
+  }, label), child, hint && /*#__PURE__*/React.createElement("p", {
+    className: "fhint"
+  }, hint));
+};
 const Inp = p => /*#__PURE__*/React.createElement("input", {
   className: "fi",
   ...p
@@ -1306,6 +1486,7 @@ function BarChart({
 }) {
   const ref = useRef(null);
   const inst = useRef(null);
+  const themeKey = document.documentElement.dataset.theme || 'default';
   useEffect(() => {
     if (!ref.current) return;
     inst.current?.destroy();
@@ -1360,7 +1541,7 @@ function BarChart({
       }
     });
     return () => inst.current?.destroy();
-  }, [JSON.stringify(labels), JSON.stringify(datasets)]);
+  }, [JSON.stringify(labels), JSON.stringify(datasets), sym, themeKey]);
   return /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'relative',
@@ -1376,7 +1557,8 @@ function ExpenseForm({
   onSave,
   cards,
   onManageCategories,
-  initial = null
+  initial = null,
+  catVersion = 0
 }) {
   const [f, sf] = useState({
     name: '',
@@ -1392,11 +1574,21 @@ function ExpenseForm({
     ...p,
     [k]: v
   }));
+  useEffect(() => {
+    if (f.category && !expenseCats().some(c => c.id === f.category)) s('category', 'other');
+  }, [catVersion]);
+  const [err, setErr] = useState('');
   const ok = () => {
-    if (!f.name || !f.amount) return;
+    const name = f.name.trim();
+    const amount = Number(f.amount);
+    if (!name) return setErr(t('errName'));
+    if (!Number.isFinite(amount) || amount <= 0) return setErr(t('errAmount'));
+    if (!f.date || !ISO_DATE_RE.test(f.date) || isNaN(new Date(f.date + 'T00:00:00').getTime())) return setErr(t('errDate'));
+    setErr('');
     onSave({
       ...f,
-      amount: Number(f.amount),
+      name,
+      amount,
       cardId: f.cardId ? Number(f.cardId) : ''
     });
   };
@@ -1416,6 +1608,7 @@ function ExpenseForm({
     type: "number",
     placeholder: "0.00",
     step: "0.01",
+    min: "0.01",
     inputMode: "decimal",
     value: f.amount,
     onChange: e => s('amount', e.target.value)
@@ -1425,13 +1618,13 @@ function ExpenseForm({
     type: "date",
     value: f.date,
     onChange: e => s('date', e.target.value)
-  }))), /*#__PURE__*/React.createElement(Field, {
+  }))), err && /*#__PURE__*/React.createElement("div", { className: "form-err" }, err), /*#__PURE__*/React.createElement(Field, {
     label: t('category')
   }, /*#__PURE__*/React.createElement("button", {
     type: "button",
     onClick: onManageCategories,
-    style: { width: 'fit-content', padding: '7px 11px', marginBottom: 10, border: '1px solid var(--bd)', borderRadius: 8, background: 'var(--bg)', color: 'var(--p)', fontWeight: 700, cursor: 'pointer' }
-  }, "Manage expense types"), /*#__PURE__*/React.createElement(CatPicker, {
+    style: { width: 'fit-content', padding: '7px 11px', marginBottom: 10, border: '1px solid var(--border)', borderRadius: 8, background: 'var(--bg)', color: 'var(--p)', fontWeight: 700, cursor: 'pointer' }
+  }, t('manageExpenseTypes')), /*#__PURE__*/React.createElement(CatPicker, {
     value: f.category,
     onChange: v => s('category', v),
     labelFn: getCatLabel
@@ -1462,7 +1655,8 @@ function ExpenseForm({
 function RecurringForm({
   onSave,
   cards,
-  initial = null
+  initial = null,
+  catVersion = 0
 }) {
   const [f, sf] = useState({
     name: '',
@@ -1480,12 +1674,24 @@ function RecurringForm({
     ...p,
     [k]: v
   }));
+  useEffect(() => {
+    if (f.category && !expenseCats().some(c => c.id === f.category)) s('category', 'other');
+  }, [catVersion]);
+  const [err, setErr] = useState('');
   const ok = () => {
-    if (!f.name || !f.amount) return;
+    const name = f.name.trim();
+    const amount = Number(f.amount);
+    const dueDay = Number(f.dueDay);
+    if (!name) return setErr(t('errName'));
+    if (!Number.isFinite(amount) || amount <= 0) return setErr(t('errAmount'));
+    if (!Number.isInteger(dueDay) || dueDay < 1 || dueDay > 31) return setErr(t('errDueDay'));
+    if (f.endMonth && f.startMonth && f.endMonth < f.startMonth) return setErr(t('errEndBeforeStart'));
+    setErr('');
     onSave({
       ...f,
-      amount: Number(f.amount),
-      dueDay: Number(f.dueDay),
+      name,
+      amount,
+      dueDay,
       cardId: f.cardId ? Number(f.cardId) : '',
       endMonth: f.endMonth || ''
     });
@@ -1506,6 +1712,7 @@ function RecurringForm({
     type: "number",
     placeholder: "0.00",
     step: "0.01",
+    min: "0.01",
     inputMode: "decimal",
     value: f.amount,
     onChange: e => s('amount', e.target.value)
@@ -1517,7 +1724,7 @@ function RecurringForm({
     max: "31",
     value: f.dueDay,
     onChange: e => s('dueDay', e.target.value)
-  }))), /*#__PURE__*/React.createElement(Field, {
+  }))), err && /*#__PURE__*/React.createElement("div", { className: "form-err" }, err), /*#__PURE__*/React.createElement(Field, {
     label: t('category')
   }, /*#__PURE__*/React.createElement(CatPicker, {
     value: f.category,
@@ -1573,11 +1780,18 @@ function IncomeForm({
     ...p,
     [k]: v
   }));
+  const [err, setErr] = useState('');
   const ok = () => {
-    if (!f.name || !f.amount) return;
+    const name = f.name.trim();
+    const amount = Number(f.amount);
+    if (!name) return setErr(t('errName'));
+    if (!Number.isFinite(amount) || amount <= 0) return setErr(t('errAmount'));
+    if (f.frequency === 'one-time' && (!f.date || !ISO_DATE_RE.test(f.date) || isNaN(new Date(f.date + 'T00:00:00').getTime()))) return setErr(t('errDate'));
+    setErr('');
     onSave({
       ...f,
-      amount: Number(f.amount)
+      name,
+      amount
     });
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
@@ -1596,6 +1810,7 @@ function IncomeForm({
     type: "number",
     placeholder: "0.00",
     step: "0.01",
+    min: "0.01",
     inputMode: "decimal",
     value: f.amount,
     onChange: e => s('amount', e.target.value)
@@ -1611,7 +1826,7 @@ function IncomeForm({
     type: "date",
     value: f.date,
     onChange: e => s('date', e.target.value)
-  })), /*#__PURE__*/React.createElement(Field, {
+  })), err && /*#__PURE__*/React.createElement("div", { className: "form-err" }, err), /*#__PURE__*/React.createElement(Field, {
     label: t('category')
   }, /*#__PURE__*/React.createElement(CatPicker, {
     value: f.category,
@@ -1641,12 +1856,20 @@ function SavingsForm({
     ...p,
     [k]: v
   }));
+  const [err, setErr] = useState('');
   const ok = () => {
-    if (!f.name || !f.targetAmount) return;
+    const name = f.name.trim();
+    const targetAmount = Number(f.targetAmount);
+    const currentAmount = Number(f.currentAmount || 0);
+    if (!name) return setErr(t('errName'));
+    if (!Number.isFinite(targetAmount) || targetAmount <= 0) return setErr(t('errAmount'));
+    if (!Number.isFinite(currentAmount) || currentAmount < 0) return setErr(t('errAmount'));
+    setErr('');
     onSave({
       ...f,
-      targetAmount: Number(f.targetAmount),
-      currentAmount: Number(f.currentAmount || 0)
+      name,
+      targetAmount,
+      currentAmount
     });
   };
   const goalIcons = ['target', 'coins', 'car', 'home', 'laptop', 'plane', 'gift', 'book', 'health', 'paw', 'music', 'bulb'];
@@ -1692,7 +1915,7 @@ function SavingsForm({
     inputMode: "decimal",
     value: f.currentAmount,
     onChange: e => s('currentAmount', e.target.value)
-  }))), /*#__PURE__*/React.createElement(Field, {
+  }))), err && /*#__PURE__*/React.createElement("div", { className: "form-err" }, err), /*#__PURE__*/React.createElement(Field, {
     label: t('notesOptional')
   }, /*#__PURE__*/React.createElement(Txa, {
     placeholder: t('savingFor'),
@@ -1722,13 +1945,24 @@ function CardForm({
     ...p,
     [k]: v
   }));
+  const [err, setErr] = useState('');
   const ok = () => {
-    if (!f.name || !f.lastFour || !f.creditLimit) return;
+    const name = f.name.trim();
+    const creditLimit = Number(f.creditLimit);
+    const statementDate = Number(f.statementDate);
+    const dueDate = Number(f.dueDate);
+    if (!name) return setErr(t('errName'));
+    if (!/^\d{4}$/.test(f.lastFour)) return setErr(t('errLastFour'));
+    if (!Number.isFinite(creditLimit) || creditLimit <= 0) return setErr(t('errAmount'));
+    if (!Number.isInteger(statementDate) || statementDate < 1 || statementDate > 31) return setErr(t('errDueDay'));
+    if (!Number.isInteger(dueDate) || dueDate < 1 || dueDate > 31) return setErr(t('errDueDay'));
+    setErr('');
     onSave({
       ...f,
-      creditLimit: Number(f.creditLimit),
-      statementDate: Number(f.statementDate),
-      dueDate: Number(f.dueDate)
+      name,
+      creditLimit,
+      statementDate,
+      dueDate
     });
   };
   return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
@@ -1756,10 +1990,11 @@ function CardForm({
     type: "number",
     placeholder: "5000",
     step: "0.01",
+    min: "0.01",
     inputMode: "decimal",
     value: f.creditLimit,
     onChange: e => s('creditLimit', e.target.value)
-  }))), /*#__PURE__*/React.createElement("div", {
+  }))), err && /*#__PURE__*/React.createElement("div", { className: "form-err" }, err), /*#__PURE__*/React.createElement("div", {
     className: "frow"
   }, /*#__PURE__*/React.createElement(Field, {
     label: t('statementDayForm')
@@ -1787,7 +2022,12 @@ function CardForm({
     style: {
       background: `linear-gradient(135deg,${a},${b})`
     },
-    onClick: () => s('colorIdx', i)
+    role: "button",
+    tabIndex: 0,
+    'aria-pressed': f.colorIdx === i,
+    'aria-label': `${t('cardColor')} ${i + 1}`,
+    onClick: () => s('colorIdx', i),
+    onKeyDown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); s('colorIdx', i); } }
   })))), /*#__PURE__*/React.createElement("button", {
     className: "btn bpri",
     onClick: ok
@@ -1796,14 +2036,15 @@ function CardForm({
 function InstallForm({
   onSave,
   cards,
-  initial = null
+  initial = null,
+  defaultCardId = null
 }) {
   const [f, sf] = useState({
     name: '',
     totalAmount: '',
     monthlyPayment: '',
     monthsRemaining: '',
-    cardId: cards[0]?.id || '',
+    cardId: defaultCardId || cards[0]?.id || '',
     startDate: todayStr(),
     ...initial,
     totalAmount: initial?.totalAmount ?? '',
@@ -1814,14 +2055,27 @@ function InstallForm({
     ...p,
     [k]: v
   }));
+  const [err, setErr] = useState('');
   const ok = () => {
-    if (!f.name || !f.monthlyPayment || !f.cardId || !(Number(f.monthsRemaining) > 0)) return;
+    const name = f.name.trim();
+    const totalAmount = Number(f.totalAmount);
+    const monthlyPayment = Number(f.monthlyPayment);
+    const monthsRemaining = Number(f.monthsRemaining);
+    const cardId = Number(f.cardId);
+    if (!name) return setErr(t('errName'));
+    if (!Number.isFinite(totalAmount) || totalAmount <= 0) return setErr(t('errAmount'));
+    if (!Number.isFinite(monthlyPayment) || monthlyPayment <= 0) return setErr(t('errAmount'));
+    if (!Number.isInteger(monthsRemaining) || monthsRemaining <= 0) return setErr(t('errMonths'));
+    if (!f.cardId || !Number.isFinite(cardId)) return setErr(t('errCardId'));
+    if (!f.startDate || !ISO_DATE_RE.test(f.startDate) || isNaN(new Date(f.startDate + 'T00:00:00').getTime())) return setErr(t('errDate'));
+    setErr('');
     onSave({
       ...f,
-      totalAmount: Number(f.totalAmount),
-      monthlyPayment: Number(f.monthlyPayment),
-      monthsRemaining: Number(f.monthsRemaining),
-      cardId: Number(f.cardId),
+      name,
+      totalAmount,
+      monthlyPayment,
+      monthsRemaining,
+      cardId,
       isComplete: false
     });
   };
@@ -1849,6 +2103,7 @@ function InstallForm({
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     placeholder: "0.00",
+    min: "0.01",
     inputMode: "decimal",
     value: f.totalAmount,
     onChange: e => s('totalAmount', e.target.value)
@@ -1857,6 +2112,7 @@ function InstallForm({
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     placeholder: "0.00",
+    min: "0.01",
     inputMode: "decimal",
     value: f.monthlyPayment,
     onChange: e => s('monthlyPayment', e.target.value)
@@ -1867,6 +2123,8 @@ function InstallForm({
   }, /*#__PURE__*/React.createElement(Inp, {
     type: "number",
     placeholder: "12",
+    min: "1",
+    step: "1",
     inputMode: "numeric",
     value: f.monthsRemaining,
     onChange: e => s('monthsRemaining', e.target.value)
@@ -1876,7 +2134,7 @@ function InstallForm({
     type: "date",
     value: f.startDate,
     onChange: e => s('startDate', e.target.value)
-  }))), /*#__PURE__*/React.createElement("button", {
+  }))), err && /*#__PURE__*/React.createElement("div", { className: "form-err" }, err), /*#__PURE__*/React.createElement("button", {
     className: "btn bpri",
     onClick: ok
   }, initial ? t('saveChanges') : t('addInstallmentBtn')));
@@ -1898,7 +2156,7 @@ function Dashboard({
     const exps = await db.expenses.where('date').between(cr.startISO, cr.endISO, true, false).toArray();
     let totalInc = 0;
     for (const inc of allInc) {
-      if (!inc.isActive) continue;
+      if (!isIncomeActiveInMonth(inc, currentMonth)) continue;
       if (inc.frequency === 'one-time') {
         if (inCycle(inc.date, cr)) totalInc += Number(inc.amount);
       } else totalInc += toMonthly(inc.amount, inc.frequency);
@@ -1927,13 +2185,17 @@ function Dashboard({
       ...getCat(id),
       amt
     })).sort((a, b) => b.amt - a.amt);
-    const monthly = [];
-    for (let i = 5; i >= 0; i--) {
-      const md = addMonths(currentMonth, -i);
-      const mcr = cycleRange(md, payday);
+    const monthRanges = Array.from({ length: 6 }, (_, idx) => {
+      const md = addMonths(currentMonth, -(5 - idx));
+      return { md, mcr: cycleRange(md, payday) };
+    });
+    const monthExps = await Promise.all(monthRanges.map(({ mcr }) =>
+      db.expenses.where('date').between(mcr.startISO, mcr.endISO, true, false).toArray()
+    ));
+    const monthly = monthRanges.map(({ md, mcr }, idx) => {
       let mI = 0;
       for (const inc of allInc) {
-        if (!inc.isActive) continue;
+        if (!isIncomeActiveInMonth(inc, md)) continue;
         if (inc.frequency === 'one-time') {
           if (inCycle(inc.date, mcr)) mI += Number(inc.amount);
         } else mI += toMonthly(inc.amount, inc.frequency);
@@ -1942,16 +2204,16 @@ function Dashboard({
       for (const r of allRec) {
         if (isActiveInMonth(r, md)) mF += Number(r.amount);
       }
-      const me = await db.expenses.where('date').between(mcr.startISO, mcr.endISO, true, false).toArray();
+      const me = monthExps[idx];
       const mInst = allInst.filter(i => instActive(i, md)).reduce((s, i) => s + Number(i.monthlyPayment), 0);
-      monthly.push({
+      return {
         label: md.toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-US', {
           month: 'short'
         }),
         inc: mI,
         exp: mF + me.reduce((s, e) => s + Number(e.amount), 0) + mInst
-      });
-    }
+      };
+    });
     const recent = await db.expenses.orderBy('date').reverse().limit(6).toArray();
     const cardCharges = await db.expenses.filter(x => x.cardId).toArray();
     // Previous cycle expenses for insights
@@ -1960,7 +2222,8 @@ function Dashboard({
     let prevFixed = 0;
     for (const r of allRec) { if (isActiveInMonth(r, addMonths(currentMonth, -1))) prevFixed += Number(r.amount); }
     const prevVarExp = prevExps.reduce((s, e) => s + Number(e.amount), 0);
-    const prevTotal = prevFixed + prevVarExp + instExp;
+    const prevInstExp = allInst.filter(i => instActive(i, addMonths(currentMonth, -1))).reduce((s, i) => s + Number(i.monthlyPayment), 0);
+    const prevTotal = prevFixed + prevVarExp + prevInstExp;
     setD({
       totalInc,
       fixed,
@@ -1968,6 +2231,7 @@ function Dashboard({
       cats,
       allCards,
       allInst,
+      allRec,
       allSav,
       monthly,
       recent,
@@ -1991,6 +2255,7 @@ function Dashboard({
     cats,
     allCards,
     allInst,
+    allRec,
     allSav,
     monthly,
     recent,
@@ -2210,11 +2475,8 @@ function Dashboard({
   }, t('creditCards')), allCards.map(card => {
     const [a, b] = CCOLORS[card.colorIdx || 0];
     const now = new Date();
-    const expBal = cardExpOutstanding(card, d.cardCharges, now);
-    const instBal = allInst.filter(i => i.cardId === card.id && instActive(i, now)).reduce((s, i) => s + instRemaining(i, now), 0);
-    const bal = expBal + instBal;
+    const bal = calculateCardBalance(card, d.cardCharges, allRec, allInst, now);
     const avail = Math.max(0, Number(card.creditLimit) - bal);
-    const pct = card.creditLimit > 0 ? Math.min(100, bal / card.creditLimit * 100) : 0;
     return /*#__PURE__*/React.createElement("div", {
       key: card.id,
       className: "li"
@@ -2279,7 +2541,7 @@ function Dashboard({
   }))), /*#__PURE__*/React.createElement(Toast, { msg: btoast }), budgetModal && /*#__PURE__*/React.createElement(Modal, {
     title: t('setBudgets'),
     onClose: () => setBudgetModal(false)
-  }, CATS.filter(c => c.id !== 'installments').map(c => /*#__PURE__*/React.createElement(Field, {
+  }, expenseCats().filter(c => c.id !== 'installments').map(c => /*#__PURE__*/React.createElement(Field, {
     key: c.id,
     label: getCatLabel(c.id)
   }, /*#__PURE__*/React.createElement(Inp, {
@@ -2289,12 +2551,17 @@ function Dashboard({
   }))), /*#__PURE__*/React.createElement("button", {
     className: "btn bpri",
     onClick: async () => {
-      const entries = Object.entries(budgetDrafts).filter(([,v]) => Number(v) > 0).map(([cat, amt]) => ({ category: cat, amount: Number(amt) }));
-      await db.budgets.clear();
-      if (entries.length) await db.budgets.bulkAdd(entries);
-      setBudgetModal(false);
-      showBToast(t('budgetsSaved'));
-      load();
+      try {
+        const entries = Object.entries(budgetDrafts).filter(([,v]) => Number(v) > 0).map(([cat, amt]) => ({ category: cat, amount: Number(amt) }));
+        await db.budgets.clear();
+        if (entries.length) await db.budgets.bulkAdd(entries);
+        setBudgetModal(false);
+        showBToast(t('budgetsSaved'));
+        load();
+      } catch (err) {
+        console.error('Failed to save budgets:', err);
+        showBToast(t('errorOccurred'));
+      }
     }
   }, t('saveBudgets'))));
 }
@@ -2319,6 +2586,9 @@ function ExpensesTab({
   const [categoryModal, setCategoryModal] = useState(null);
   const [replacementCat, setReplacementCat] = useState('other');
   const [customCat, setCustomCat] = useState({ label: '', icon: 'tag' });
+  const [summaryExps, setSummaryExps] = useState([]);
+  const [allInsts, setAllInsts] = useState([]);
+  const [catVersion, setCatVersion] = useState(0);
   const mk = mkKey(currentMonth);
   const load = useCallback(async () => {
     const cr = cycleRange(currentMonth, payday);
@@ -2326,54 +2596,87 @@ function ExpensesTab({
     setVarExps(e.sort((a, b) => b.date.localeCompare(a.date)));
     setRecs(r);
     setCards(c);
+    setAllInsts(i);
     setInsts(i.filter(inst => instActive(inst, currentMonth)));
   }, [mk, payday]);
   useEffect(() => {
     load();
   }, [load]);
+  const loadSummary = useCallback(async () => {
+    const range = summaryMode === 'weekly' ? mondayWeekRange(day) : { startISO: day, endISO: day };
+    const rows = await db.expenses.where('date').between(range.startISO, range.endISO, true, true).toArray();
+    setSummaryExps(rows);
+  }, [day, summaryMode]);
+  useEffect(() => {
+    loadSummary();
+  }, [loadSummary]);
   const saveVar = async f => {
-    if (f.id) await db.expenses.update(f.id, f);else await db.expenses.add(f);
-    setModal(null);
-    load();
-    showToast(f.id ? t('updated') : t('expenseAdded'));
+    try {
+      if (f.id) await db.expenses.update(f.id, f);else await db.expenses.add(f);
+      setModal(null);
+      load();
+      loadSummary();
+      showToast(f.id ? t('updated') : t('expenseAdded'));
+    } catch (err) { console.error('Failed to save expense:', err); showToast(t('errorOccurred')); }
   };
   const delVar = async id => {
-    await db.expenses.delete(id);
-    load();
-    showToast(t('deleted'));
+    try {
+      await db.expenses.delete(id);
+      load();
+      loadSummary();
+      showToast(t('deleted'));
+    } catch (err) { console.error('Failed to delete expense:', err); showToast(t('errorOccurred')); }
   };
   const saveInst = async f => {
-    if (f.id) await db.installments.update(f.id, f);else await db.installments.add(f);
-    setModal(null);
-    load();
-    showToast(f.id ? t('updated') : t('installmentAdded'));
+    try {
+      if (f.id) await db.installments.update(f.id, f);else await db.installments.add(f);
+      setModal(null);
+      load();
+      showToast(f.id ? t('updated') : t('installmentAdded'));
+    } catch (err) { console.error('Failed to save installment:', err); showToast(t('errorOccurred')); }
   };
   const delInst = async id => {
-    await db.installments.delete(id);
-    load();
-    showToast(t('removed'));
+    try {
+      await db.installments.delete(id);
+      load();
+      showToast(t('removed'));
+    } catch (err) { console.error('Failed to delete installment:', err); showToast(t('errorOccurred')); }
   };
   const markInstDone = async id => {
-    await db.installments.update(id, { isComplete: true });
-    load();
-    showToast(t('paidOff'));
+    try {
+      await db.installments.update(id, { isComplete: true });
+      load();
+      showToast(t('paidOff'));
+    } catch (err) { console.error('Failed to update installment:', err); showToast(t('errorOccurred')); }
   };
   const saveRec = async f => {
-    if (f.id) await db.recurring.update(f.id, f);else await db.recurring.add(f);
-    setModal(null);
-    load();
-    showToast(f.id ? t('updated') : t('fixedCostAdded'));
+    try {
+      if (f.id) await db.recurring.update(f.id, f);else await db.recurring.add(f);
+      setModal(null);
+      load();
+      showToast(f.id ? t('updated') : t('fixedCostAdded'));
+    } catch (err) { console.error('Failed to save fixed cost:', err); showToast(t('errorOccurred')); }
   };
   const delRec = async id => {
-    await db.recurring.delete(id);
-    load();
-    showToast(t('deleted'));
+    try {
+      await db.recurring.delete(id);
+      load();
+      showToast(t('deleted'));
+    } catch (err) { console.error('Failed to delete fixed cost:', err); showToast(t('errorOccurred')); }
   };
   const toggleRec = async r => {
-    await db.recurring.update(r.id, {
-      isActive: !r.isActive
-    });
-    load();
+    try {
+      const nowActive = !r.isActive;
+      await db.recurring.update(r.id, nowActive ? {
+        isActive: true,
+        startMonth: mk,
+        endMonth: null
+      } : {
+        isActive: false,
+        endMonth: mkKey(addMonths(currentMonth, -1))
+      });
+      load();
+    } catch (err) { console.error('Failed to toggle fixed cost:', err); showToast(t('errorOccurred')); }
   };
   const saveCustomCategory = async () => {
     const label = customCat.label.trim();
@@ -2387,7 +2690,8 @@ function ExpensesTab({
     await db.settings.put({ key: 'customCategories', value: CUSTOM_CATS });
     setCustomCat({ label: '', icon: 'tag' });
     setCategoryModal('manage');
-    showToast(customCat.id ? 'Expense type updated' : 'Expense type added');
+    setCatVersion(v => v + 1);
+    showToast(customCat.id ? t('expenseTypeUpdated') : t('expenseTypeAdded'));
   };
   const askDeleteCategory = async cat => {
     const [expenseCount, fixedCount] = await Promise.all([
@@ -2413,8 +2717,9 @@ function ExpensesTab({
     CUSTOM_CATS = nextCats;
     if (catFilter === cat.id) setCatFilter('');
     setCategoryModal('manage');
+    setCatVersion(v => v + 1);
     load();
-    showToast('Expense type removed');
+    showToast(t('expenseTypeRemoved'));
   };
   const varTotal = varExps.reduce((s, e) => s + Number(e.amount), 0);
   const activeRecs = recs.filter(r => isActiveInMonth(r, currentMonth));
@@ -2453,11 +2758,11 @@ function ExpensesTab({
     /*#__PURE__*/React.createElement("div", { className: "card summary-card" },
       /*#__PURE__*/React.createElement("div", { className: "summary-toolbar" },
         /*#__PURE__*/React.createElement("div", { className: "summary-header" },
-          /*#__PURE__*/React.createElement("div", { className: "summary-title" }, summaryMode === 'daily' ? "Daily Summary" : "Weekly Summary"),
+          /*#__PURE__*/React.createElement("div", { className: "summary-title" }, summaryMode === 'daily' ? t('dailySummary') : t('weeklySummary')),
           /*#__PURE__*/React.createElement("div", { className: "summary-inline-controls" },
             /*#__PURE__*/React.createElement("div", { className: "summary-mode-toggle" },
-              /*#__PURE__*/React.createElement("button", { className: `sbtn${summaryMode === 'daily' ? ' active' : ''}`, onClick: () => setSummaryMode('daily') }, "Day"),
-              /*#__PURE__*/React.createElement("button", { className: `sbtn${summaryMode === 'weekly' ? ' active' : ''}`, onClick: () => setSummaryMode('weekly') }, "Week")
+              /*#__PURE__*/React.createElement("button", { className: `sbtn${summaryMode === 'daily' ? ' active' : ''}`, onClick: () => setSummaryMode('daily') }, t('dayLabel')),
+              /*#__PURE__*/React.createElement("button", { className: `sbtn${summaryMode === 'weekly' ? ' active' : ''}`, onClick: () => setSummaryMode('weekly') }, t('weekLabel'))
             )
           )
         ),
@@ -2465,13 +2770,13 @@ function ExpensesTab({
           /*#__PURE__*/React.createElement(Icon, { name: "calendar", size: 16 }),
           /*#__PURE__*/React.createElement("input", { className: "summary-date-input", type: "date", value: day, onChange: e => setDay(e.target.value), 'aria-label': summaryMode === 'daily' ? 'Summary date' : 'Week date' })
         )
-      ), summaryMode === 'weekly' && /*#__PURE__*/React.createElement("div", { className: "summary-range" }, mondayWeekLabel(day), " · Monday–Sunday"), (() => {
+      ), summaryMode === 'weekly' && /*#__PURE__*/React.createElement("div", { className: "summary-range" }, mondayWeekLabel(day), " · ", t('mondaySunday')), (() => {
         const selected = new Date(day + 'T12:00:00');
         const range = summaryMode === 'weekly'
           ? mondayWeekRange(day)
           : { start: selected, end: selected, startISO: day, endISO: day };
         const { start, end, startISO, endISO } = range;
-        const included = varExps.filter(e => e.date >= startISO && e.date <= endISO);
+        const included = summaryExps.filter(e => e.date >= startISO && e.date <= endISO);
         const map = {}; included.forEach(e => map[e.category] = (map[e.category] || 0) + Number(e.amount));
         recs.forEach(r => {
           for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
@@ -2481,10 +2786,12 @@ function ExpensesTab({
             }
           }
         });
-        insts.forEach(i => {
+        allInsts.forEach(i => {
           const payDay = i.startDate ? new Date(i.startDate + 'T00:00:00').getDate() : 1;
           for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            if (d.getDate() === payDay) { map.installments = (map.installments || 0) + Number(i.monthlyPayment); break; }
+            if (!instActive(i, d)) continue;
+            const clampedDay = Math.min(payDay, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate());
+            if (d.getDate() === clampedDay) { map.installments = (map.installments || 0) + Number(i.monthlyPayment); break; }
           }
         });
         const rows = Object.entries(map).sort((a,b) => b[1] - a[1]);
@@ -2777,53 +3084,55 @@ function ExpensesTab({
     onSave: saveVar,
     cards: cards,
     onManageCategories: () => setCategoryModal('manage'),
-    initial: modal?.data
+    initial: modal?.data,
+    catVersion: catVersion
   })), (modal === 'addFixed' || modal?.type === 'editFixed') && /*#__PURE__*/React.createElement(Modal, {
     title: modal?.type ? t('editFixedCost') : t('addFixedCost'),
     onClose: () => setModal(null)
   }, /*#__PURE__*/React.createElement(RecurringForm, {
     onSave: saveRec,
     cards: cards,
-    initial: modal?.data
+    initial: modal?.data,
+    catVersion: catVersion
   })), categoryModal === 'manage' && /*#__PURE__*/React.createElement(Modal, {
-    title: "Manage expense types",
+    title: t('manageExpenseTypes'),
     onClose: () => setCategoryModal(null)
   }, /*#__PURE__*/React.createElement("button", {
     className: "btn bpri",
     onClick: () => { setCustomCat({ label: '', icon: 'tag' }); setCategoryModal('add'); },
     style: { marginBottom: 12 }
-  }, "+ Add expense type"), CUSTOM_CATS.length === 0 ? /*#__PURE__*/React.createElement("div", {
+  }, t('addExpenseType')), CUSTOM_CATS.length === 0 ? /*#__PURE__*/React.createElement("div", {
     className: "empty", style: { padding: '18px 0' }
-  }, /*#__PURE__*/React.createElement("div", { className: "etxt" }, "No custom expense types yet")) : CUSTOM_CATS.map(cat => /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement("div", { className: "etxt" }, t('noCustomExpenseTypes'))) : CUSTOM_CATS.map(cat => /*#__PURE__*/React.createElement("div", {
     key: cat.id, className: "li"
   }, /*#__PURE__*/React.createElement("div", { className: "lico", style: { background: cat.bg, color: cat.tc } }, /*#__PURE__*/React.createElement(Icon, { name: iconName(cat), size: 20 })),
   /*#__PURE__*/React.createElement("div", { className: "linf" }, /*#__PURE__*/React.createElement("div", { className: "lname" }, cat.label)),
   /*#__PURE__*/React.createElement("button", {
     type: "button", onClick: () => { setCustomCat({ ...cat }); setCategoryModal('edit'); },
     style: { border: 'none', background: 'var(--pl)', color: 'var(--p)', borderRadius: 7, padding: '6px 9px', cursor: 'pointer', fontWeight: 700 }
-  }, "Edit"), /*#__PURE__*/React.createElement("button", {
+  }, t('editBtn')), /*#__PURE__*/React.createElement("button", {
     type: "button", onClick: () => askDeleteCategory(cat),
     style: { border: 'none', background: 'var(--dl)', color: 'var(--danger)', borderRadius: 7, padding: '6px 9px', cursor: 'pointer', fontWeight: 700 }
-  }, "Remove")))), (categoryModal === 'add' || categoryModal === 'edit') && /*#__PURE__*/React.createElement(Modal, {
-    title: categoryModal === 'edit' ? "Edit expense type" : "Add expense type",
+  }, t('removeBtn'))))), (categoryModal === 'add' || categoryModal === 'edit') && /*#__PURE__*/React.createElement(Modal, {
+    title: categoryModal === 'edit' ? t('editExpenseTypeTitle') : t('addExpenseTypeTitle'),
     onClose: () => setCategoryModal('manage')
-  }, /*#__PURE__*/React.createElement(Field, { label: "Type name" }, /*#__PURE__*/React.createElement(Inp, { type: "text", placeholder: "e.g. Pets", value: customCat.label, onChange: e => setCustomCat(p => ({ ...p, label: e.target.value })), autoFocus: true })),
-  /*#__PURE__*/React.createElement(Field, { label: "Choose an icon" }, /*#__PURE__*/React.createElement("div", { className: "catg", style: { gridTemplateColumns: 'repeat(6,1fr)' } }, CUSTOM_ICON_OPTIONS.map(name => /*#__PURE__*/React.createElement("button", {
+  }, /*#__PURE__*/React.createElement(Field, { label: t('typeName') }, /*#__PURE__*/React.createElement(Inp, { type: "text", placeholder: "e.g. Pets", value: customCat.label, onChange: e => setCustomCat(p => ({ ...p, label: e.target.value })), autoFocus: true })),
+  /*#__PURE__*/React.createElement(Field, { label: t('chooseIcon') }, /*#__PURE__*/React.createElement("div", { className: "catg", style: { gridTemplateColumns: 'repeat(6,1fr)' } }, CUSTOM_ICON_OPTIONS.map(name => /*#__PURE__*/React.createElement("button", {
     key: name, type: "button", className: `copt${customCat.icon === name ? ' sel' : ''}`, onClick: () => setCustomCat(p => ({ ...p, icon: name })), 'aria-label': name
   }, /*#__PURE__*/React.createElement("span", { className: "cico" }, /*#__PURE__*/React.createElement(Icon, { name, size: 22 })))))),
-  /*#__PURE__*/React.createElement("button", { className: "btn bpri", onClick: saveCustomCategory }, categoryModal === 'edit' ? "Save changes" : "Add expense type")), categoryModal?.type === 'delete' && /*#__PURE__*/React.createElement(Modal, {
-    title: "Remove expense type?",
+  /*#__PURE__*/React.createElement("button", { className: "btn bpri", onClick: saveCustomCategory }, categoryModal === 'edit' ? t('saveChanges') : t('addExpenseTypeTitle'))), categoryModal?.type === 'delete' && /*#__PURE__*/React.createElement(Modal, {
+    title: t('removeExpenseTypeTitle'),
     onClose: () => setCategoryModal('manage')
   }, /*#__PURE__*/React.createElement("p", { style: { fontSize: 14, lineHeight: 1.5, color: 'var(--t2)', marginBottom: 14 } },
-    categoryModal.count > 0 ? `${categoryModal.count} expense${categoryModal.count === 1 ? '' : 's'} currently use “${categoryModal.cat.label}”. Choose where those expenses should move before removing it.` : `“${categoryModal.cat.label}” is not used by any expenses and can be safely removed.`
-  ), categoryModal.count > 0 && /*#__PURE__*/React.createElement(Field, { label: "Move existing spending to" }, /*#__PURE__*/React.createElement(Sel, {
+    categoryModal.count > 0 ? `${categoryModal.count} ${t('catInUsePrefix')} "${categoryModal.cat.label}" ${t('catInUseSuffix')}` : `"${categoryModal.cat.label}" ${t('catNotUsedSuffix')}`
+  ), categoryModal.count > 0 && /*#__PURE__*/React.createElement(Field, { label: t('moveExistingTo') }, /*#__PURE__*/React.createElement(Sel, {
     value: replacementCat,
     onChange: e => setReplacementCat(e.target.value),
     options: expenseCats().filter(c => c.id !== categoryModal.cat.id).map(c => ({ value: c.id, label: getCatLabel(c.id) }))
   })), /*#__PURE__*/React.createElement("button", {
     className: "btn", onClick: () => deleteCustomCategory(categoryModal.cat),
     style: { background: 'var(--danger)', color: '#fff' }
-  }, categoryModal.count > 0 ? "Move spending and remove" : "Remove expense type")));
+  }, categoryModal.count > 0 ? t('moveAndRemove') : t('removeExpenseType'))));
 }
 
 // ══ INCOME TAB ══
@@ -2844,29 +3153,41 @@ function IncomeTab({
     load();
   }, []);
   const save = async f => {
-    if (f.id) await db.income.update(f.id, f);else await db.income.add({
-      ...f,
-      isActive: true
-    });
-    setModal(null);
-    load();
-    showToast(f.id ? t('updated') : t('incomeAdded'));
+    try {
+      if (f.id) await db.income.update(f.id, f);else await db.income.add({
+        ...f,
+        isActive: true
+      });
+      setModal(null);
+      load();
+      showToast(f.id ? t('updated') : t('incomeAdded'));
+    } catch (err) { console.error('Failed to save income:', err); showToast(t('errorOccurred')); }
   };
   const del = async id => {
-    await db.income.delete(id);
-    load();
-    showToast(t('deleted'));
+    try {
+      await db.income.delete(id);
+      load();
+      showToast(t('deleted'));
+    } catch (err) { console.error('Failed to delete income:', err); showToast(t('errorOccurred')); }
   };
   const toggle = async inc => {
-    await db.income.update(inc.id, {
-      isActive: !inc.isActive
-    });
-    load();
+    try {
+      const nowActive = !inc.isActive;
+      await db.income.update(inc.id, nowActive ? {
+        isActive: true,
+        startMonth: mkKey(currentMonth),
+        endMonth: null
+      } : {
+        isActive: false,
+        endMonth: mkKey(addMonths(currentMonth, -1))
+      });
+      load();
+    } catch (err) { console.error('Failed to toggle income:', err); showToast(t('errorOccurred')); }
   };
   let totalMonthly = 0,
     oneTime = 0;
   for (const inc of incs) {
-    if (!inc.isActive) continue;
+    if (!isIncomeActiveInMonth(inc, currentMonth)) continue;
     if (inc.frequency === 'one-time') {
       if (inCycle(inc.date, cr)) oneTime += Number(inc.amount);
     } else totalMonthly += toMonthly(inc.amount, inc.frequency);
@@ -2983,44 +3304,51 @@ function SavingsTab({
   const [fundsGoal, setFundsGoal] = useState(null);
   const [fundsAmt, setFundsAmt] = useState('');
   const [toast, showToast] = useToast();
-  const load = async () => {
+  const load = useCallback(async () => {
     const cr = cycleRange(currentMonth, payday);
     const [gs, incs] = await Promise.all([db.savings.toArray(), db.income.toArray()]);
     setGoals(gs);
     let t = 0;
     for (const inc of incs) {
-      if (!inc.isActive) continue;
+      if (!isIncomeActiveInMonth(inc, currentMonth)) continue;
       if (inc.frequency === 'one-time') {
         if (inCycle(inc.date, cr)) t += Number(inc.amount);
       } else t += toMonthly(inc.amount, inc.frequency);
     }
     setTotalInc(t);
-  };
+  }, [mkKey(currentMonth), payday]);
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
   const save = async f => {
-    if (f.id) await db.savings.update(f.id, f);else await db.savings.add(f);
-    setModal(null);
-    load();
-    showToast(f.id ? t('updated') : t('goalAdded'));
+    try {
+      if (f.id) await db.savings.update(f.id, f);else await db.savings.add(f);
+      setModal(null);
+      load();
+      showToast(f.id ? t('updated') : t('goalAdded'));
+    } catch (err) { console.error('Failed to save savings goal:', err); showToast(t('errorOccurred')); }
   };
   const del = async id => {
-    await db.savings.delete(id);
-    load();
-    showToast(t('deleted'));
+    try {
+      await db.savings.delete(id);
+      load();
+      showToast(t('deleted'));
+    } catch (err) { console.error('Failed to delete savings goal:', err); showToast(t('errorOccurred')); }
   };
   const addFunds = async () => {
-    if (!fundsAmt || !fundsGoal) return;
-    const g = goals.find(g => g.id === fundsGoal);
-    const newAmt = Math.min(Number(g.targetAmount), Number(g.currentAmount || 0) + Number(fundsAmt));
-    await db.savings.update(fundsGoal, {
-      currentAmount: newAmt
-    });
-    setFundsGoal(null);
-    setFundsAmt('');
-    load();
-    showToast(t('fundsAdded'));
+    const amt = Number(fundsAmt);
+    if (!fundsGoal || !Number.isFinite(amt) || amt <= 0) return showToast(t('errAmount'));
+    try {
+      const g = goals.find(g => g.id === fundsGoal);
+      const newAmt = Math.min(Number(g.targetAmount), Number(g.currentAmount || 0) + amt);
+      await db.savings.update(fundsGoal, {
+        currentAmount: newAmt
+      });
+      setFundsGoal(null);
+      setFundsAmt('');
+      load();
+      showToast(t('fundsAdded'));
+    } catch (err) { console.error('Failed to add funds:', err); showToast(t('errorOccurred')); }
   };
   const totSaved = goals.reduce((s, g) => s + Number(g.currentAmount || 0), 0);
   const totTarget = goals.reduce((s, g) => s + Number(g.targetAmount || 0), 0);
@@ -3233,44 +3561,50 @@ function CardsTab({
     load();
   }, [load]);
   const saveCard = async f => {
-    if (f.id) await db.cards.update(f.id, f);else await db.cards.add(f);
-    setModal(null);
-    load();
-    showToast(f.id ? t('updated') : t('cardAdded'));
+    try {
+      if (f.id) await db.cards.update(f.id, f);else await db.cards.add(f);
+      setModal(null);
+      load();
+      showToast(f.id ? t('updated') : t('cardAdded'));
+    } catch (err) { console.error('Failed to save card:', err); showToast(t('errorOccurred')); }
   };
   const delCard = async id => {
-    await db.transaction('rw', db.cards, db.installments, async () => {
-      await db.installments.where('cardId').equals(id).delete();
-      await db.cards.delete(id);
-    });
-    load();
-    showToast(t('cardRemoved'));
+    try {
+      await db.transaction('rw', db.cards, db.installments, db.expenses, db.recurring, async () => {
+        await db.installments.where('cardId').equals(id).delete();
+        await db.expenses.where('cardId').equals(id).modify({ cardId: '' });
+        await db.recurring.filter(r => Number(r.cardId) === id).modify({ cardId: '' });
+        await db.cards.delete(id);
+      });
+      load();
+      showToast(t('cardRemoved'));
+    } catch (err) { console.error('Failed to delete card:', err); showToast(t('errorOccurred')); }
   };
   const saveInst = async f => {
-    if (f.id) await db.installments.update(f.id, f);else await db.installments.add(f);
-    setInstModal(null);
-    load();
-    showToast(f.id ? t('updated') : t('installmentAdded'));
+    try {
+      if (f.id) await db.installments.update(f.id, f);else await db.installments.add(f);
+      setInstModal(null);
+      load();
+      showToast(f.id ? t('updated') : t('installmentAdded'));
+    } catch (err) { console.error('Failed to save installment:', err); showToast(t('errorOccurred')); }
   };
   const delInst = async id => {
-    await db.installments.delete(id);
-    load();
-    showToast(t('removed'));
+    try {
+      await db.installments.delete(id);
+      load();
+      showToast(t('removed'));
+    } catch (err) { console.error('Failed to delete installment:', err); showToast(t('errorOccurred')); }
   };
   const markDone = async id => {
-    await db.installments.update(id, {
-      isComplete: true
-    });
-    load();
-    showToast(t('paidOff'));
+    try {
+      await db.installments.update(id, {
+        isComplete: true
+      });
+      load();
+      showToast(t('paidOff'));
+    } catch (err) { console.error('Failed to update installment:', err); showToast(t('errorOccurred')); }
   };
-  const getCardBal = card => {
-    const now = new Date();
-    const eB = cardExpOutstanding(card, cardExps, now);
-    const rB = recs.filter(r => Number(r.cardId) === card.id && isActiveInMonth(r, now)).reduce((s, r) => s + Number(r.amount), 0);
-    const iB = insts.filter(i => i.cardId === card.id && instActive(i, now)).reduce((s, i) => s + instRemaining(i, now), 0);
-    return eB + rB + iB;
-  };
+  const getCardBal = card => calculateCardBalance(card, cardExps, recs, insts, new Date());
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Toast, {
     msg: toast
   }), /*#__PURE__*/React.createElement("div", {
@@ -3307,7 +3641,12 @@ function CardsTab({
       style: {
         background: `linear-gradient(135deg,${ca},${cb})`
       },
-      onClick: () => setExpanded(isExp ? null : card.id)
+      role: "button",
+      tabIndex: 0,
+      'aria-expanded': isExp,
+      'aria-label': `${card.name} ••••${card.lastFour}`,
+      onClick: () => setExpanded(isExp ? null : card.id),
+      onKeyDown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded(isExp ? null : card.id); } }
     }, /*#__PURE__*/React.createElement("div", {
       className: "fbet"
     }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
@@ -3381,7 +3720,7 @@ function CardsTab({
         color: '#fff',
         border: 'none'
       },
-      onClick: () => setInstModal('new')
+      onClick: () => setInstModal(card.id)
     }, "+ Add")), cardInsts.length === 0 ? /*#__PURE__*/React.createElement("p", {
       style: {
         fontSize: 12,
@@ -3487,7 +3826,8 @@ function CardsTab({
     onClose: () => setInstModal(null)
   }, /*#__PURE__*/React.createElement(InstallForm, {
     onSave: saveInst,
-    cards: cards
+    cards: cards,
+    defaultCardId: instModal
   })), modal && /*#__PURE__*/React.createElement(Modal, {
     title: modal === 'new' ? t('addCard') : t('editCard'),
     onClose: () => setModal(null)
@@ -3532,7 +3872,7 @@ function SettingsModal({
     });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `cashflow-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `cashflow-backup-${todayStr()}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
     showToast(t('jsonExported'));
@@ -3546,7 +3886,7 @@ function SettingsModal({
     });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `cashflow-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `cashflow-${todayStr()}.csv`;
     a.click();
     URL.revokeObjectURL(a.href);
     showToast(t('csvExported'));
@@ -3561,8 +3901,11 @@ function SettingsModal({
       try {
         const text = await file.text();
         const data = JSON.parse(text);
-        if (!data.version || !data.expenses) throw new Error('Invalid file');
-        if (!confirm(t('importConfirm1') + (data.exported?.split('T')[0] || 'unknown date') + t('importConfirm2'))) return;
+        const check = validateBackup(data);
+        if (!check.ok) throw new Error(check.reason);
+        const counts = ['expenses', 'recurring', 'income', 'savings', 'cards', 'installments', 'budgets']
+          .map(k => `${k}: ${(data[k] || []).length}`).join(', ');
+        if (!confirm(t('importConfirm1') + (data.exported?.split('T')[0] || 'unknown date') + t('importConfirm2') + '\n\n' + counts)) return;
         await db.transaction('rw', [db.expenses, db.recurring, db.income, db.savings, db.cards, db.installments, db.budgets, db.settings], async () => {
           await db.expenses.clear();
           if (data.expenses?.length) await db.expenses.bulkAdd(data.expenses);
@@ -3578,6 +3921,7 @@ function SettingsModal({
           if (data.installments?.length) await db.installments.bulkAdd(data.installments);
           await db.budgets.clear();
           if (data.budgets?.length) await db.budgets.bulkAdd(data.budgets);
+          await db.settings.clear();
           if (data.settings?.length) await db.settings.bulkPut(data.settings);
         });
         showToast(t('dataRestored'));
@@ -3799,7 +4143,7 @@ function App() {
       db.settings.get('customCategories').then(r => {
         if (Array.isArray(r?.value)) CUSTOM_CATS = r.value.map(c => ({ ...c, icon: iconName(c) }));
       })
-    ]).catch(() => {}).finally(() => {
+    ]).catch(err => { console.error('Failed to load settings, using defaults:', err); }).finally(() => {
       setMonth(cycleAnchor(new Date()));
       setReady(true);
     });
@@ -3868,7 +4212,7 @@ function App() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      height: '100vh',
+      height: '100dvh',
       flexDirection: 'column',
       gap: 12
     }
