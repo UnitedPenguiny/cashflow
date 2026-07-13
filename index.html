@@ -367,7 +367,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 /* Audit fixes retained without changing the original visual system */
 :root{--focus:color-mix(in srgb,var(--p) 58%,#111827)}
 .dark{--focus:#fef08a}
-.row-action{-webkit-appearance:none;appearance:none;border:0;background:transparent;color:inherit;font:inherit;text-align:left;width:100%;min-width:0;padding:0;cursor:pointer}
+.row-action{-webkit-appearance:none;appearance:none;border:0;background:transparent;color:inherit;font:inherit;text-align:left;width:auto;min-width:0;padding:0;cursor:pointer;display:block}
+.row-action .lname,.row-action .lsub{display:block}
 .row-action:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:8px}
 .tog input{position:absolute;width:1px!important;height:1px!important;opacity:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
 .tog input:focus-visible+.togs{box-shadow:0 0 0 2px var(--card),0 0 0 5px var(--focus)}
@@ -405,6 +406,54 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
  canvas{max-width:100%!important}
 }
 
+
+/* Focused UI improvements: theme-aware actions, resilient transaction rows,
+   native-looking themed confirmations, and the redesigned Savings tab. */
+.budget-theme-btn,.savings-edit-btn{
+  background:linear-gradient(180deg,color-mix(in srgb,var(--pl) 62%,var(--card)),color-mix(in srgb,var(--pl) 34%,var(--card)));
+  color:var(--p);border:1px solid color-mix(in srgb,var(--p) 26%,var(--border));
+  box-shadow:var(--s1),inset 0 1px 0 color-mix(in srgb,#fff 65%,transparent)
+}
+.budget-theme-btn:active,.savings-edit-btn:active{background:color-mix(in srgb,var(--pl) 68%,var(--card));opacity:1}
+html.theme-rose .budget-theme-btn,html.theme-rose .savings-edit-btn{background:linear-gradient(180deg,rgba(255,252,251,.98),rgba(249,237,239,.94));border-color:rgba(232,197,204,.96);color:#bd7182;box-shadow:0 10px 20px rgba(190,165,173,.13),inset 0 1px 0 #fff}
+.dark .budget-theme-btn,.dark .savings-edit-btn{background:color-mix(in srgb,var(--pl) 52%,var(--card));color:var(--p)}
+
+.spend-row{display:grid;grid-template-columns:42px minmax(0,1fr) auto;column-gap:11px;align-items:center}
+.spend-row>.lico{grid-column:1;grid-row:1;align-self:center}
+.spend-row>.spend-copy{grid-column:2;grid-row:1;min-width:0;display:grid;gap:5px;align-content:center}
+.spend-row>.spend-actions{grid-column:3;grid-row:1;align-self:center;min-width:max-content}
+.spend-name{line-height:1.24;overflow-wrap:anywhere;word-break:break-word}
+.spend-meta{display:flex;align-items:center;gap:7px;min-width:0;line-height:1.2}
+.spend-date{display:inline-flex;align-items:center;flex:none;width:max-content;max-width:100%;padding:3px 7px;border-radius:999px;background:color-mix(in srgb,var(--pl) 48%,var(--bg));border:1px solid color-mix(in srgb,var(--p) 11%,var(--border));color:var(--t2);font-size:10px;font-weight:700;white-space:nowrap}
+.spend-note{min-width:0;color:var(--t3);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html.theme-rose .spend-date{background:rgba(249,238,240,.82);border-color:rgba(237,218,222,.96);color:#98737c}
+@media(max-width:350px){.spend-row{grid-template-columns:38px minmax(0,1fr) auto;column-gap:9px}.spend-row>.lico{width:36px;height:36px}.spend-note{display:none}}
+
+.confirm-visual{display:flex;flex-direction:column;align-items:center;text-align:center;padding:8px 4px 2px}
+.confirm-icon{width:56px;height:56px;border-radius:18px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;background:var(--pl);color:var(--p);border:1px solid color-mix(in srgb,var(--p) 18%,var(--border));box-shadow:var(--s1)}
+.confirm-icon.danger{background:var(--dl);color:var(--danger);border-color:color-mix(in srgb,var(--danger) 22%,var(--border))}
+.confirm-message{font-size:15px;font-weight:700;line-height:1.45;color:var(--t1);overflow-wrap:anywhere}
+.confirm-details{margin-top:8px;font-size:12px;line-height:1.5;color:var(--t2);white-space:pre-line;overflow-wrap:anywhere}
+.confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.confirm-actions .btn{margin:0}
+.confirm-danger-btn{background:var(--danger);color:#fff}
+html.theme-rose .confirm-icon{background:rgba(249,238,240,.9);border-color:rgba(237,218,222,.96);color:#c8798b}
+html.theme-rose .confirm-icon.danger{background:#fbe9ec;color:#db7288}
+
+.savings-breakdown{display:grid;gap:0;margin-top:4px}
+.savings-line{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px}
+.savings-line:last-child{border-bottom:0}
+.savings-line span{color:var(--t2)}
+.savings-line strong{white-space:nowrap;color:var(--t1)}
+.savings-line.total{margin-top:3px;padding-top:14px;font-size:14px}
+.savings-line.total strong{color:var(--p);font-size:17px}
+.savings-explainer{margin-top:10px;padding:10px 12px;border-radius:var(--rmd);background:color-mix(in srgb,var(--pl) 38%,var(--bg));color:var(--t2);font-size:11px;line-height:1.5}
+.savings-empty-hint{font-size:12px;color:var(--t3);margin-top:6px}
+.savings-stat .ssub{max-width:75%}
+
+html.keyboard-open .bnav,html.keyboard-open .fab{display:none!important}
+html.keyboard-open .main{padding-bottom:max(12px,env(safe-area-inset-bottom,0px))}
+
 </style>
 </head>
 <body>
@@ -417,7 +466,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 // Single-file release metadata. This build stores records locally in IndexedDB,
 // but it intentionally does not register a service worker or advertise offline/PWA
 // installation because the runtime libraries below are delivered by CDN.
-window.CASHFLOW_BUILD = Object.freeze({ version: '3.0.0', schema: 3, built: '2026-07-14' });
+window.CASHFLOW_BUILD = Object.freeze({ version: '3.1.0', schema: 3, built: '2026-07-14' });
 </script>
 <script>
 // ── DEPENDENCY GUARD (must run before anything else) ──
@@ -641,8 +690,9 @@ const validateBackup = input => {
         if (!Array.isArray(r.value) || r.value.length > 100 || r.value.some(c => !isPlainObj(c) || !validText(c.id, 80) || !validText(c.label, 80) || !validText(c.icon, 40))) return 'invalid customCategories';
         const ids = r.value.map(c => c.id); if (new Set(ids).size !== ids.length) return 'duplicate custom category id';
       }
-      if (r.key === 'migration-v3' && (!isPlainObj(r.value) || !isValidISODate(r.value.completed) || !validText(r.value.build, 40))) return 'invalid migration marker';
-      if (!['language','payday','cycleLabel','theme','darkMode','currency','customCategories','migration-v3'].includes(r.key)) return 'unknown setting key';
+      if (r.key === 'totalSavings' && !validMoney(Number(r.value), { allowZero: true })) return 'invalid totalSavings';
+      if (['migration-v3','migration-v4'].includes(r.key) && (!isPlainObj(r.value) || !isValidISODate(r.value.completed) || !validText(r.value.build, 40))) return 'invalid migration marker';
+      if (!['language','payday','cycleLabel','theme','darkMode','currency','customCategories','totalSavings','migration-v3','migration-v4'].includes(r.key)) return 'unknown setting key';
       return null;
     });
     return { ok: true, data };
@@ -880,7 +930,7 @@ let currentLang = 'en';
 const LANGS = {
   en: {
     // Nav & Header
-    home: 'Home', spend: 'Spend', income: 'Income', save: 'Save', cards: 'Cards',
+    home: 'Home', spend: 'Spend', income: 'Income', save: 'Savings', cards: 'Cards',
     settings: 'Settings', today: '↩ Today', loading: 'Loading…',
     // Dashboard
     netBalance: 'Net Balance', overBudget: 'Over Budget',
@@ -1191,6 +1241,28 @@ Object.assign(LANGS.th,{
   previousCycle:'รอบเงินเดือนก่อนหน้า',resetAllWarning:'การดำเนินการนี้จะลบข้อมูลและการตั้งค่าทั้งหมดของแอปจากเบราว์เซอร์นี้อย่างถาวร',selectedCycle:'รอบที่เลือก',
   summaryMode:'ช่วงสรุป',tapToAddExpense:'แตะ + เพื่อเพิ่มรายจ่าย'
 });
+
+Object.assign(LANGS.en,{
+  savingsTab:'Savings',combinedBalance:'Combined Balance',totalSavings:'Total Savings',currentBalance:'Current Balance',
+  selectedCycleBalance:'Selected salary-cycle balance',savingsPlusBalance:'Total savings + current balance',
+  setTotalSavings:'Set Total Savings',updateTotalSavings:'Update Total Savings',savingsAmountHint:'Enter the total savings you currently have across your accounts.',
+  savingsUpdated:'Savings updated',errSavingsAmount:'Savings must be a number from 0 to 1,000,000,000,000.',incomeMinusExpenses:'Income minus expenses',savingsBreakdown:'Savings Overview',
+  combinedFormula:'Combined Balance is your Total Savings plus the Current Balance from the selected salary cycle.',
+  cancel:'Cancel',confirm:'Confirm',continueAction:'Continue',deleteAction:'Delete',confirmActionTitle:'Please confirm',
+  deleteItemMessage:'This item will be permanently removed.',clearDataTitle:'Clear all data?',importBackupTitle:'Replace current data?',
+  legacySavingsImported:'Your previous saved amounts were combined into Total Savings.'
+});
+Object.assign(LANGS.th,{
+  savingsTab:'เงินออม',combinedBalance:'ยอดรวมทั้งหมด',totalSavings:'เงินออมทั้งหมด',currentBalance:'ยอดคงเหลือปัจจุบัน',
+  selectedCycleBalance:'ยอดคงเหลือของรอบเงินเดือนที่เลือก',savingsPlusBalance:'เงินออมทั้งหมด + ยอดคงเหลือปัจจุบัน',
+  setTotalSavings:'ตั้งค่าเงินออมทั้งหมด',updateTotalSavings:'อัปเดตเงินออมทั้งหมด',savingsAmountHint:'ใส่ยอดเงินออมทั้งหมดที่มีอยู่ในทุกบัญชี',
+  savingsUpdated:'อัปเดตเงินออมแล้ว',errSavingsAmount:'เงินออมต้องเป็นตัวเลขตั้งแต่ 0 ถึง 1,000,000,000,000',incomeMinusExpenses:'รายรับลบรายจ่าย',savingsBreakdown:'ภาพรวมเงินออม',
+  combinedFormula:'ยอดรวมทั้งหมดคำนวณจากเงินออมทั้งหมดบวกยอดคงเหลือของรอบเงินเดือนที่เลือก',
+  cancel:'ยกเลิก',confirm:'ยืนยัน',continueAction:'ดำเนินการต่อ',deleteAction:'ลบ',confirmActionTitle:'กรุณายืนยัน',
+  deleteItemMessage:'รายการนี้จะถูกลบอย่างถาวร',clearDataTitle:'ลบข้อมูลทั้งหมดหรือไม่?',importBackupTitle:'แทนที่ข้อมูลปัจจุบันหรือไม่?',
+  legacySavingsImported:'ยอดที่ออมไว้เดิมถูกรวมเป็นเงินออมทั้งหมดแล้ว'
+});
+
 const t = key => (LANGS[currentLang] || LANGS.en)[key] || LANGS.en[key] || key;
 const getCatLabel = id => {
   const custom = CUSTOM_CATS.find(c => c.id === id);
@@ -1566,6 +1638,19 @@ function Modal({ title, onClose, children, busy = false }) {
     className: "sbody"
   }, children))), document.body);
 }
+
+function ConfirmModal({ title=t('confirmActionTitle'), message, details='', confirmLabel=t('confirm'), cancelLabel=t('cancel'), danger=false, busy=false, onConfirm, onClose }) {
+  return h(Modal,{title,onClose,busy},
+    h('div',{className:'confirm-visual'},
+      h('div',{className:`confirm-icon${danger?' danger':''}`,'aria-hidden':true},h(Icon,{name:danger?'trash':'alert',size:26})),
+      h('div',{className:'confirm-message'},message),
+      details&&h('div',{className:'confirm-details'},details)),
+    h('div',{className:'confirm-actions'},
+      h('button',{type:'button',className:'btn bghost',disabled:busy,onClick:onClose},cancelLabel),
+      h('button',{type:'button',className:`btn ${danger?'confirm-danger-btn':'bpri'}`,disabled:busy,'aria-busy':busy,onClick:onConfirm},confirmLabel))
+  );
+}
+
 let fieldIdCounter = 0;
 const Field = ({ label, children, hint, error }) => {
   const id = useRef(`field-${++fieldIdCounter}`).current;
@@ -2418,9 +2503,9 @@ function Dashboard({ sym, currentMonth, payday }) {
     setLoadError(null);
     try {
       const cr = cycleRange(currentMonth, payday);
-      const [allInc, allRec, allCards, allInst, allSav, allBudgets, cardCharges] = await Promise.all([
+      const [allInc, allRec, allCards, allInst, allSav, allBudgets, cardCharges, savingsSetting] = await Promise.all([
         db.income.toArray(), db.recurring.toArray(), db.cards.toArray(), db.installments.toArray(),
-        db.savings.toArray(), db.budgets.toArray(), db.expenses.where('cardId').above(0).toArray()
+        db.savings.toArray(), db.budgets.toArray(), db.expenses.where('cardId').above(0).toArray(), db.settings.get('totalSavings')
       ]);
       const exps = await db.expenses.where('date').between(cr.startISO, cr.endISO, true, false).toArray();
       const totalInc = moneySum(allInc.map(inc => incomeAmountInRange(inc, cr.start, cr.end)));
@@ -2447,7 +2532,7 @@ function Dashboard({ sym, currentMonth, payday }) {
       const prevRows=await db.expenses.where('date').between(pcr.startISO,pcr.endISO,true,false).toArray();
       const prevTotal=roundMoney(moneySum(prevRows.map(x=>x.amount))+moneySum(allRec.map(x=>recurringAmountInRange(x,pcr.start,pcr.end)))+moneySum(allInst.map(x=>installmentAmountInRange(x,pcr.start,pcr.end))));
       if (!isLatest()) return;
-      setD({cr,totalInc,fixed,varExp,instExp,cats,allCards,allInst,allRec,allSav,monthly,recent:[...exps].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).slice(0,6),cardCharges,allBudgets,catMap,exps,prevTotal});
+      setD({cr,totalInc,fixed,varExp,instExp,cats,allCards,allInst,allRec,allSav,totalSavings:roundMoney(Number(savingsSetting?.value??moneySum(allSav.map(g=>g.currentAmount||0)))),monthly,recent:[...exps].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).slice(0,6),cardCharges,allBudgets,catMap,exps,prevTotal});
     } catch (err) {
       console.error('Dashboard load failed:',err);
       if (isLatest()) setLoadError(err);
@@ -2456,9 +2541,9 @@ function Dashboard({ sym, currentMonth, payday }) {
   useEffect(()=>{ load(); },[load]);
   if (loadError) return h('div',{className:'empty',role:'alert'},h('div',{className:'etxt'},t('loadFailed')),h('button',{className:'btn bpri',onClick:load},t('retry')));
   if (!d) return h('div',{className:'loading'},t('loading'));
-  const {cr,totalInc,fixed,varExp,instExp,cats,allCards,allInst,allRec,allSav,monthly,recent,allBudgets,catMap,exps,prevTotal}=d;
+  const {cr,totalInc,fixed,varExp,instExp,cats,allCards,allInst,allRec,allSav,totalSavings,monthly,recent,allBudgets,catMap,exps,prevTotal}=d;
   const totalExp=roundMoney(fixed+varExp+instExp), net=roundMoney(totalInc-totalExp);
-  const totSaved=moneySum(allSav.map(g=>g.currentAmount||0)), totTarget=moneySum(allSav.map(g=>g.targetAmount||0));
+  const totSaved=roundMoney(Number(totalSavings||0));
   const budgeted=allBudgets.filter(b=>Number(b.amount)>0);
   const now=new Date(), selectedPast=cr.end<=now, selectedFuture=cr.start>now;
   const cycleLen=Math.max(1,Math.ceil((cr.end-cr.start)/DAY));
@@ -2487,13 +2572,13 @@ function Dashboard({ sym, currentMonth, payday }) {
       h('div',{className:'sgrid'},
         h('div',{className:'sc premium-stat',title:cycleRangeLabel(currentMonth,payday)},h('div',{className:'slbl'},t('incomeLabel')),h('div',{className:'samt pos'},fmt(totalInc,sym)),h('div',{className:'ssub'},t('thisMonth')),h('div',{className:'stat-badge'},h(Icon,{name:'wallet',size:24}))),
         h('div',{className:'sc premium-stat',title:cycleRangeLabel(currentMonth,payday)},h('div',{className:'slbl'},t('expensesLabel')),h('div',{className:'samt neg'},fmt(totalExp,sym)),h('div',{className:'ssub'},`${fmt(fixed,sym)} ${t('fixed')}`),h('div',{className:'stat-badge'},h(Icon,{name:'trend',size:24}))),
-        allSav.length>0&&h('div',{className:'sc full'},h('div',{className:'fbet'},h('div',null,h('div',{className:'slbl'},t('savingsGoals')),h('div',{className:'samt neu'},fmt(totSaved,sym)),h('div',{className:'ssub'},fmt(Math.max(0,totTarget-totSaved),sym),' ',t('remaining'))),h('div',{style:{fontSize:22,fontWeight:800,color:'var(--p)'}},Math.round(totTarget?totSaved/totTarget*100:0),'%')),h('div',{className:'mt10'},h(PBar,{value:totSaved,max:totTarget}))))),
+        totSaved>0&&h('div',{className:'sc full'},h('div',{className:'fbet'},h('div',null,h('div',{className:'slbl'},t('totalSavings')),h('div',{className:'samt neu'},fmt(totSaved,sym)),h('div',{className:'ssub'},t('savingsPlusBalance'))),h('div',{style:{fontSize:18,fontWeight:800,color:'var(--p)'}},totSaved+net<0?'−':'',fmt(totSaved+net,sym)))))),
     cats.length>0&&h('section',{className:'sec'},h('div',{className:'card cp'},h('div',{className:'chart-head mb10'},h('h2',{className:'ctitle'},t('spendingByCategory')),h('div',{className:'chart-menu','aria-hidden':true},'•••')),h(DonutChart,{data:cats.map(c=>c.amt),labels:cats.map(c=>getCatLabel(c.id)),colors:cats.map((c,i)=>chartToneFor(c.id,i)),sym}),h('div',{className:'chart-list'},cats.map((c,i)=>{const cat=getCat(c.id),tone=chartToneFor(c.id,i);return h('div',{key:c.id,className:'chart-row'},h('div',{className:'chart-meta'},h('span',{className:'summary-swatch',style:{background:chartToneCss(tone),color:tone.base},'aria-hidden':true}),h('span',{className:'chart-icon-chip',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('span',{className:'chart-label'},getCatLabel(c.id))),h('span',{className:'chart-amount'},fmt(c.amt,sym)));})))),
-    h('section',{className:'sec'},h('div',{className:'card cp'},h('div',{className:'fbet mb10'},h('h2',{className:'ctitle'},t('budgetProgress')),h('button',{className:'btn bsm',onClick:()=>{const x={};allBudgets.forEach(b=>x[b.category]=b.amount);setBudgetDrafts(x);setBudgetModal(true);}},t('setBudgets'))),budgeted.length===0?h('div',{className:'empty',style:{padding:'20px 10px'}},h('div',{className:'etxt'},t('noBudgets')),h('div',{className:'esub'},t('noBudgetsSub'))):budgeted.map(b=>{const cat=getCat(b.category),spent=catMap[b.category]||0,over=spent>b.amount,warn=!over&&spent/b.amount>=.75,color=over?'var(--danger)':warn?'#a15c00':'var(--success)';return h('div',{key:b.category,style:{marginBottom:12}},h('div',{className:'fbet',style:{marginBottom:4}},h('div',{className:'fb g8'},h(Icon,{name:iconName(cat),size:17}),h('span',{style:{fontSize:13,fontWeight:600}},getCatLabel(b.category))),h('span',{style:{fontSize:12,fontWeight:700,color}},fmt(spent,sym),' ',t('budgetOf'),' ',fmt(b.amount,sym))),h(PBar,{value:spent,max:b.amount,color}),h('div',{style:{fontSize:11,color:over?'var(--danger)':'var(--t3)',marginTop:3,textAlign:'right'}},over?`${fmt(spent-b.amount,sym)} ${t('budgetOver')}`:`${fmt(b.amount-spent,sym)} ${t('budgetRemaining')}`));}))),
+    h('section',{className:'sec'},h('div',{className:'card cp'},h('div',{className:'fbet mb10'},h('h2',{className:'ctitle'},t('budgetProgress')),h('button',{className:'btn bsm budget-theme-btn',onClick:()=>{const x={};allBudgets.forEach(b=>x[b.category]=b.amount);setBudgetDrafts(x);setBudgetModal(true);}},h(Icon,{name:'settings',size:14}),t('setBudgets'))),budgeted.length===0?h('div',{className:'empty',style:{padding:'20px 10px'}},h('div',{className:'etxt'},t('noBudgets')),h('div',{className:'esub'},t('noBudgetsSub'))):budgeted.map(b=>{const cat=getCat(b.category),spent=catMap[b.category]||0,over=spent>b.amount,warn=!over&&spent/b.amount>=.75,color=over?'var(--danger)':warn?'#a15c00':'var(--success)';return h('div',{key:b.category,style:{marginBottom:12}},h('div',{className:'fbet',style:{marginBottom:4}},h('div',{className:'fb g8'},h(Icon,{name:iconName(cat),size:17}),h('span',{style:{fontSize:13,fontWeight:600}},getCatLabel(b.category))),h('span',{style:{fontSize:12,fontWeight:700,color}},fmt(spent,sym),' ',t('budgetOf'),' ',fmt(b.amount,sym))),h(PBar,{value:spent,max:b.amount,color}),h('div',{style:{fontSize:11,color:over?'var(--danger)':'var(--t3)',marginTop:3,textAlign:'right'}},over?`${fmt(spent-b.amount,sym)} ${t('budgetOver')}`:`${fmt(b.amount-spent,sym)} ${t('budgetRemaining')}`));}))),
     monthly.some(m=>m.inc||m.exp)&&h('section',{className:'sec'},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('incomeVsExpenses')),h(BarChart,{sym,labels:monthly.map(m=>m.label),datasets:[{label:t('incomeChart'),data:monthly.map(m=>m.inc),gradient:{light:'#E0ECE2',base:'#78957E',dark:'#4f7058'},borderRadius:5},{label:t('expensesChart'),data:monthly.map(m=>m.exp),gradient:{light:'#F0E1DC',base:'#9F7D74',dark:'#744f48'},borderRadius:5}]}))),
     h('section',{className:'sec'},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('insights')),h('div',{style:{marginBottom:12,padding:'10px 12px',background:'var(--bg)',borderRadius:'var(--rmd)'}},h('div',{style:{fontSize:12,color:'var(--t3)',fontWeight:600}},projectionLabel),h('div',{style:{fontSize:18,fontWeight:800,color:'var(--danger)'}},fmt(projectedTotal,sym)),!selectedFuture&&h('div',{style:{fontSize:12,color:totalInc-projectedTotal>=0?'var(--success)':'var(--danger)'}},t('projectedRemaining'),': ',fmt(totalInc-projectedTotal,sym))),h('div',{style:{marginBottom:12,padding:'10px 12px',background:'var(--bg)',borderRadius:'var(--rmd)'}},h('div',{style:{fontSize:12,color:'var(--t3)',fontWeight:600}},t('biggestExpense')),biggest?h('div',{className:'fbet'},h('span',null,biggest.name,' · ',biggest.date),h('strong',null,fmt(biggest.amount,sym))):h('span',null,t('noExpensesYet'))),prevTotal>0&&h('div',{style:{padding:'10px 12px',background:'var(--bg)',borderRadius:'var(--rmd)'}},h('div',{style:{fontSize:12,color:'var(--t3)',fontWeight:600}},t('vsLastMonth')),h('div',{style:{fontSize:16,fontWeight:800,color:momChange>0?'var(--danger)':'var(--success)'}},Math.abs(momChange).toFixed(1),'% ',momChange>0?t('moreSpending'):t('lessSpending'))))),
     allCards.length>0&&h('section',{className:'sec'},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('creditCards')),allCards.map(card=>{const colors=CCOLORS[Number(card.colorIdx)]||CCOLORS[0],bal=calculateCardBalance(card,d.cardCharges,allRec,allInst,new Date()),avail=roundMoney(Number(card.creditLimit)-bal);return h('div',{key:card.id,className:'li'},h('span',{style:{width:10,height:10,borderRadius:'50%',background:`linear-gradient(135deg,${colors[0]},${colors[1]})`},'aria-hidden':true}),h('span',{className:'linf'},h('span',{className:'lname'},card.name,' ••••',card.lastFour)),h('span',{style:{textAlign:'right'}},h('span',{style:{display:'block',fontWeight:700,color:'var(--danger)'}},fmt(bal,sym)),h('span',{style:{fontSize:11,color:avail<0?'var(--danger)':'var(--t3)'}},avail<0?`${t('overLimitBy')} ${fmt(-avail,sym)}`:`${fmt(avail,sym)} ${t('avail')}`)));}))),
-    recent.length>0&&h('section',{className:'sec',style:{paddingBottom:14}},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('recentTransactions')),recent.map(exp=>{const cat=getCat(exp.category);return h('div',{key:exp.id,className:'li'},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('div',{className:'linf'},h('div',{className:'lname'},exp.name),h('div',{className:'lsub'},exp.date)),h('div',{className:'lamt exp'},'−',fmt(exp.amount,sym)));}))),
+    recent.length>0&&h('section',{className:'sec',style:{paddingBottom:14}},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('recentTransactions')),recent.map(exp=>{const cat=getCat(exp.category);return h('div',{key:exp.id,className:'li spend-row'},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('div',{className:'linf spend-copy'},h('div',{className:'lname spend-name'},exp.name),h('div',{className:'spend-meta'},h('span',{className:'spend-date'},exp.date))),h('div',{className:'lamt exp spend-actions'},'−',fmt(exp.amount,sym)));}))),
     budgetModal&&h(Modal,{title:t('setBudgets'),onClose:()=>setBudgetModal(false)},expenseCats().filter(c=>c.id!=='installments').map(c=>h(Field,{key:c.id,label:getCatLabel(c.id)},h(Inp,{type:'number',placeholder:'0.00',step:'0.01',inputMode:'decimal',value:budgetDrafts[c.id]||'',onChange:e=>setBudgetDrafts(x=>({...x,[c.id]:e.target.value}))}))),h('button',{className:'btn bpri',onClick:saveBudgets},t('saveBudgets')))
   );
 }
@@ -2502,7 +2587,7 @@ function Dashboard({ sym, currentMonth, payday }) {
 function ExpensesTab({ sym, currentMonth, payday }) {
   const [sub,setSub]=useState('variable');
   const [varExps,setVarExps]=useState([]),[recs,setRecs]=useState([]),[cards,setCards]=useState([]),[allInsts,setAllInsts]=useState([]);
-  const [modal,setModal]=useState(null),[categoryModal,setCategoryModal]=useState(null),[replacementCat,setReplacementCat]=useState('other');
+  const [modal,setModal]=useState(null),[categoryModal,setCategoryModal]=useState(null),[replacementCat,setReplacementCat]=useState('other'),[confirmState,setConfirmState]=useState(null),[confirmBusy,setConfirmBusy]=useState(false);
   const [customCat,setCustomCat]=useState({label:'',icon:'tag'}),[catVersion,setCatVersion]=useState(0);
   const [search,setSearch]=useState(''),[catFilter,setCatFilter]=useState(''),[day,setDay]=useState(todayStr()),[summaryMode,setSummaryMode]=useState('daily');
   const [summaryExps,setSummaryExps]=useState([]),[loadError,setLoadError]=useState(null);
@@ -2527,7 +2612,8 @@ function ExpensesTab({ sym, currentMonth, payday }) {
   const saveVar=async f=>{try{if(f.id)await db.expenses.update(f.id,f);else await db.expenses.add(f);setModal(null);await afterWrite(f.id?t('updated'):t('expenseAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
   const saveRec=async f=>{try{if(f.id)await db.recurring.update(f.id,f);else await db.recurring.add(f);setModal(null);await afterWrite(f.id?t('updated'):t('fixedCostAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
   const saveInst=async f=>{try{if(f.id)await db.installments.update(f.id,f);else await db.installments.add(f);setModal(null);await afterWrite(f.id?t('updated'):t('installmentAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
-  const confirmedDelete=async(kind,row,table)=>{if(!confirm(`${t('deleteItem')}: ${row.name}?`))return;try{await table.delete(row.id);await afterWrite(t('deleted'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const confirmedDelete=(kind,row,tableName)=>setConfirmState({kind,row,tableName});
+  const runConfirmedDelete=async()=>{if(!confirmState||confirmBusy)return;setConfirmBusy(true);try{await db[confirmState.tableName].delete(confirmState.row.id);setConfirmState(null);await afterWrite(t('deleted'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
   const toggleRec=async r=>{try{const current=activeInMonthKey(r,todayKey);await db.recurring.update(r.id,withActivityAtMonth(r,!current,todayKey));await load();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const completeInst=async inst=>{try{await db.installments.update(inst.id,{isComplete:true,completedDate:todayStr()});await load();showToast(t('paidOff'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const reopenInst=async inst=>{try{await db.installments.update(inst.id,{isComplete:false,completedDate:''});await load();showToast(t('updated'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
@@ -2549,9 +2635,9 @@ function ExpensesTab({ sym, currentMonth, payday }) {
   const filtered=varExps.filter(e=>(!search||`${e.name} ${e.notes||''}`.toLowerCase().includes(search.toLowerCase()))&&(!catFilter||e.category===catFilter));
   const tab=(id,label,value)=>h('button',{role:'tab','aria-selected':sub===id,className:`expense-type-btn${sub===id?' active':''}`,onClick:()=>setSub(id)},h('span',{className:'expense-type-label'},label),h('span',{className:'expense-type-value'},fmt(value,sym)));
   const iconButton=(label,onClick,icon,klass='')=>h('button',{type:'button','aria-label':label,title:label,className:klass,onClick},h(Icon,{name:icon,size:16}));
-  const expenseRow=e=>{const cat=getCat(e.category);return h('div',{key:e.id,className:'li'},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${e.name}`,onClick:()=>setModal({type:'editVar',data:e})},h('span',{className:'lname'},e.name),h('span',{className:'lsub'},e.date,e.notes?` · ${e.notes}`:'')),h('div',{className:'fb g8'},h('span',{className:'lamt exp'},'−',fmt(e.amount,sym)),iconButton(`${t('deleteItem')} ${e.name}`,()=>confirmedDelete('expense',e,db.expenses),'trash','btn bsm bdanger')));};
-  const recurringRow=r=>{const cat=getCat(r.category),selectedActive=activeInMonthKey(r,selectedKey),currentActive=activeInMonthKey(r,todayKey),amount=recurringAmountInRange(r,cr.start,cr.end),card=cards.find(c=>Number(c.id)===Number(r.cardId));return h('div',{key:r.id,className:'li',style:{opacity:selectedActive?1:.62}},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${r.name}`,onClick:()=>setModal({type:'editFixed',data:r})},h('span',{className:'lname'},r.name),h('span',{className:'lsub'},`${t('dueDay')} ${r.dueDay}${card?` · ${card.name}`:''}`)),h('div',{className:'fb g8'},h('span',{className:'lamt exp'},amount?'−'+fmt(amount,sym):fmt(0,sym)),h(Toggle,{checked:currentActive,label:`${currentActive?t('deactivate'):t('activate')} ${r.name}`,onChange:()=>toggleRec(r)}),iconButton(`${t('deleteItem')} ${r.name}`,()=>confirmedDelete('recurring',r,db.recurring),'trash','btn bsm bdanger')));};
-  const installmentRow=inst=>{const amount=installmentAmountInRange(inst,cr.start,cr.end),left=instMonthsLeft(inst,new Date()),completed=!!(inst.isComplete||inst.completedDate);return h('div',{key:inst.id,className:'li'},h('div',{className:'lico'},h(Icon,{name:'card',size:20})),h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${inst.name}`,onClick:()=>setModal({type:'editInst',data:inst})},h('span',{className:'lname'},inst.name),h('span',{className:'lsub'},completed?`${t('completedOn')} ${inst.completedDate||''}`:`${left} ${t('monthsLeft')} · ${fmt(inst.totalAmount,sym)}`)),h('div',{className:'fb g8'},amount>0&&h('span',{className:'lamt exp'},'−',fmt(amount,sym)),completed?h('button',{className:'btn bsm bghost',onClick:()=>reopenInst(inst)},t('reopen')):h('button',{className:'btn bsm',onClick:()=>completeInst(inst),'aria-label':`${t('completeInstallment')} ${inst.name}`},t('done')),iconButton(`${t('deleteItem')} ${inst.name}`,()=>confirmedDelete('installment',inst,db.installments),'trash','btn bsm bdanger')));};
+  const expenseRow=e=>{const cat=getCat(e.category);return h('div',{key:e.id,className:'li spend-row'},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('button',{type:'button',className:'linf row-action spend-copy','aria-label':`${t('editItem')} ${e.name}`,onClick:()=>setModal({type:'editVar',data:e})},h('span',{className:'lname spend-name'},e.name),h('span',{className:'spend-meta'},h('span',{className:'spend-date'},e.date),e.notes&&h('span',{className:'spend-note'},e.notes))),h('div',{className:'fb g8 spend-actions'},h('span',{className:'lamt exp'},'−',fmt(e.amount,sym)),iconButton(`${t('deleteItem')} ${e.name}`,()=>confirmedDelete('expense',e,'expenses'),'trash','btn bsm bdanger')));};
+  const recurringRow=r=>{const cat=getCat(r.category),selectedActive=activeInMonthKey(r,selectedKey),currentActive=activeInMonthKey(r,todayKey),amount=recurringAmountInRange(r,cr.start,cr.end),card=cards.find(c=>Number(c.id)===Number(r.cardId));return h('div',{key:r.id,className:'li',style:{opacity:selectedActive?1:.62}},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${r.name}`,onClick:()=>setModal({type:'editFixed',data:r})},h('span',{className:'lname'},r.name),h('span',{className:'lsub'},`${t('dueDay')} ${r.dueDay}${card?` · ${card.name}`:''}`)),h('div',{className:'fb g8'},h('span',{className:'lamt exp'},amount?'−'+fmt(amount,sym):fmt(0,sym)),h(Toggle,{checked:currentActive,label:`${currentActive?t('deactivate'):t('activate')} ${r.name}`,onChange:()=>toggleRec(r)}),iconButton(`${t('deleteItem')} ${r.name}`,()=>confirmedDelete('recurring',r,'recurring'),'trash','btn bsm bdanger')));};
+  const installmentRow=inst=>{const amount=installmentAmountInRange(inst,cr.start,cr.end),left=instMonthsLeft(inst,new Date()),completed=!!(inst.isComplete||inst.completedDate);return h('div',{key:inst.id,className:'li'},h('div',{className:'lico'},h(Icon,{name:'card',size:20})),h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${inst.name}`,onClick:()=>setModal({type:'editInst',data:inst})},h('span',{className:'lname'},inst.name),h('span',{className:'lsub'},completed?`${t('completedOn')} ${inst.completedDate||''}`:`${left} ${t('monthsLeft')} · ${fmt(inst.totalAmount,sym)}`)),h('div',{className:'fb g8'},amount>0&&h('span',{className:'lamt exp'},'−',fmt(amount,sym)),completed?h('button',{className:'btn bsm bghost',onClick:()=>reopenInst(inst)},t('reopen')):h('button',{className:'btn bsm',onClick:()=>completeInst(inst),'aria-label':`${t('completeInstallment')} ${inst.name}`},t('done')),iconButton(`${t('deleteItem')} ${inst.name}`,()=>confirmedDelete('installment',inst,'installments'),'trash','btn bsm bdanger')));};
   if(loadError)return h('div',{className:'empty',role:'alert'},h('div',{className:'etxt'},t('loadFailed')),h('button',{className:'btn bpri',onClick:load},t('retry')));
   return h('div',null,h(Toast,{msg:toast}),
     h('section',{className:'sec'},h('div',{className:'seg expense-type-seg',role:'tablist','aria-label':t('expensesLabel')},tab('variable',t('variable'),variableTotal),tab('fixed',t('fixed'),fixedTotal),tab('installments',t('installments'),instTotal))),
@@ -2567,51 +2653,103 @@ function ExpensesTab({ sym, currentMonth, payday }) {
     (modal==='addInst'||modal?.type==='editInst')&&(cards.length?h(Modal,{title:modal?.type?t('editInstallment'):t('addInstallment'),onClose:()=>setModal(null)},h(InstallForm,{onSave:saveInst,cards,initial:modal?.data})):h(Modal,{title:t('addInstallment'),onClose:()=>setModal(null)},h('p',{className:'fhint'},t('addInstFromCards')))),
     categoryModal==='manage'&&h(Modal,{title:t('manageExpenseTypes'),onClose:()=>setCategoryModal(null)},h('button',{className:'btn bpri',onClick:()=>{setCustomCat({label:'',icon:'tag'});setCategoryModal('add');}},t('addExpenseType')),CUSTOM_CATS.length?CUSTOM_CATS.map(cat=>h('div',{key:cat.id,className:'li'},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('div',{className:'linf'},h('div',{className:'lname'},cat.label)),h('button',{className:'btn bsm bghost',onClick:()=>{setCustomCat({...cat});setCategoryModal('edit');}},t('editBtn')),h('button',{className:'btn bsm bdanger',onClick:()=>askDeleteCategory(cat)},t('removeBtn')))):h('div',{className:'empty'},t('noCustomExpenseTypes'))),
     (categoryModal==='add'||categoryModal==='edit')&&h(Modal,{title:categoryModal==='edit'?t('editExpenseTypeTitle'):t('addExpenseTypeTitle'),onClose:()=>setCategoryModal('manage')},h(Field,{label:t('typeName')},h(Inp,{type:'text',value:customCat.label,onChange:e=>setCustomCat(x=>({...x,label:e.target.value})),autoFocus:true})),h(Field,{label:t('chooseIcon')},h('div',{className:'catg',role:'radiogroup'},CUSTOM_ICON_OPTIONS.map(name=>h('button',{key:name,type:'button',role:'radio','aria-checked':customCat.icon===name,className:`copt${customCat.icon===name?' sel':''}`,'aria-label':name,onClick:()=>setCustomCat(x=>({...x,icon:name}))},h('span',{className:'cico'},h(Icon,{name,size:22})))))),h('button',{className:'btn bpri',onClick:saveCustomCategory},categoryModal==='edit'?t('saveChanges'):t('addExpenseTypeTitle'))),
-    categoryModal?.type==='delete'&&h(Modal,{title:t('removeExpenseTypeTitle'),onClose:()=>setCategoryModal('manage')},h('p',null,categoryModal.count>0?`${categoryModal.count} ${t('catInUsePrefix')} "${categoryModal.cat.label}" ${t('catInUseSuffix')}`:`"${categoryModal.cat.label}" ${t('catNotUsedSuffix')}`),categoryModal.count>0&&h(Field,{label:t('moveExistingTo')},h(Sel,{value:replacementCat,onChange:e=>setReplacementCat(e.target.value),options:expenseCats().filter(c=>c.id!==categoryModal.cat.id).map(c=>({value:c.id,label:getCatLabel(c.id)}))})),h('button',{className:'btn bdanger',onClick:()=>deleteCustomCategory(categoryModal.cat)},categoryModal.count>0?t('moveAndRemove'):t('removeExpenseType')))
+    categoryModal?.type==='delete'&&h(Modal,{title:t('removeExpenseTypeTitle'),onClose:()=>setCategoryModal('manage')},h('p',null,categoryModal.count>0?`${categoryModal.count} ${t('catInUsePrefix')} "${categoryModal.cat.label}" ${t('catInUseSuffix')}`:`"${categoryModal.cat.label}" ${t('catNotUsedSuffix')}`),categoryModal.count>0&&h(Field,{label:t('moveExistingTo')},h(Sel,{value:replacementCat,onChange:e=>setReplacementCat(e.target.value),options:expenseCats().filter(c=>c.id!==categoryModal.cat.id).map(c=>({value:c.id,label:getCatLabel(c.id)}))})),h('button',{className:'btn bdanger',onClick:()=>deleteCustomCategory(categoryModal.cat)},categoryModal.count>0?t('moveAndRemove'):t('removeExpenseType'))),
+    confirmState&&h(ConfirmModal,{title:t('confirmDelete'),message:`${t('deleteItem')}: ${confirmState.row.name}?`,details:t('deleteItemMessage'),confirmLabel:t('deleteAction'),danger:true,busy:confirmBusy,onClose:()=>!confirmBusy&&setConfirmState(null),onConfirm:runConfirmedDelete})
   );
 }
 
 // ══ INCOME TAB ══
 function IncomeTab({ sym, currentMonth, payday }) {
-  const [incs,setIncs]=useState([]),[modal,setModal]=useState(null),[loadError,setLoadError]=useState(null);
+  const [incs,setIncs]=useState([]),[modal,setModal]=useState(null),[loadError,setLoadError]=useState(null),[confirmIncome,setConfirmIncome]=useState(null),[confirmBusy,setConfirmBusy]=useState(false);
   const [toast,showToast]=useToast();const latest=useLatestRequest();
   const cr=cycleRange(currentMonth,payday),selectedKey=mkKey(currentMonth),todayKey=mkKey(new Date());
   const load=useCallback(async()=>{const isLatest=latest();setLoadError(null);try{const rows=await db.income.toArray();if(isLatest())setIncs(rows);}catch(err){console.error(err);if(isLatest())setLoadError(err);}},[latest]);
   useEffect(()=>{load();},[load]);
   const save=async f=>{try{if(f.id)await db.income.update(f.id,f);else await db.income.add(f);setModal(null);await load();showToast(f.id?t('updated'):t('incomeAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
-  const del=async inc=>{if(!confirm(`${t('deleteIncomeConfirm')}: ${inc.name}?`))return;try{await db.income.delete(inc.id);await load();showToast(t('deleted'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const del=inc=>setConfirmIncome(inc);
+  const runDelete=async()=>{if(!confirmIncome||confirmBusy)return;setConfirmBusy(true);try{await db.income.delete(confirmIncome.id);setConfirmIncome(null);await load();showToast(t('deleted'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
   const toggle=async inc=>{try{const current=activeInMonthKey(inc,todayKey);await db.income.update(inc.id,withActivityAtMonth(inc,!current,todayKey));await load();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const total=moneySum(incs.map(inc=>incomeAmountInRange(inc,cr.start,cr.end)));
   const oneTime=moneySum(incs.filter(i=>i.frequency==='one-time').map(i=>incomeAmountInRange(i,cr.start,cr.end)));
   if(loadError)return h('div',{className:'empty',role:'alert'},h('div',{className:'etxt'},t('loadFailed')),h('button',{className:'btn bpri',onClick:load},t('retry')));
   return h('div',null,h(Toast,{msg:toast}),h('section',{className:'sec'},h('div',{className:'hero hero--income',title:cycleRangeLabel(currentMonth,payday)},h('div',{className:'hlbl'},t('totalMonthlyIncome')),h('div',{className:'hamt'},fmt(total,sym)),oneTime>0&&h('div',{className:'hsub'},`${t('includes')} ${fmt(oneTime,sym)} ${t('oneTime')}`),total===0&&h('div',{className:'hsub'},t('addIncomeSources')))),
-    h('section',{className:'sec',style:{paddingBottom:14}},incs.length?h('div',{className:'card cp'},incs.map(inc=>{const cat=getICat(inc.category),amount=incomeAmountInRange(inc,cr.start,cr.end),selectedActive=inc.frequency==='one-time'?amount>0:activeInMonthKey(inc,selectedKey),currentActive=inc.frequency==='one-time'?true:activeInMonthKey(inc,todayKey);return h('div',{key:inc.id,className:'li',style:{opacity:selectedActive?1:.62}},h('div',{className:'lico',style:{background:'#d1fae5',color:'#065f46'}},h(Icon,{name:iconName(cat),size:20})),h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${inc.name}`,onClick:()=>setModal(inc)},h('span',{className:'lname'},inc.name),h('span',{className:'lsub'},inc.frequency==='one-time'?`${getFreqLabel('one-time')} · ${inc.date||''}`:`${getFreqLabel(inc.frequency)} · ${fmt(inc.amount,sym)} ${t('perPayment')}`)),h('div',{className:'fb g8'},h('span',{className:'lamt inc'},'+',fmt(amount,sym)),inc.frequency!=='one-time'&&h(Toggle,{checked:currentActive,label:`${currentActive?t('deactivate'):t('activate')} ${inc.name}`,onChange:()=>toggle(inc)}),h('button',{className:'btn bsm bdanger','aria-label':`${t('deleteItem')} ${inc.name}`,onClick:()=>del(inc)},h(Icon,{name:'trash',size:15}))));})):h('div',{className:'empty'},h('div',{className:'etxt'},t('noIncomeSources')),h('div',{className:'esub'},t('tapToAddIncome')))),
-    h('button',{className:'fab','aria-label':t('addIncome'),onClick:()=>setModal('new')},h(Icon,{name:'plus',size:25})),modal&&h(Modal,{title:modal==='new'?t('addIncome'):t('editIncome'),onClose:()=>setModal(null)},h(IncomeForm,{onSave:save,initial:modal==='new'?null:modal})));
+    h('section',{className:'sec',style:{paddingBottom:14}},incs.length?h('div',{className:'card cp'},incs.map(inc=>{const cat=getICat(inc.category),amount=incomeAmountInRange(inc,cr.start,cr.end),selectedActive=inc.frequency==='one-time'?amount>0:activeInMonthKey(inc,selectedKey),currentActive=inc.frequency==='one-time'?true:activeInMonthKey(inc,todayKey);return h('div',{key:inc.id,className:'li',style:{opacity:selectedActive?1:.62}},h('div',{className:'lico',style:{background:'#d1fae5',color:'#065f46'}},h(Icon,{name:iconName(cat),size:20})),h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${inc.name}`,onClick:()=>setModal(inc)},h('span',{className:'lname'},inc.name),h('span',{className:'lsub'},inc.frequency==='one-time'?`${getFreqLabel('one-time')} · ${inc.date||''}`:`${getFreqLabel(inc.frequency)} · ${fmt(inc.amount,sym)}/period`)),h('div',{className:'fb g8'},h('div',{style:{textAlign:'right'}},h('div',{className:'lamt inc'},'+',fmt(amount,sym)),h('div',{style:{fontSize:10,color:'var(--t3)'}},t('perMonth'))),inc.frequency!=='one-time'&&h(Toggle,{checked:currentActive,label:`${currentActive?t('deactivate'):t('activate')} ${inc.name}`,onChange:()=>toggle(inc)}),h('button',{className:'btn bsm bdanger','aria-label':`${t('deleteItem')} ${inc.name}`,onClick:()=>del(inc)},h(Icon,{name:'trash',size:15}))));})):h('div',{className:'empty'},h('div',{className:'etxt'},t('noIncomeSources')),h('div',{className:'esub'},t('tapToAddIncome')))),
+    h('button',{className:'fab','aria-label':t('addIncome'),onClick:()=>setModal('new')},h(Icon,{name:'plus',size:25})),modal&&h(Modal,{title:modal==='new'?t('addIncome'):t('editIncome'),onClose:()=>setModal(null)},h(IncomeForm,{onSave:save,initial:modal==='new'?null:modal})),confirmIncome&&h(ConfirmModal,{title:t('confirmDelete'),message:`${t('deleteIncomeConfirm')}: ${confirmIncome.name}?`,details:t('deleteItemMessage'),confirmLabel:t('deleteAction'),danger:true,busy:confirmBusy,onClose:()=>!confirmBusy&&setConfirmIncome(null),onConfirm:runDelete}));
 }
 
 // ══ SAVINGS TAB ══
 function SavingsTab({ sym, currentMonth, payday }) {
-  const [goals,setGoals]=useState([]),[totalInc,setTotalInc]=useState(0),[cycleContrib,setCycleContrib]=useState([]),[modal,setModal]=useState(null),[fundsGoal,setFundsGoal]=useState(null),[fundsAmt,setFundsAmt]=useState(''),[adding,setAdding]=useState(false),[loadError,setLoadError]=useState(null);
-  const [toast,showToast]=useToast();const latest=useLatestRequest();const cr=cycleRange(currentMonth,payday);
-  const load=useCallback(async()=>{const isLatest=latest();setLoadError(null);try{const [gs,incs,contrib]=await Promise.all([db.savings.toArray(),db.income.toArray(),db.savingsContributions.where('date').between(cr.startISO,cr.endISO,true,false).toArray()]);if(!isLatest())return;setGoals(gs);setCycleContrib(contrib);setTotalInc(moneySum(incs.map(i=>incomeAmountInRange(i,cr.start,cr.end))));}catch(err){console.error(err);if(isLatest())setLoadError(err);}},[currentMonth,payday,latest]);
+  const [data,setData]=useState(null),[editOpen,setEditOpen]=useState(false),[amount,setAmount]=useState(''),[saving,setSaving]=useState(false),[error,setError]=useState(''),[loadError,setLoadError]=useState(null);
+  const [toast,showToast]=useToast();
+  const latest=useLatestRequest();
+  const cr=cycleRange(currentMonth,payday);
+  const load=useCallback(async()=>{
+    const isLatest=latest();setLoadError(null);
+    try{
+      const [incs,recs,insts,exps,savingsSetting,legacyGoals]=await Promise.all([
+        db.income.toArray(),db.recurring.toArray(),db.installments.toArray(),
+        db.expenses.where('date').between(cr.startISO,cr.endISO,true,false).toArray(),
+        db.settings.get('totalSavings'),db.savings.toArray()
+      ]);
+      const income=moneySum(incs.map(i=>incomeAmountInRange(i,cr.start,cr.end)));
+      const variable=moneySum(exps.map(e=>e.amount));
+      const fixed=moneySum(recs.map(r=>recurringAmountInRange(r,cr.start,cr.end)));
+      const installments=moneySum(insts.map(i=>installmentAmountInRange(i,cr.start,cr.end)));
+      const expenses=roundMoney(variable+fixed+installments);
+      const fallback=moneySum(legacyGoals.map(g=>g.currentAmount||0));
+      const totalSavings=roundMoney(Number(savingsSetting?.value??fallback));
+      if(!isLatest())return;
+      setData({income,expenses,currentBalance:roundMoney(income-expenses),totalSavings});
+    }catch(err){console.error(err);if(isLatest())setLoadError(err);}
+  },[currentMonth,payday,latest]);
   useEffect(()=>{load();},[load]);
-  const save=async f=>{try{if(f.id)await db.savings.update(f.id,f);else await db.savings.add(f);setModal(null);await load();showToast(f.id?t('updated'):t('goalAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
-  const del=async goal=>{if(!confirm(`${t('deleteGoalConfirm')}: ${goal.name}?`))return;try{await db.transaction('rw',[db.savings,db.savingsContributions],async()=>{await db.savingsContributions.where('goalId').equals(goal.id).delete();await db.savings.delete(goal.id);});await load();showToast(t('deleted'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
-  const addFunds=async e=>{e?.preventDefault();if(adding)return;const requested=roundMoney(fundsAmt),goal=goals.find(g=>g.id===fundsGoal);if(!goal||!(requested>0))return showToast(t('errAmount'));setAdding(true);try{await db.transaction('rw',[db.savings,db.savingsContributions],async()=>{const fresh=await db.savings.get(goal.id);const remaining=Math.max(0,roundMoney(Number(fresh.targetAmount)-Number(fresh.currentAmount||0)));const actual=Math.min(requested,remaining);if(!(actual>0))return;await db.savings.update(goal.id,{currentAmount:roundMoney(Number(fresh.currentAmount||0)+actual)});await db.savingsContributions.add({goalId:goal.id,date:todayStr(),amount:actual});});setFundsGoal(null);setFundsAmt('');await load();showToast(t('fundsAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setAdding(false);}};
-  const totalSaved=moneySum(goals.map(g=>g.currentAmount||0)),totalTarget=moneySum(goals.map(g=>g.targetAmount||0)),remaining=Math.max(0,roundMoney(totalTarget-totalSaved)),surplus=Math.max(0,roundMoney(totalSaved-totalTarget));
-  const cycleSaved=moneySum(cycleContrib.map(c=>c.amount)),savingRate=totalInc>0?Math.round(cycleSaved/totalInc*100):0;
+  const openEditor=()=>{setAmount(String(data?.totalSavings??0));setError('');setEditOpen(true);};
+  const saveTotal=async event=>{
+    event?.preventDefault();
+    if(saving)return;
+    const value=Number(amount);
+    if(!Number.isFinite(value)||value<0||value>1e12){setError(t('errSavingsAmount'));return;}
+    setSaving(true);setError('');
+    try{
+      await db.settings.put({key:'totalSavings',value:roundMoney(value)});
+      setEditOpen(false);await load();showToast(t('savingsUpdated'));
+    }catch(err){console.error(err);setError(t('errorOccurred'));}
+    finally{setSaving(false);}
+  };
   if(loadError)return h('div',{className:'empty',role:'alert'},h('div',{className:'etxt'},t('loadFailed')),h('button',{className:'btn bpri',onClick:load},t('retry')));
-  return h('div',null,h(Toast,{msg:toast}),h('section',{className:'sec'},h('div',{className:'hero hero--savings'},h('div',{className:'hlbl'},t('totalSaved')),h('div',{className:'hamt'},fmt(totalSaved,sym)),h('div',{className:'hsub'},totalInc>0?`${savingRate}${t('ofMonthlyIncome')} · ${surplus>0?`${fmt(surplus,sym)} ${t('surplus')}`:`${fmt(remaining,sym)} ${t('toGo')}`}`:`${goals.length} ${goals.length!==1?t('goals'):t('goal')} · ${surplus>0?`${fmt(surplus,sym)} ${t('surplus')}`:`${fmt(remaining,sym)} ${t('toGo')}`}`),totalTarget>0&&h('div',{style:{marginTop:10,height:4,background:'rgba(255,255,255,.25)',borderRadius:2}},h('div',{style:{height:'100%',background:'rgba(255,255,255,.9)',borderRadius:2,width:`${Math.min(100,totalSaved/totalTarget*100)}%`}})))),
-    h('section',{className:'sec',style:{paddingBottom:14}},goals.length?goals.map(goal=>{const current=Number(goal.currentAmount||0),target=Number(goal.targetAmount),pct=target>0?Math.min(100,current/target*100):0,rem=Math.max(0,roundMoney(target-current));return h('article',{key:goal.id,className:'card cp mb10'},h('div',{className:'fbet',style:{marginBottom:10}},h('div',{className:'fb g8'},h(Icon,{name:iconName(goal,'target'),size:22}),h('div',null,h('h2',{style:{fontWeight:700,fontSize:15}},goal.name),goal.notes&&h('p',{className:'fhint'},goal.notes))),h('div',{className:'fb g8'},h('button',{className:'btn bsm',onClick:()=>{setFundsGoal(goal.id);setFundsAmt('');}},t('addItem')),h('button',{className:'btn bsm bghost','aria-label':`${t('editItem')} ${goal.name}`,onClick:()=>setModal(goal)},h(Icon,{name:'edit',size:16})),h('button',{className:'btn bsm bdanger','aria-label':`${t('deleteItem')} ${goal.name}`,onClick:()=>del(goal)},h(Icon,{name:'trash',size:16})))),h('div',{className:'fbet',style:{marginBottom:6}},h('span',{style:{fontSize:13,color:'var(--t2)'}},fmt(current,sym),' ',t('saved')),h('strong',{style:{color:'var(--p)'}},Math.round(pct),'%')),h(PBar,{value:current,max:target,color:pct>=100?'var(--success)':'var(--p)'}),h('div',{className:'fbet mt8'},h('span',{className:'fhint'},`${t('goalLabel')} ${fmt(target,sym)}`),h('span',{className:'fhint'},rem>0?`${fmt(rem,sym)} ${t('toGo')}`:current>target?`${fmt(roundMoney(current-target),sym)} ${t('surplus')}`:t('reached'))));}):h('div',{className:'empty'},h('div',{className:'etxt'},t('noSavingsGoals')),h('div',{className:'esub'},t('tapToCreateGoal')))),
-    h('button',{className:'fab','aria-label':t('newSavingsGoal'),onClick:()=>setModal('new')},h(Icon,{name:'plus',size:25})),
-    fundsGoal&&h(Modal,{title:t('addFunds'),onClose:()=>!adding&&setFundsGoal(null),busy:adding},(()=>{const g=goals.find(x=>x.id===fundsGoal);return g?h('form',{onSubmit:addFunds,noValidate:true},h('div',{style:{textAlign:'center',marginBottom:16}},h(Icon,{name:iconName(g,'target'),size:30}),h('div',{style:{fontWeight:700,fontSize:16,marginTop:6}},g.name),h('div',{className:'fhint'},`${fmt(g.currentAmount||0,sym)} ${t('saved')} · ${fmt(Math.max(0,Number(g.targetAmount)-Number(g.currentAmount||0)),sym)} ${t('toGo')}`)),h(Field,{label:t('amountToAdd')},h(Inp,{type:'number',placeholder:'0.00',step:'0.01',inputMode:'decimal',value:fundsAmt,onChange:e=>setFundsAmt(e.target.value),autoFocus:true,disabled:adding})),h('button',{type:'submit',className:'btn bpri',disabled:adding,'aria-busy':adding},t('addFundsBtn'))):null;})()),
-    modal&&h(Modal,{title:modal==='new'?t('newSavingsGoal'):t('editGoal'),onClose:()=>setModal(null)},h(SavingsForm,{onSave:save,initial:modal==='new'?null:modal})));
+  if(!data)return h('div',{className:'loading'},t('loading'));
+  const {income,expenses,currentBalance,totalSavings}=data;
+  const combined=roundMoney(totalSavings+currentBalance);
+  const signed=(value)=>h(React.Fragment,null,value<0?'−':'',fmt(value,sym));
+  return h('div',null,
+    h(Toast,{msg:toast}),
+    h('section',{className:'sec'},h('div',{className:`hero ${combined<0?'hero--danger':'hero--savings'}`},
+      h('div',{className:'hlbl'},t('combinedBalance')),
+      h('div',{className:'hamt'},signed(combined)),
+      h('div',{className:'hsub'},t('savingsPlusBalance')))),
+    h('section',{className:'sec'},h('div',{className:'sgrid'},
+      h('div',{className:'sc premium-stat savings-stat'},h('div',{className:'slbl'},t('totalSavings')),h('div',{className:'samt neu'},fmt(totalSavings,sym)),h('div',{className:'ssub'},t('setTotalSavings')),h('div',{className:'stat-badge'},h(Icon,{name:'coins',size:24}))),
+      h('div',{className:'sc premium-stat savings-stat'},h('div',{className:'slbl'},t('currentBalance')),h('div',{className:`samt ${currentBalance>=0?'pos':'neg'}`},signed(currentBalance)),h('div',{className:'ssub'},t('selectedCycleBalance')),h('div',{className:'stat-badge'},h(Icon,{name:'wallet',size:24}))))),
+    h('section',{className:'sec',style:{paddingBottom:14}},h('div',{className:'card cp'},
+      h('div',{className:'fbet mb10'},h('h2',{className:'ctitle'},t('savingsBreakdown')),h('button',{type:'button',className:'btn bsm savings-edit-btn',onClick:openEditor},h(Icon,{name:'edit',size:14}),t('updateTotalSavings'))),
+      h('div',{className:'savings-breakdown'},
+        h('div',{className:'savings-line'},h('span',null,t('incomeLabel')),h('strong',null,fmt(income,sym))),
+        h('div',{className:'savings-line'},h('span',null,t('expensesLabel')),h('strong',{style:{color:'var(--danger)'}},'−',fmt(expenses,sym))),
+        h('div',{className:'savings-line'},h('span',null,t('currentBalance')),h('strong',{style:{color:currentBalance>=0?'var(--success)':'var(--danger)'}},signed(currentBalance))),
+        h('div',{className:'savings-line'},h('span',null,t('totalSavings')),h('strong',null,fmt(totalSavings,sym))),
+        h('div',{className:'savings-line total'},h('span',null,t('combinedBalance')),h('strong',null,signed(combined)))),
+      h('p',{className:'savings-explainer'},t('combinedFormula')))),
+    editOpen&&h(Modal,{title:t('updateTotalSavings'),onClose:()=>!saving&&setEditOpen(false),busy:saving},
+      h('form',{onSubmit:saveTotal,noValidate:true},
+        h(Field,{label:t('totalSavings'),hint:t('savingsAmountHint'),error},h(Inp,{type:'number',min:'0',step:'0.01',inputMode:'decimal',value:amount,onChange:e=>setAmount(e.target.value),autoFocus:true,disabled:saving})),
+        h('button',{type:'submit',className:'btn bpri',disabled:saving,'aria-busy':saving},t('updateTotalSavings'))))
+  );
 }
 
 // ══ CARDS TAB ══
 function CardsTab({ sym, currentMonth, payday }) {
   const [cards,setCards]=useState([]),[insts,setInsts]=useState([]),[exps,setExps]=useState([]),[cardExps,setCardExps]=useState([]),[recs,setRecs]=useState([]);
-  const [expanded,setExpanded]=useState(null),[modal,setModal]=useState(null),[instModal,setInstModal]=useState(null),[loadError,setLoadError]=useState(null);
+  const [expanded,setExpanded]=useState(null),[modal,setModal]=useState(null),[instModal,setInstModal]=useState(null),[loadError,setLoadError]=useState(null),[confirmCard,setConfirmCard]=useState(null),[confirmInst,setConfirmInst]=useState(null),[confirmBusy,setConfirmBusy]=useState(false);
   const [toast,showToast]=useToast();
   const latest=useLatestRequest();
   const cr=cycleRange(currentMonth,payday);
@@ -2629,9 +2767,11 @@ function CardsTab({ sym, currentMonth, payday }) {
   },[currentMonth,payday,latest]);
   useEffect(()=>{load();},[load]);
   const saveCard=async f=>{try{if(f.id)await db.cards.update(f.id,f);else await db.cards.add(f);setModal(null);await load();showToast(f.id?t('updated'):t('cardAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
-  const delCard=async card=>{if(!confirm(t('deleteCardConfirm')+card.name+t('deleteCardConfirm2')))return;try{await db.transaction('rw',[db.cards,db.installments,db.expenses,db.recurring],async()=>{await db.installments.where('cardId').equals(card.id).delete();await db.expenses.where('cardId').equals(card.id).modify({cardId:''});await db.recurring.filter(r=>Number(r.cardId)===Number(card.id)).modify({cardId:''});await db.cards.delete(card.id);});setExpanded(null);await load();showToast(t('cardRemoved'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const delCard=card=>setConfirmCard(card);
+  const runDeleteCard=async()=>{if(!confirmCard||confirmBusy)return;setConfirmBusy(true);try{const card=confirmCard;await db.transaction('rw',[db.cards,db.installments,db.expenses,db.recurring],async()=>{await db.installments.where('cardId').equals(card.id).delete();await db.expenses.where('cardId').equals(card.id).modify({cardId:''});await db.recurring.filter(r=>Number(r.cardId)===Number(card.id)).modify({cardId:''});await db.cards.delete(card.id);});setConfirmCard(null);setExpanded(null);await load();showToast(t('cardRemoved'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
   const saveInst=async f=>{try{if(f.id)await db.installments.update(f.id,f);else await db.installments.add(f);setInstModal(null);await load();showToast(f.id?t('updated'):t('installmentAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
-  const delInst=async inst=>{if(!confirm(`${t('deleteItem')}: ${inst.name}?`))return;try{await db.installments.delete(inst.id);await load();showToast(t('removed'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const delInst=inst=>setConfirmInst(inst);
+  const runDeleteInst=async()=>{if(!confirmInst||confirmBusy)return;setConfirmBusy(true);try{await db.installments.delete(confirmInst.id);setConfirmInst(null);await load();showToast(t('removed'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
   const complete=async inst=>{try{await db.installments.update(inst.id,{isComplete:true,completedDate:todayStr()});await load();showToast(t('paidOff'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const reopen=async inst=>{try{await db.installments.update(inst.id,{isComplete:false,completedDate:''});await load();showToast(t('updated'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const cardView=card=>{
@@ -2679,7 +2819,7 @@ function CardsTab({ sym, currentMonth, payday }) {
     return h('article',{key:card.id,style:{marginBottom:14}},face,h('div',{id:`card-details-${card.id}`,className:'card cp',style:{marginTop:8}},...details));
   };
   if(loadError)return h('div',{className:'empty',role:'alert'},h('div',{className:'etxt'},t('loadFailed')),h('button',{className:'btn bpri',onClick:load},t('retry')));
-  return h('div',null,h(Toast,{msg:toast}),h('section',{className:'sec',style:{paddingBottom:14}},cards.length?cards.map(cardView):h('div',{className:'empty'},h('div',{className:'eico'},h(Icon,{name:'card',size:28})),h('div',{className:'etxt'},t('noCreditCards')),h('div',{className:'esub'},t('tapToAddCard')))),h('button',{className:'fab','aria-label':t('addCard'),onClick:()=>setModal('new')},h(Icon,{name:'plus',size:25})),instModal&&h(Modal,{title:instModal.data?t('editInstallment'):t('addInstallment'),onClose:()=>setInstModal(null)},h(InstallForm,{onSave:saveInst,cards,initial:instModal.data||null,defaultCardId:instModal.cardId})),modal&&h(Modal,{title:modal==='new'?t('addCard'):t('editCard'),onClose:()=>setModal(null)},h(CardForm,{onSave:saveCard,initial:modal==='new'?null:modal})));
+  return h('div',null,h(Toast,{msg:toast}),h('section',{className:'sec',style:{paddingBottom:14}},cards.length?cards.map(cardView):h('div',{className:'empty'},h('div',{className:'eico'},h(Icon,{name:'card',size:28})),h('div',{className:'etxt'},t('noCreditCards')),h('div',{className:'esub'},t('tapToAddCard')))),h('button',{className:'fab','aria-label':t('addCard'),onClick:()=>setModal('new')},h(Icon,{name:'plus',size:25})),instModal&&h(Modal,{title:instModal.data?t('editInstallment'):t('addInstallment'),onClose:()=>setInstModal(null)},h(InstallForm,{onSave:saveInst,cards,initial:instModal.data||null,defaultCardId:instModal.cardId})),modal&&h(Modal,{title:modal==='new'?t('addCard'):t('editCard'),onClose:()=>setModal(null)},h(CardForm,{onSave:saveCard,initial:modal==='new'?null:modal})),confirmCard&&h(ConfirmModal,{title:t('confirmDelete'),message:`${t('deleteItem')}: ${confirmCard.name}?`,details:t('deleteCardConfirm')+confirmCard.name+t('deleteCardConfirm2'),confirmLabel:t('deleteAction'),danger:true,busy:confirmBusy,onClose:()=>!confirmBusy&&setConfirmCard(null),onConfirm:runDeleteCard}),confirmInst&&h(ConfirmModal,{title:t('confirmDelete'),message:`${t('deleteItem')}: ${confirmInst.name}?`,details:t('deleteItemMessage'),confirmLabel:t('deleteAction'),danger:true,busy:confirmBusy,onClose:()=>!confirmBusy&&setConfirmInst(null),onConfirm:runDeleteInst}));
 }
 
 
@@ -2705,55 +2845,70 @@ for(const tableName of ['expenses','recurring','income','savings','savingsContri
 async function migrateLegacyData(){
   const currentMonthKey=mkKey(new Date());
   await db.transaction('rw',[db.recurring,db.income,db.installments,db.savings,db.cards,db.settings],async()=>{
-    const [recurring,income,installments,savings,cards,done]=await Promise.all([db.recurring.toArray(),db.income.toArray(),db.installments.toArray(),db.savings.toArray(),db.cards.toArray(),db.settings.get('migration-v3')]);
-    if(done?.value)return;
-    const recUpdates=recurring.map(r=>{
-      const start=isValidMonthKey(r.startMonth)?r.startMonth:currentMonthKey;
-      const fallbackEnd=isValidMonthKey(r.endMonth)?r.endMonth:(r.isActive===false?previousMonthKey(currentMonthKey):null);
-      const periods=normalizeActivityPeriods(r.activePeriods,start,fallbackEnd,r.isActive!==false);
-      return {...r,startMonth:start,activePeriods:periods,isActive:periods.some(p=>p.startMonth<=currentMonthKey&&(!p.endMonth||p.endMonth>=currentMonthKey))};
-    });
-    const incUpdates=income.map(i=>{
-      if(i.frequency==='one-time')return i;
-      const startMonth=isValidMonthKey(i.startMonth)?i.startMonth:(isValidISODate(i.startDate)?i.startDate.slice(0,7):currentMonthKey);
-      const startDate=isValidISODate(i.startDate)?i.startDate:`${startMonth}-01`;
-      const fallbackEnd=isValidMonthKey(i.endMonth)?i.endMonth:(i.isActive===false?previousMonthKey(currentMonthKey):null);
-      const periods=normalizeActivityPeriods(i.activePeriods,startMonth,fallbackEnd,i.isActive!==false);
-      return {...i,startMonth,startDate,activePeriods:periods,isActive:periods.some(p=>p.startMonth<=currentMonthKey&&(!p.endMonth||p.endMonth>=currentMonthKey))};
-    });
-    const instUpdates=installments.map(i=>{
-      const total=Math.max(0,roundMoney(i.totalAmount)),payment=Math.max(.01,roundMoney(i.monthlyPayment));
-      return {...i,totalAmount:total,monthlyPayment:payment,monthsRemaining:Math.ceil(total/payment),completedDate:i.isComplete&&!isValidISODate(i.completedDate)?todayStr():(i.completedDate||'')};
-    });
-    const savingUpdates=savings.map(g=>({...g,targetAmount:Math.max(.01,roundMoney(g.targetAmount)),currentAmount:Math.max(0,roundMoney(g.currentAmount||0))}));
-    const cardUpdates=cards.map(c=>({...c,colorIdx:Number.isInteger(Number(c.colorIdx))&&Number(c.colorIdx)>=0&&Number(c.colorIdx)<CCOLORS.length?Number(c.colorIdx):0}));
-    if(recUpdates.length)await db.recurring.bulkPut(recUpdates);
-    if(incUpdates.length)await db.income.bulkPut(incUpdates);
-    if(instUpdates.length)await db.installments.bulkPut(instUpdates);
-    if(savingUpdates.length)await db.savings.bulkPut(savingUpdates);
-    if(cardUpdates.length)await db.cards.bulkPut(cardUpdates);
-    await db.settings.put({key:'migration-v3',value:{completed:todayStr(),build:window.CASHFLOW_BUILD.version}});
+    const [recurring,income,installments,savings,cards,doneV3,doneV4,totalSavingsSetting]=await Promise.all([
+      db.recurring.toArray(),db.income.toArray(),db.installments.toArray(),db.savings.toArray(),db.cards.toArray(),
+      db.settings.get('migration-v3'),db.settings.get('migration-v4'),db.settings.get('totalSavings')
+    ]);
+    if(!doneV3?.value){
+      const recUpdates=recurring.map(r=>{
+        const start=isValidMonthKey(r.startMonth)?r.startMonth:currentMonthKey;
+        const fallbackEnd=isValidMonthKey(r.endMonth)?r.endMonth:(r.isActive===false?previousMonthKey(currentMonthKey):null);
+        const periods=normalizeActivityPeriods(r.activePeriods,start,fallbackEnd,r.isActive!==false);
+        return {...r,startMonth:start,activePeriods:periods,isActive:periods.some(p=>p.startMonth<=currentMonthKey&&(!p.endMonth||p.endMonth>=currentMonthKey))};
+      });
+      const incUpdates=income.map(i=>{
+        if(i.frequency==='one-time')return i;
+        const startMonth=isValidMonthKey(i.startMonth)?i.startMonth:(isValidISODate(i.startDate)?i.startDate.slice(0,7):currentMonthKey);
+        const startDate=isValidISODate(i.startDate)?i.startDate:`${startMonth}-01`;
+        const fallbackEnd=isValidMonthKey(i.endMonth)?i.endMonth:(i.isActive===false?previousMonthKey(currentMonthKey):null);
+        const periods=normalizeActivityPeriods(i.activePeriods,startMonth,fallbackEnd,i.isActive!==false);
+        return {...i,startMonth,startDate,activePeriods:periods,isActive:periods.some(p=>p.startMonth<=currentMonthKey&&(!p.endMonth||p.endMonth>=currentMonthKey))};
+      });
+      const instUpdates=installments.map(i=>{
+        const total=Math.max(0,roundMoney(i.totalAmount)),payment=Math.max(.01,roundMoney(i.monthlyPayment));
+        return {...i,totalAmount:total,monthlyPayment:payment,monthsRemaining:Math.ceil(total/payment),completedDate:i.isComplete&&!isValidISODate(i.completedDate)?todayStr():(i.completedDate||'')};
+      });
+      const savingUpdates=savings.map(g=>({...g,targetAmount:Math.max(.01,roundMoney(g.targetAmount)),currentAmount:Math.max(0,roundMoney(g.currentAmount||0))}));
+      const cardUpdates=cards.map(c=>({...c,colorIdx:Number.isInteger(Number(c.colorIdx))&&Number(c.colorIdx)>=0&&Number(c.colorIdx)<CCOLORS.length?Number(c.colorIdx):0}));
+      if(recUpdates.length)await db.recurring.bulkPut(recUpdates);
+      if(incUpdates.length)await db.income.bulkPut(incUpdates);
+      if(instUpdates.length)await db.installments.bulkPut(instUpdates);
+      if(savingUpdates.length)await db.savings.bulkPut(savingUpdates);
+      if(cardUpdates.length)await db.cards.bulkPut(cardUpdates);
+      await db.settings.put({key:'migration-v3',value:{completed:todayStr(),build:window.CASHFLOW_BUILD.version}});
+    }
+    if(!doneV4?.value){
+      const existing=Number(totalSavingsSetting?.value);
+      const initial=Number.isFinite(existing)&&existing>=0?roundMoney(existing):moneySum(savings.map(g=>g.currentAmount||0));
+      await db.settings.put({key:'totalSavings',value:initial});
+      await db.settings.put({key:'migration-v4',value:{completed:todayStr(),build:window.CASHFLOW_BUILD.version}});
+    }
   });
 }
 
 // ══ SETTINGS MODAL ══
 function SettingsModal({ currCode,onCurrChange,onClose,showToast,lang,onLangChange,theme,onThemeChange,payday,onPaydayChange,cycleLabel,onCycleLabelChange }) {
-  const [curr,setCurr]=useState(currCode),[busy,setBusy]=useState('');
+  const [curr,setCurr]=useState(currCode),[busy,setBusy]=useState(''),[pendingImport,setPendingImport]=useState(null),[confirmClear,setConfirmClear]=useState(false);
   const download=(blob,name)=>{const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),0);};
   const run=async(name,fn)=>{if(busy)return;setBusy(name);try{await fn();}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);}finally{setBusy('');}};
   const doExportJSON=()=>run('json',async()=>{const data={version:3,build:window.CASHFLOW_BUILD,exported:new Date().toISOString(),expenses:await db.expenses.toArray(),recurring:await db.recurring.toArray(),income:await db.income.toArray(),savings:await db.savings.toArray(),savingsContributions:await db.savingsContributions.toArray(),cards:await db.cards.toArray(),installments:await db.installments.toArray(),budgets:await db.budgets.toArray(),settings:await db.settings.toArray()};download(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),`cashflow-backup-${todayStr()}.json`);showToast(t('jsonExported'));});
   const csvSafe=value=>{let text=String(value??'');if(/^[\s]*[=+\-@]/.test(text))text="'"+text;return `"${text.replace(/"/g,'""')}"`;};
-  const doExportCSV=()=>run('csv',async()=>{const [e,r,inc,inst,sav,contrib]=await Promise.all([db.expenses.toArray(),db.recurring.toArray(),db.income.toArray(),db.installments.toArray(),db.savings.toArray(),db.savingsContributions.toArray()]);const rows=[['Type','Name','Amount','Date / Frequency','Category','Notes','CardId'],...e.map(x=>['variable_expense',x.name,x.amount,x.date,x.category,x.notes||'',x.cardId||'']),...r.map(x=>['fixed_expense',x.name,x.amount,`monthly-day${x.dueDay}`,x.category,'',x.cardId||'']),...inc.map(x=>['income',x.name,x.amount,x.frequency,x.category,'','']),...inst.map(x=>['installment',x.name,x.monthlyPayment,x.startDate,'installments',x.completedDate?`completed ${x.completedDate}`:'',x.cardId||'']),...sav.map(x=>['savings_goal',x.name,x.currentAmount,`target ${x.targetAmount}`,'savings','','']),...contrib.map(x=>['savings_contribution',`goal ${x.goalId}`,x.amount,x.date,'savings','',''])];download(new Blob(['\uFEFF'+rows.map(row=>row.map(csvSafe).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),`cashflow-${todayStr()}.csv`);showToast(t('csvExported'));});
-  const doImport=()=>{if(busy)return;const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>10*1024*1024){showToast(`${t('invalidBackup')}: file too large`);return;}setBusy('import');try{const parsed=JSON.parse(await file.text()),check=validateBackup(parsed);if(!check.ok)throw new Error(check.reason);const data=check.data;const keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];const counts=keys.map(k=>`${k}: ${data[k].length}`).join(', ');if(!confirm(`${t('importConfirm1')}${data.exported?.split('T')[0]||'unknown'}${t('importConfirm2')}\n\n${counts}`))return;await db.transaction('rw',[db.expenses,db.recurring,db.income,db.savings,db.savingsContributions,db.cards,db.installments,db.budgets,db.settings],async()=>{for(const key of keys)await db[key].clear();for(const key of keys)if(data[key].length)await db[key].bulkPut(data[key]);await db.settings.delete('migration-v3');});showToast(t('dataRestored'));onClose();setTimeout(()=>location.reload(),250);}catch(err){console.error(err);showToast(`${t('invalidBackup')}: ${err.message||err}`);}finally{setBusy('');}};input.click();};
-  const doClear=()=>run('clear',async()=>{if(!confirm(`${t('clearConfirm')}\n\n${t('resetAllWarning')}`))return;await db.transaction('rw',[db.expenses,db.recurring,db.income,db.savings,db.savingsContributions,db.cards,db.installments,db.budgets,db.settings],async()=>{for(const key of ['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'])await db[key].clear();});showToast(t('dataCleared'));onClose();setTimeout(()=>location.reload(),250);});
-  return h(Modal,{title:t('settingsTitle'),onClose,busy:!!busy},
-    h(Field,{label:t('language')},h(Sel,{value:lang||'en',onChange:e=>onLangChange?.(e.target.value),options:[{value:'en',label:'English'},{value:'th',label:'ไทย'}]})),
-    h(Field,{label:t('theme')},h('div',{className:'theme-grid',role:'radiogroup'},THEMES.map(th=>h('button',{type:'button',key:th.id,role:'radio','aria-checked':theme===th.id,className:`theme-opt${theme===th.id?' active':''}`,onClick:()=>onThemeChange(th.id)},h('span',{className:'theme-preview',style:{'--theme-primary':th.primary,'--theme-bg':th.bg,'--theme-card':th.card}}),theme===th.id&&h('span',{className:'theme-check'},h(Icon,{name:'check',size:12,strokeWidth:2.4})),h('span',{className:'theme-name'},t(th.labelKey)))))),
-    h(Field,{label:t('currency'),hint:t('currencyDisplayOnly')},h(Sel,{value:curr,onChange:e=>{const c=CURRS.find(x=>x.code===e.target.value);setCurr(e.target.value);if(c)onCurrChange(c);},options:CURRS.map(c=>({value:c.code,label:`${c.code} (${c.sym})`}))})),
-    h('section',{style:{marginTop:22}},h('h2',{className:'ctitle mb10'},t('payCycleTitle')),h('div',{className:'frow'},h(Field,{label:t('paydayLabel')},h(Sel,{value:String(payday),onChange:e=>onPaydayChange(e.target.value),options:Array.from({length:31},(_,i)=>({value:String(i+1),label:String(i+1)}))})),h(Field,{label:t('cycleLabelLabel')},h(Sel,{value:cycleLabel,onChange:e=>onCycleLabelChange(e.target.value),options:[{value:'end',label:t('cycleLabelEnd')},{value:'start',label:t('cycleLabelStart')}]}))),h('p',{className:'fhint'},t('paydayHint'))),
-    h('section',{style:{marginTop:22}},h('h2',{className:'ctitle mb10'},t('backupRestore')),h('p',{className:'fhint'},t('plainTextWarning')),h('div',{style:{display:'flex',flexDirection:'column',gap:10}},h('button',{className:'btn bghost',disabled:!!busy,'aria-busy':busy==='json',onClick:doExportJSON},t('exportJSON')),h('button',{className:'btn bghost',disabled:!!busy,'aria-busy':busy==='csv',onClick:doExportCSV},t('exportCSV')),h('button',{className:'btn bghost',disabled:!!busy,'aria-busy':busy==='import',onClick:doImport},t('importJSON')))),
-    h('section',{style:{marginTop:22}},h('h2',{className:'ctitle mb10',style:{color:'var(--danger)'}},t('dangerZone')),h('p',{className:'fhint'},t('resetAllWarning')),h('button',{className:'btn bdanger',disabled:!!busy,'aria-busy':busy==='clear',onClick:doClear},t('clearAllData'))),
-    h('div',{style:{marginTop:20,padding:12,background:'var(--bg)',borderRadius:'var(--rmd)'}},h('p',{className:'fhint'},h('strong',null,t('dataStorage')),` ${t('onlineInstructions')}`),h('p',{className:'fhint'},`Build ${window.CASHFLOW_BUILD.version} · schema ${window.CASHFLOW_BUILD.schema}`))
+  const doExportCSV=()=>run('csv',async()=>{const [e,r,inc,inst,sav,contrib,totalSetting]=await Promise.all([db.expenses.toArray(),db.recurring.toArray(),db.income.toArray(),db.installments.toArray(),db.savings.toArray(),db.savingsContributions.toArray(),db.settings.get('totalSavings')]);const rows=[['Type','Name','Amount','Date / Frequency','Category','Notes','CardId'],...e.map(x=>['variable_expense',x.name,x.amount,x.date,x.category,x.notes||'',x.cardId||'']),...r.map(x=>['fixed_expense',x.name,x.amount,`monthly-day${x.dueDay}`,x.category,'',x.cardId||'']),...inc.map(x=>['income',x.name,x.amount,x.frequency,x.category,'','']),...inst.map(x=>['installment',x.name,x.monthlyPayment,x.startDate,'installments',x.completedDate?`completed ${x.completedDate}`:'',x.cardId||'']),['savings_total',t('totalSavings'),Number(totalSetting?.value||0),'current','savings','',''],...sav.map(x=>['legacy_savings_goal',x.name,x.currentAmount,`target ${x.targetAmount}`,'savings','','']),...contrib.map(x=>['legacy_savings_contribution',`goal ${x.goalId}`,x.amount,x.date,'savings','',''])];download(new Blob(['\uFEFF'+rows.map(row=>row.map(csvSafe).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),`cashflow-${todayStr()}.csv`);showToast(t('csvExported'));});
+  const doImport=()=>{if(busy)return;const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>10*1024*1024){showToast(`${t('invalidBackup')}: ${t('importTooLarge')}`);return;}setBusy('import-read');try{const parsed=JSON.parse(await file.text()),check=validateBackup(parsed);if(!check.ok)throw new Error(check.reason);const data=check.data;const keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];const counts=keys.map(k=>`${k}: ${data[k].length}`).join('\n');setPendingImport({data,counts,date:data.exported?.split('T')[0]||'unknown'});}catch(err){console.error(err);showToast(`${t('invalidBackup')}: ${err.message||err}`);}finally{setBusy('');}};input.click();};
+  const applyImport=()=>run('import',async()=>{if(!pendingImport)return;const data=pendingImport.data,keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];await db.transaction('rw',[db.expenses,db.recurring,db.income,db.savings,db.savingsContributions,db.cards,db.installments,db.budgets,db.settings],async()=>{for(const key of keys)await db[key].clear();for(const key of keys)if(data[key].length)await db[key].bulkPut(data[key]);await db.settings.delete('migration-v3');await db.settings.delete('migration-v4');});setPendingImport(null);showToast(t('dataRestored'));onClose();setTimeout(()=>location.reload(),250);});
+  const applyClear=()=>run('clear',async()=>{await db.transaction('rw',[db.expenses,db.recurring,db.income,db.savings,db.savingsContributions,db.cards,db.installments,db.budgets,db.settings],async()=>{for(const key of ['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'])await db[key].clear();});setConfirmClear(false);showToast(t('dataCleared'));onClose();setTimeout(()=>location.reload(),250);});
+  return h(React.Fragment,null,
+    h(Modal,{title:t('settingsTitle'),onClose,busy:!!busy},
+      h(Field,{label:t('language')},h(Sel,{value:lang||'en',onChange:e=>onLangChange?.(e.target.value),options:[{value:'en',label:'English'},{value:'th',label:'ไทย'}]})),
+      h(Field,{label:t('theme')},h('div',{className:'theme-grid',role:'radiogroup'},THEMES.map(th=>h('button',{type:'button',key:th.id,role:'radio','aria-checked':theme===th.id,className:`theme-opt${theme===th.id?' active':''}`,onClick:()=>onThemeChange(th.id)},h('span',{className:'theme-preview',style:{'--theme-primary':th.primary,'--theme-bg':th.bg,'--theme-card':th.card}}),theme===th.id&&h('span',{className:'theme-check'},h(Icon,{name:'check',size:12,strokeWidth:2.4})),h('span',{className:'theme-name'},t(th.labelKey)))))),
+      h(Field,{label:t('currency'),hint:t('currencyDisplayOnly')},h(Sel,{value:curr,onChange:e=>{const c=CURRS.find(x=>x.code===e.target.value);setCurr(e.target.value);if(c)onCurrChange(c);},options:CURRS.map(c=>({value:c.code,label:`${c.code} (${c.sym})`}))})),
+      h('section',{style:{marginTop:22}},h('h2',{className:'ctitle mb10'},t('payCycleTitle')),h('div',{className:'frow'},h(Field,{label:t('paydayLabel')},h(Sel,{value:String(payday),onChange:e=>onPaydayChange(e.target.value),options:Array.from({length:31},(_,i)=>({value:String(i+1),label:String(i+1)}))})),h(Field,{label:t('cycleLabelLabel')},h(Sel,{value:cycleLabel,onChange:e=>onCycleLabelChange(e.target.value),options:[{value:'end',label:t('cycleLabelEnd')},{value:'start',label:t('cycleLabelStart')}]}))),h('p',{className:'fhint'},t('paydayHint'))),
+      h('section',{style:{marginTop:22}},h('h2',{className:'ctitle mb10'},t('backupRestore')),h('p',{className:'fhint'},t('plainTextWarning')),h('div',{style:{display:'flex',flexDirection:'column',gap:10}},h('button',{className:'btn bghost',disabled:!!busy,'aria-busy':busy==='json',onClick:doExportJSON},t('exportJSON')),h('button',{className:'btn bghost',disabled:!!busy,'aria-busy':busy==='csv',onClick:doExportCSV},t('exportCSV')),h('button',{className:'btn bghost',disabled:!!busy,'aria-busy':busy==='import-read',onClick:doImport},t('importJSON')))),
+      h('section',{style:{marginTop:22}},h('h2',{className:'ctitle mb10',style:{color:'var(--danger)'}},t('dangerZone')),h('p',{className:'fhint'},t('resetAllWarning')),h('button',{className:'btn bdanger',disabled:!!busy,onClick:()=>setConfirmClear(true)},t('clearAllData'))),
+      h('div',{style:{marginTop:20,padding:12,background:'var(--bg)',borderRadius:'var(--rmd)'}},h('p',{className:'fhint'},h('strong',null,t('dataStorage')),` ${t('onlineInstructions')}`),h('p',{className:'fhint'},`Build ${window.CASHFLOW_BUILD.version} · schema ${window.CASHFLOW_BUILD.schema}`))
+    ),
+    pendingImport&&h(ConfirmModal,{title:t('importBackupTitle'),message:`${t('importConfirm1')}${pendingImport.date}${t('importConfirm2')}`,details:pendingImport.counts,confirmLabel:t('continueAction'),busy:busy==='import',onClose:()=>!busy&&setPendingImport(null),onConfirm:applyImport}),
+    confirmClear&&h(ConfirmModal,{title:t('clearDataTitle'),message:t('clearConfirm'),details:t('resetAllWarning'),confirmLabel:t('deleteAction'),danger:true,busy:busy==='clear',onClose:()=>!busy&&setConfirmClear(false),onConfirm:applyClear})
   );
 }
 
@@ -2819,6 +2974,7 @@ function App() {
   useEffect(()=>{document.documentElement.lang=lang;},[lang]);
   useEffect(()=>{const receive=()=>{setSyncVersion(v=>v+1);loadApp();};const onMessage=e=>{if(e.data?.type==='changed')receive();};const onStorage=e=>{if(e.key===DATA_CHANGE_KEY)receive();};dataChannel?.addEventListener('message',onMessage);window.addEventListener('storage',onStorage);return()=>{dataChannel?.removeEventListener('message',onMessage);window.removeEventListener('storage',onStorage);};},[loadApp]);
   useEffect(()=>{const onPop=()=>{const r=parseRoute();setTab(r.tab);if(r.month)setMonth(r.month);};window.addEventListener('popstate',onPop);return()=>window.removeEventListener('popstate',onPop);},[]);
+  useEffect(()=>{const vv=window.visualViewport;const sync=()=>{const keyboardOpen=!!vv&&(window.innerHeight-vv.height>120);document.documentElement.classList.toggle('keyboard-open',keyboardOpen);};const onFocus=()=>setTimeout(sync,60);vv?.addEventListener('resize',sync);window.addEventListener('focusin',onFocus);window.addEventListener('focusout',onFocus);sync();return()=>{vv?.removeEventListener('resize',sync);window.removeEventListener('focusin',onFocus);window.removeEventListener('focusout',onFocus);document.documentElement.classList.remove('keyboard-open');};},[]);
   useEffect(()=>{if(!ready)return;const hash=`tab=${tab}&month=${mkKey(month)}`;if(location.hash.slice(1)!==hash)history.replaceState({tab,month:mkKey(month)},'',`#${hash}`);},[ready,tab,month]);
   const navigate=(nextTab=tab,nextMonth=month)=>{const hash=`tab=${nextTab}&month=${mkKey(nextMonth)}`;history.pushState({tab:nextTab,month:mkKey(nextMonth)},'',`#${hash}`);setTab(nextTab);setMonth(nextMonth);};
   const safeSetting=async(action)=>{try{await action();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
@@ -2828,7 +2984,7 @@ function App() {
   const updateTheme=id=>safeSetting(async()=>{const applied=applyTheme(id);await db.transaction('rw',db.settings,async()=>{await db.settings.put({key:'theme',value:applied});await db.settings.put({key:'darkMode',value:getTheme(applied).dark});});setTheme(applied);});
   const updateCurr=c=>safeSetting(async()=>{await db.settings.put({key:'currency',value:c});setSettings({currency:c.code,sym:c.sym});});
   const currentAnchor=cycleAnchor(new Date(),payday,cycleLabel),isCur=mkKey(month)===mkKey(currentAnchor);
-  const tabs=[{id:'dashboard',label:t('home'),icon:'dashboard'},{id:'expenses',label:t('spend'),icon:'receipt'},{id:'income',label:t('income'),icon:'trend'},{id:'savings',label:t('save'),icon:'target'},{id:'cards',label:t('cards'),icon:'card'}];
+  const tabs=[{id:'dashboard',label:t('home'),icon:'dashboard'},{id:'expenses',label:t('spend'),icon:'receipt'},{id:'income',label:t('income'),icon:'trend'},{id:'savings',label:t('savingsTab'),icon:'coins'},{id:'cards',label:t('cards'),icon:'card'}];
   if(readyError)return h('div',{className:'empty',role:'alert',style:{minHeight:'100dvh',display:'grid',placeContent:'center'}},h('div',{className:'eico'},h(Icon,{name:'alert',size:28})),h('div',{className:'etxt'},t('loadFailed')),h('div',{className:'esub'},String(readyError.message||readyError)),h('button',{className:'btn bpri',onClick:loadApp},t('retry')));
   if(!ready)return h('div',{className:'loading',style:{height:'100dvh'}},t('loading'));
   const key=`${tab}-${mkKey(month)}-${payday}-${cycleLabel}-${lang}-${syncVersion}`;
