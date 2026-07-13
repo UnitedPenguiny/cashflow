@@ -47,92 +47,50 @@ html.theme-forest{
   --s1:0 3px 12px rgba(17,91,56,.10);--s2:0 14px 36px rgba(17,91,56,.18);--s3:0 18px 42px rgba(20,122,79,.34)
 }
 html.theme-rose{
-  --p:#ed8b9b;--pd:#d3697d;--pl:#fbe1df;
-  --bg:#f8eeeb;--card:rgba(255,253,251,.96);--t1:#673b47;--t2:#946973;--t3:#b18c94;
-  --border:#efdedf;--danger:#d3697d;--dl:#fbe1df;--success:#7fa58e;--sl:#e8f2ea;
-  --chrome:rgba(255,250,248,.76);--root-top:#fffaf7;--glow:#ffdcde;
-  --hero-a:#e98293;--hero-b:#f5b7b4;--hero-shadow:rgba(233,130,147,.30);
-  --s1:0 10px 26px rgba(151,92,103,.10);--s2:0 18px 38px rgba(151,92,103,.13);--s3:0 22px 48px rgba(214,138,150,.24);
-  /* rose romantic editorial tokens (single source for the theme) */
-  --rose-bg-top:#fffaf7;--rose-bg-bottom:#f8eeeb;
-  --rose-card-top:rgba(255,253,251,.92);--rose-card-bottom:rgba(255,247,245,.86);
-  --rose-primary:#ed8b9b;--rose-primary-light:#f7b8bb;--rose-primary-pale:#fbe1df;
-  --rose-text:#673b47;--rose-text-secondary:#946973;--rose-text-muted:#b18c94;
-  --rose-border:rgba(255,255,255,.86);--rose-divider:rgba(222,176,180,.50);
-  --rose-lavender:#c5aac5;--rose-peach:#efb38d;
-  --rose-serif:"Cormorant Garamond","Iowan Old Style","Palatino Linotype",Georgia,serif;
-  --donut-h:214px
+  --p:#e88fa1;--pd:#cf6f84;--pl:#f7e3e5;
+  --bg:#f7efed;--card:rgba(255,251,250,.98);--t1:#66424c;--t2:#8b6872;--t3:#b2969e;
+  --border:#eddcdd;--danger:#db7288;--dl:#fbe9ec;--success:#7fa58e;--sl:#e8f2ea;
+  --chrome:rgba(255,250,249,.88);--root-top:#faf5f3;--glow:#f3dcdf;
+  --hero-a:#eeb2ba;--hero-b:#f7d6d8;--hero-shadow:rgba(218,188,193,.34);
+  --s1:0 10px 26px rgba(191,173,177,.10);--s2:0 18px 42px rgba(191,173,177,.16);--s3:0 22px 48px rgba(214,186,192,.26)
 }
-/* Overlapping blush gradients for an airy, non-flat page */
-html.theme-rose body{background:radial-gradient(circle at 50% -8%,rgba(255,220,222,.72) 0%,rgba(255,220,222,0) 38%),radial-gradient(circle at 8% 45%,rgba(247,214,209,.34) 0%,rgba(247,214,209,0) 34%),linear-gradient(180deg,#fffaf7 0%,#f8eeeb 100%)}
-html.theme-rose #root{background:radial-gradient(circle at 50% -6%,rgba(255,223,225,.55) 0%,rgba(255,223,225,0) 30%),radial-gradient(circle at 10% 44%,rgba(247,214,209,.24) 0%,rgba(247,214,209,0) 30%),linear-gradient(180deg,#fffaf7 0%,#faf1ee 40%,#f8eeeb 100%);box-shadow:0 0 80px rgba(214,138,150,.14)}
-/* Translucent warm-ivory chrome */
-html.theme-rose .hdr,html.theme-rose .mnav{background:rgba(255,250,248,.76);backdrop-filter:blur(24px) saturate(120%);-webkit-backdrop-filter:blur(24px) saturate(120%);border-color:rgba(224,191,192,.52)}
-html.theme-rose .hdr{border-bottom:1px solid rgba(224,191,192,.52);padding-left:16px;padding-right:14px}
-html.theme-rose .mnav{border-bottom:1px solid rgba(224,191,192,.42)}
-/* Editorial serif for branding, headings, dates, category names & money */
-html.theme-rose .hdr-title,html.theme-rose .mlbl,html.theme-rose .hlbl,html.theme-rose .hamt,html.theme-rose .slbl,html.theme-rose .samt,html.theme-rose .ssub,html.theme-rose .ctitle,html.theme-rose .chart-label,html.theme-rose .chart-amount,html.theme-rose .mtoday{font-family:var(--rose-serif);letter-spacing:-.01em}
+html.theme-rose body{background:radial-gradient(circle at 50% -15%,rgba(246,222,226,.9) 0,rgba(246,222,226,0) 42%),linear-gradient(180deg,#fbf8f6 0%,#f6efec 100%)}
+html.theme-rose #root{background:radial-gradient(circle at 50% 0,rgba(255,255,255,.72) 0,rgba(255,255,255,0) 30%),linear-gradient(180deg,#faf6f4 0%,#f5efec 36%,#f7f1ee 100%);box-shadow:0 0 72px rgba(213,188,193,.18)}
+html.theme-rose .hdr,html.theme-rose .mnav,html.theme-rose .bnav{background:rgba(255,250,249,.84);backdrop-filter:blur(24px);border-color:rgba(236,220,223,.92)}
+html.theme-rose .hdr-title,html.theme-rose .mlbl,html.theme-rose .hlbl,html.theme-rose .hamt,html.theme-rose .slbl,html.theme-rose .ctitle{font-family:Iowan Old Style,Georgia,Times New Roman,serif;letter-spacing:-.02em}
+html.theme-rose .hdr-title{font-size:20px;font-weight:700;color:#704850}
 html.theme-rose .hdr-logo{gap:12px}
-html.theme-rose .hdr-title{font-size:clamp(25px,7.6vw,31px);font-weight:600;color:#5e3844;letter-spacing:-.015em}
-html.theme-rose .hdr-icon{width:44px;height:44px;border-radius:14px;position:relative;overflow:visible;background:linear-gradient(150deg,#f5b0bb 0%,#ec8a9c 55%,#e57c90 100%);border:1px solid rgba(255,255,255,.85);box-shadow:0 12px 26px rgba(233,130,147,.42),0 3px 8px rgba(214,138,150,.24),inset 0 1px 0 rgba(255,255,255,.85);color:#fff}
-html.theme-rose .hdr-icon .icon{width:24px;height:24px}
-html.theme-rose .hdr-icon::after{content:'';position:absolute;top:-4px;right:-4px;width:14px;height:14px;background:radial-gradient(circle,#fff 0%,rgba(255,255,255,0) 62%);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 0c.6 5.7 5.7 10.8 12 12-6.3 1.2-11.4 6.3-12 12-.6-5.7-5.7-10.8-12-12C6.3 10.8 11.4 5.7 12 0Z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M12 0c.6 5.7 5.7 10.8 12 12-6.3 1.2-11.4 6.3-12 12-.6-5.7-5.7-10.8-12-12C6.3 10.8 11.4 5.7 12 0Z'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 1px 2px rgba(233,130,147,.5))}
-html.theme-rose .ibtn{width:42px;height:42px;border-radius:13px;background:rgba(255,252,251,.82);border:1px solid rgba(255,255,255,.9);box-shadow:0 10px 22px rgba(177,116,126,.14),inset 0 1px 0 rgba(255,255,255,.96);color:#8a5b66}
-html.theme-rose .mbtn{width:46px;height:46px;border:1px solid rgba(255,255,255,.9);background:rgba(255,252,251,.8);box-shadow:0 10px 22px rgba(177,116,126,.14),inset 0 1px 0 rgba(255,255,255,.96);color:#9a6875}
-html.theme-rose .ibtn:active,html.theme-rose .mbtn:active{background:#fbeeec}
-html.theme-rose .mlbl{font-size:clamp(23px,6.6vw,26px);font-weight:600;color:#5e3844;letter-spacing:-.01em}
-html.theme-rose .mlbl>div:nth-child(2){font-size:12px!important;font-weight:600!important;font-family:Inter,-apple-system,sans-serif;letter-spacing:.01em;color:#a9838d!important;margin-top:3px!important}
-html.theme-rose .mnav{height:60px}
-html.theme-rose .main{padding-top:calc(var(--hdr) + 60px + var(--st))}
-/* Floating glass bottom navigation */
-html.theme-rose .bnav{background:rgba(255,250,248,.84);backdrop-filter:blur(24px) saturate(120%);-webkit-backdrop-filter:blur(24px) saturate(120%);border:1px solid rgba(255,255,255,.84);border-bottom:none;border-radius:28px 28px 0 0;box-shadow:0 -14px 34px rgba(145,88,100,.14)}
-html.theme-rose .nitem{color:#a9838d}
-html.theme-rose .nitem span:last-child{font-family:Inter,-apple-system,BlinkMacSystemFont,sans-serif}
-html.theme-rose .nitem.active{color:#e8798e}
-html.theme-rose .nitem .nemo::before{inset:-5px -10px;border-radius:13px}
-html.theme-rose .nitem.active .nemo::before{background:rgba(251,225,223,.92);border:1px solid rgba(255,255,255,.9);box-shadow:0 8px 18px rgba(237,139,155,.28)}
-/* Translucent white cards with bright borders & soft rose shadow */
-html.theme-rose .card,html.theme-rose .sc,html.theme-rose .sheet,html.theme-rose .shdr{background:linear-gradient(145deg,rgba(255,255,255,.91),rgba(255,247,245,.82));border:1px solid rgba(255,255,255,.88);box-shadow:0 18px 38px rgba(151,92,103,.13),0 4px 12px rgba(177,116,126,.08),inset 0 1px 0 rgba(255,255,255,.96)}
-html.theme-rose .card,html.theme-rose .sc{border-radius:24px}
-/* Hero: blush gradient, white serif, glow, flowing lines & sparkles */
-html.theme-rose .hero{border-radius:24px;background:radial-gradient(circle at 22% 82%,rgba(255,255,255,.9) 0,rgba(255,255,255,0) 2.2px),radial-gradient(circle at 60% 26%,rgba(255,255,255,.85) 0,rgba(255,255,255,0) 2px),radial-gradient(circle at 82% 58%,rgba(255,255,255,.8) 0,rgba(255,255,255,0) 2.4px),radial-gradient(circle at 90% 34%,rgba(255,255,255,.72) 0,rgba(255,255,255,0) 1.8px),linear-gradient(120deg,#e98293 0%,#ef98a2 44%,#f5b7b4 100%)!important;border:1px solid rgba(255,255,255,.5);box-shadow:0 22px 44px rgba(214,111,127,.30),inset 0 1px 0 rgba(255,255,255,.5);color:#fff}
-html.theme-rose .hero::before{width:280px;height:280px;top:-96px;right:-58px;background:radial-gradient(circle at 42% 42%,rgba(255,255,255,.55) 0,rgba(255,255,255,.16) 40%,rgba(255,255,255,0) 70%)}
-html.theme-rose .hero::after{content:'';position:absolute;inset:0;width:auto;height:auto;border-radius:24px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200' preserveAspectRatio='none'%3E%3Cpath d='M-20 148 C120 88 250 190 440 118' fill='none' stroke='rgba(255,255,255,0.26)' stroke-width='2'/%3E%3Cpath d='M-20 176 C150 128 260 208 440 150' fill='none' stroke='rgba(255,255,255,0.16)' stroke-width='1.5'/%3E%3C/svg%3E") center/100% 100% no-repeat;opacity:.9;pointer-events:none}
-html.theme-rose .hlbl{font-size:15px;font-weight:600;opacity:.94;margin-bottom:6px;letter-spacing:0}
-html.theme-rose .hamt{font-size:clamp(34px,10.5vw,42px);font-weight:600;letter-spacing:-.02em;line-height:1}
-html.theme-rose .hsub{font-size:13px;opacity:.92;margin-top:8px}
-html.theme-rose .samt.neg{color:#d97b8c}
+html.theme-rose .hdr-icon{background:linear-gradient(180deg,#f6bec7 0%,#eb96a5 100%);border:1px solid rgba(255,255,255,.8);box-shadow:0 10px 24px rgba(232,180,189,.42),inset 0 1px 0 rgba(255,255,255,.85);color:#fff}
+html.theme-rose .ibtn,html.theme-rose .mbtn{background:rgba(255,252,251,.92);border-color:rgba(238,222,224,.96);box-shadow:0 10px 20px rgba(186,160,170,.12),inset 0 1px 0 rgba(255,255,255,.96);color:#8f6670}
+html.theme-rose .ibtn:active,html.theme-rose .mbtn:active{background:#fbf3f1}
+html.theme-rose .bnav{box-shadow:0 -14px 32px rgba(188,166,173,.14)}
+html.theme-rose .nitem.active{color:#ea879d}
+html.theme-rose .nitem.active .nemo::before{background:rgba(247,228,230,.95);box-shadow:0 8px 18px rgba(223,190,198,.26)}
+html.theme-rose .card,html.theme-rose .sc,html.theme-rose .sheet,html.theme-rose .shdr{background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,250,249,.98));border-color:rgba(238,223,225,.92);box-shadow:0 18px 36px rgba(190,171,176,.12),inset 0 1px 0 rgba(255,255,255,.92)}
+html.theme-rose .hero{background:linear-gradient(135deg,#eeb0b5 0%,#f4c1c5 48%,#f8dbd8 100%)!important;box-shadow:0 24px 42px rgba(218,188,193,.32),inset 0 1px 0 rgba(255,255,255,.58);color:#fff}
+html.theme-rose .hero::before{width:260px;height:260px;top:-82px;right:-48px;background:radial-gradient(circle at 42% 42%,rgba(255,255,255,.45) 0,rgba(255,255,255,.14) 38%,rgba(255,255,255,0) 68%)}
+html.theme-rose .hero::after{width:240px;height:130px;bottom:-22px;right:-10px;background:radial-gradient(circle at 18% 48%,rgba(255,255,255,.34) 0,rgba(255,255,255,.08) 38%,rgba(255,255,255,0) 70%)}
+html.theme-rose .hsub{opacity:.9}
+html.theme-rose .samt.neg{color:#de7f92}
 html.theme-rose .samt.pos{color:#8aac96}
-html.theme-rose .theme-opt.active{background:linear-gradient(180deg,rgba(255,247,245,.94),rgba(255,250,249,.98));box-shadow:0 0 0 3px rgba(237,139,155,.20),0 8px 20px rgba(214,138,150,.18)}
-html.theme-rose .sec{padding:12px 14px 0}
-/* Stat cards: uppercase serif label, rose amount, glass icon badge */
-html.theme-rose .premium-stat{min-height:118px;padding:20px 18px;background:linear-gradient(145deg,rgba(255,255,255,.91),rgba(255,247,245,.82))}
-html.theme-rose .premium-stat .stat-badge{display:flex;position:absolute;right:14px;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;align-items:center;justify-content:center;background:rgba(255,252,251,.78);border:1px solid rgba(255,255,255,.92);box-shadow:0 10px 22px rgba(194,140,150,.20),inset 0 1px 0 rgba(255,255,255,.98);color:#e08b9a}
-html.theme-rose .premium-stat .stat-badge .icon{width:22px;height:22px}
-html.theme-rose .premium-stat .slbl{font-size:12px;font-weight:600;letter-spacing:.11em;margin-bottom:12px;color:#a17a83;padding-right:50px}
-html.theme-rose .premium-stat .samt{font-size:clamp(18px,4.9vw,21px);font-weight:600;line-height:1.05;letter-spacing:-.01em;color:#e0778c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:50px}
-html.theme-rose .premium-stat .samt.pos,html.theme-rose .premium-stat .samt.neg,html.theme-rose .premium-stat .samt.neu{color:#e0778c}
-html.theme-rose .premium-stat .ssub{font-size:12px;color:#9c7982;margin-top:8px;padding-right:50px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* Narrow phones: the centred badge leaves too little room for long amounts,
-   so drop it into the top-right corner and let the amount use the full width. */
-@media(max-width:380px){
-  html.theme-rose .premium-stat .stat-badge{top:12px;right:12px;transform:none;width:40px;height:40px}
-  html.theme-rose .premium-stat .stat-badge .icon{width:20px;height:20px}
-  html.theme-rose .premium-stat .slbl{padding-right:0}
-  html.theme-rose .premium-stat .samt{padding-right:0}
-  html.theme-rose .premium-stat .ssub{padding-right:0}
-}
-/* Spending card & category list */
-html.theme-rose .ctitle{font-size:14px;font-weight:600;letter-spacing:.11em;color:#8a5f6a}
-html.theme-rose .chart-menu{color:#a87e8a}
+html.theme-rose .theme-opt.active{background:linear-gradient(180deg,rgba(250,240,242,.94),rgba(255,250,249,.98));box-shadow:0 0 0 3px rgba(232,143,161,.18),0 8px 20px rgba(214,189,195,.18)}
+html.theme-rose .sec{padding:14px 14px 0}
+html.theme-rose .card,html.theme-rose .sc{border-radius:26px}
+html.theme-rose .premium-stat{min-height:114px;padding:22px 20px;background:linear-gradient(180deg,rgba(255,255,255,.84),rgba(255,250,249,.98))}
+html.theme-rose .premium-stat .stat-badge{display:flex;position:absolute;right:18px;top:50%;transform:translateY(-50%);width:54px;height:54px;border-radius:50%;align-items:center;justify-content:center;background:rgba(255,252,251,.82);border:1px solid rgba(239,223,225,.96);box-shadow:0 12px 24px rgba(194,173,179,.18),inset 0 1px 0 rgba(255,255,255,.98);color:#c57f90}
+html.theme-rose .premium-stat .slbl{font-size:12px;letter-spacing:.08em;margin-bottom:10px;color:#9e7680}
+html.theme-rose .premium-stat .samt{font-size:26px;line-height:1.05}
+html.theme-rose .premium-stat .ssub{font-size:12px;color:#8d7077;margin-top:8px}
+html.theme-rose .premium-stat .samt.pos,html.theme-rose .premium-stat .samt.neg{color:#dc8597}
+html.theme-rose .premium-stat .samt.pos{font-weight:700}
+html.theme-rose .ctitle{font-size:14px;letter-spacing:.08em;color:#916f79}
+html.theme-rose .chart-menu{color:#a8858d}
 html.theme-rose .chart-list{margin-top:14px}
-html.theme-rose .chart-row{padding:11px 0;border-bottom-color:var(--rose-divider)}
-html.theme-rose .chart-icon-chip{width:42px;height:42px;border-radius:12px;box-shadow:0 10px 22px rgba(196,140,150,.20),inset 0 1px 0 rgba(255,255,255,.5)}
-html.theme-rose .chart-icon-chip .icon{filter:drop-shadow(0 1px 1px rgba(120,70,80,.18))}
-html.theme-rose .chart-label{font-size:16px;font-weight:500;color:#5f3d47;letter-spacing:0}
-html.theme-rose .chart-amount{font-size:16px;font-weight:600;color:#5a3a44;letter-spacing:-.01em}
-html.theme-rose .summary-swatch{display:none}
-html.theme-rose .donut-wrap::before{content:'';position:absolute;left:50%;top:50%;width:64%;height:64%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(214,138,150,.16) 0%,rgba(214,138,150,0) 68%);pointer-events:none;z-index:0}
+html.theme-rose .chart-row{padding:10px 0;border-bottom-color:rgba(236,220,222,.96)}
+html.theme-rose .chart-icon-chip{border-radius:12px;box-shadow:0 12px 24px rgba(196,172,178,.16),inset 0 1px 0 rgba(255,255,255,.42)}
+html.theme-rose .chart-label{font-size:14px;font-weight:500;font-family:Iowan Old Style,Georgia,Times New Roman,serif;color:#5f444c}
+html.theme-rose .chart-amount{font-size:14px;font-weight:700;font-family:Iowan Old Style,Georgia,Times New Roman,serif;color:#5a434b}
+html.theme-rose .summary-swatch{display:inline-block}
 html.theme-sunset{
   --p:#d85b25;--pd:#a83d12;--pl:#ffcbb2;
   --bg:#ffe3d2;--card:rgba(255,249,245,.98);--t1:#351b10;--t2:#7a5848;--t3:#a77e6c;
@@ -216,9 +174,12 @@ html:not(.theme-rose) .chart-icon-chip{border-radius:12px;box-shadow:0 12px 24px
 html:not(.theme-rose) .chart-label{font-size:14px;font-weight:500;font-family:Iowan Old Style,Georgia,Times New Roman,serif;color:var(--t1)}
 html:not(.theme-rose) .chart-amount{font-size:14px;font-weight:700;font-family:Iowan Old Style,Georgia,Times New Roman,serif;color:var(--t1)}
 html:not(.theme-rose) .summary-swatch{display:inline-block}
-/* Non-rose icon overlap fix: badge in the top-right corner with the amount
-   below it. Rose uses a vertically-centred glass badge with the text columns
-   reserving 56px on the right so the amount never runs under it. */
+/* Icon overlap fix: move the badge into the top-right corner and force the
+   amount line below it. This intentionally does not change the bottom nav. */
+html.theme-rose .premium-stat{min-height:124px}
+html.theme-rose .premium-stat .stat-badge{right:14px;top:14px;transform:none;width:42px;height:42px}
+html.theme-rose .premium-stat .slbl{margin-bottom:22px}
+html.theme-rose .premium-stat .samt{font-size:clamp(20px,5.8vw,26px);white-space:nowrap;letter-spacing:-.045em}
 html{background:var(--card)}
 html,body{height:100%;height:100vh;overflow:hidden}
 body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:radial-gradient(circle at 50% -12%,var(--glow) 0,transparent 48%),var(--bg);color:var(--t1);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
@@ -702,27 +663,9 @@ const ROSE_CHART_TONES = [
   { light:'#E7E0EE', base:'#C5BED7', dark:'#A59BBC' },
   { light:'#F3DDD8', base:'#E0B7AA', dark:'#CA968A' }
 ];
-// Rose theme: one canonical tone per category. This single object is the sole
-// source of truth for the doughnut slice, the category icon tile and any swatch,
-// so chart and list colours can never drift apart. Food = rose primary,
-// Housing = dusty lavender, Installments = muted peach (per the reference).
-const ROSE_CATEGORY_TONES = {
-  food:         { light:'#F6C3CD', base:'#ED8B9B', dark:'#E1728A' }, // rose pink (primary)
-  housing:      { light:'#DFCEE2', base:'#C5AAC5', dark:'#AB8FB2' }, // dusty lavender
-  installments: { light:'#F5D8C0', base:'#EFB38D', dark:'#DD9E76' }, // muted peach
-  transport:    { light:'#D2E1DC', base:'#A9C6BE', dark:'#8BACA3' }, // soft sage
-  health:       { light:'#F3D0D7', base:'#E4A7B2', dark:'#D28C99' }, // dusty rose
-  entertainment:{ light:'#DCD1EB', base:'#B7A7D2', dark:'#9C8ABE' }, // soft lavender
-  shopping:     { light:'#F4D9C7', base:'#E1B29A', dark:'#CF987A' }, // warm sand
-  bills:        { light:'#D1DDE7', base:'#A7BDCE', dark:'#89A3B6' }, // dusty blue
-  insurance:    { light:'#D6E3D4', base:'#ABC5A7', dark:'#8DAB89' }, // sage green
-  savings:      { light:'#ECDAC6', base:'#D6B893', dark:'#C29F74' }, // muted gold
-  other:        { light:'#E8DCDE', base:'#C7B1B7', dark:'#AC9299' }  // rose grey
-};
 const currentThemeId = () => typeof document !== 'undefined' ? (document.documentElement.dataset.theme || 'default') : 'default';
 const activeChartPalette = () => currentThemeId() === 'rose' ? ROSE_CHART_TONES : SOFT_CHART_TONES;
 const chartToneFor = (categoryId, fallbackIndex = 0) => {
-  if (currentThemeId() === 'rose' && ROSE_CATEGORY_TONES[categoryId]) return ROSE_CATEGORY_TONES[categoryId];
   const tones = activeChartPalette();
   const known = expenseCats().findIndex(c => c.id === categoryId);
   if (known >= 0) return tones[known % tones.length];
@@ -1273,9 +1216,8 @@ function DonutChart({
   useEffect(() => {
     if (!ref.current || !data?.length) return;
     inst.current?.destroy();
-    const isRose = themeKey === 'rose';
     const css = getComputedStyle(document.documentElement);
-    const chartBorder = isRose ? 'rgba(255,248,246,.95)' : (css.getPropertyValue('--card').trim() || '#fff');
+    const chartBorder = css.getPropertyValue('--card').trim() || '#fff';
     const ctx = ref.current.getContext('2d');
     const width = ref.current.clientWidth || ref.current.width || 320;
     const height = ref.current.clientHeight || ref.current.height || 170;
@@ -1292,9 +1234,9 @@ function DonutChart({
         datasets: [{
           data,
           backgroundColor: fills,
-          borderWidth: isRose ? 1.5 : 3,
+          borderWidth: 3,
           borderColor: chartBorder,
-          hoverOffset: isRose ? 0 : 5
+          hoverOffset: 5
         }]
       },
       options: {
@@ -1310,20 +1252,18 @@ function DonutChart({
             }
           }
         },
-        cutout: isRose ? '55%' : '64%'
+        cutout: '64%'
       }
     });
     return () => inst.current?.destroy();
   }, [JSON.stringify(data), JSON.stringify(labels), JSON.stringify(colors), sym, themeKey]);
   return /*#__PURE__*/React.createElement("div", {
-    className: "donut-wrap",
     style: {
       position: 'relative',
-      height: 'var(--donut-h, 170px)'
+      height: 170
     }
   }, /*#__PURE__*/React.createElement("canvas", {
-    ref: ref,
-    style: { position: 'relative', zIndex: 1 }
+    ref: ref
   }));
 }
 function BarChart({
@@ -2110,12 +2050,6 @@ function Dashboard({
   }, cats.map((c, index) => {
     const tone = chartToneFor(c.id, index);
     const themedCat = getCat(c.id);
-    // In rose the icon tile is driven by the same tone as the doughnut slice
-    // (single source of truth); other themes keep their category tile colours.
-    const rose = currentThemeId() === 'rose';
-    const chipStyle = rose
-      ? { background: chartToneCss(tone), color: '#fffaf8' }
-      : { background: themedCat.bg, color: themedCat.tc };
     return /*#__PURE__*/React.createElement("div", {
     key: c.id,
     className: "chart-row"
@@ -2127,7 +2061,7 @@ function Dashboard({
     'aria-hidden': true
   }), /*#__PURE__*/React.createElement("span", {
     className: "chart-icon-chip",
-    style: chipStyle
+    style: { background: themedCat.bg, color: themedCat.tc }
   }, /*#__PURE__*/React.createElement(Icon, { name: iconName(themedCat), size: 20 })), /*#__PURE__*/React.createElement("span", {
     className: "chart-label"
   }, getCatLabel(c.id))), /*#__PURE__*/React.createElement("span", {
