@@ -47,13 +47,50 @@ html.theme-forest{
   --s1:0 3px 12px rgba(17,91,56,.10);--s2:0 14px 36px rgba(17,91,56,.18);--s3:0 18px 42px rgba(20,122,79,.34)
 }
 html.theme-rose{
-  --p:#c93875;--pd:#9f2358;--pl:#f7c5d9;
-  --bg:#fde3ee;--card:rgba(255,247,251,.98);--t1:#351324;--t2:#795367;--t3:#a77d92;
-  --border:#edb6cd;--danger:#d83f5d;--dl:#ffe4eb;--success:#0b8f70;--sl:#dcf5ec;
-  --chrome:rgba(255,237,245,.96);--root-top:#f7bfd7;--glow:#ed8db5;
-  --hero-a:#b51f5f;--hero-b:#ed649d;--hero-shadow:rgba(188,39,102,.34);
-  --s1:0 3px 12px rgba(139,37,82,.10);--s2:0 14px 36px rgba(139,37,82,.18);--s3:0 18px 42px rgba(201,56,117,.34)
+  --p:#e88fa1;--pd:#cf6f84;--pl:#f7e3e5;
+  --bg:#f7efed;--card:rgba(255,251,250,.98);--t1:#66424c;--t2:#8b6872;--t3:#b2969e;
+  --border:#eddcdd;--danger:#db7288;--dl:#fbe9ec;--success:#7fa58e;--sl:#e8f2ea;
+  --chrome:rgba(255,250,249,.88);--root-top:#faf5f3;--glow:#f3dcdf;
+  --hero-a:#eeb2ba;--hero-b:#f7d6d8;--hero-shadow:rgba(218,188,193,.34);
+  --s1:0 10px 26px rgba(191,173,177,.10);--s2:0 18px 42px rgba(191,173,177,.16);--s3:0 22px 48px rgba(214,186,192,.26)
 }
+html.theme-rose body{background:radial-gradient(circle at 50% -15%,rgba(246,222,226,.9) 0,rgba(246,222,226,0) 42%),linear-gradient(180deg,#fbf8f6 0%,#f6efec 100%)}
+html.theme-rose #root{background:radial-gradient(circle at 50% 0,rgba(255,255,255,.72) 0,rgba(255,255,255,0) 30%),linear-gradient(180deg,#faf6f4 0%,#f5efec 36%,#f7f1ee 100%);box-shadow:0 0 72px rgba(213,188,193,.18)}
+html.theme-rose .hdr,html.theme-rose .mnav,html.theme-rose .bnav{background:rgba(255,250,249,.84);backdrop-filter:blur(24px);border-color:rgba(236,220,223,.92)}
+html.theme-rose .hdr-title,html.theme-rose .mlbl,html.theme-rose .hlbl,html.theme-rose .hamt,html.theme-rose .slbl,html.theme-rose .ctitle{font-family:Iowan Old Style,Georgia,Times New Roman,serif;letter-spacing:-.02em}
+html.theme-rose .hdr-title{font-size:20px;font-weight:700;color:#704850}
+html.theme-rose .hdr-logo{gap:12px}
+html.theme-rose .hdr-icon{background:linear-gradient(180deg,#f6bec7 0%,#eb96a5 100%);border:1px solid rgba(255,255,255,.8);box-shadow:0 10px 24px rgba(232,180,189,.42),inset 0 1px 0 rgba(255,255,255,.85);color:#fff}
+html.theme-rose .ibtn,html.theme-rose .mbtn{background:rgba(255,252,251,.92);border-color:rgba(238,222,224,.96);box-shadow:0 10px 20px rgba(186,160,170,.12),inset 0 1px 0 rgba(255,255,255,.96);color:#8f6670}
+html.theme-rose .ibtn:active,html.theme-rose .mbtn:active{background:#fbf3f1}
+html.theme-rose .bnav{box-shadow:0 -14px 32px rgba(188,166,173,.14)}
+html.theme-rose .nitem.active{color:#ea879d}
+html.theme-rose .nitem.active .nemo::before{background:rgba(247,228,230,.95);box-shadow:0 8px 18px rgba(223,190,198,.26)}
+html.theme-rose .card,html.theme-rose .sc,html.theme-rose .sheet,html.theme-rose .shdr{background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,250,249,.98));border-color:rgba(238,223,225,.92);box-shadow:0 18px 36px rgba(190,171,176,.12),inset 0 1px 0 rgba(255,255,255,.92)}
+html.theme-rose .hero{background:linear-gradient(135deg,#eeb0b5 0%,#f4c1c5 48%,#f8dbd8 100%)!important;box-shadow:0 24px 42px rgba(218,188,193,.32),inset 0 1px 0 rgba(255,255,255,.58);color:#fff}
+html.theme-rose .hero::before{width:260px;height:260px;top:-82px;right:-48px;background:radial-gradient(circle at 42% 42%,rgba(255,255,255,.45) 0,rgba(255,255,255,.14) 38%,rgba(255,255,255,0) 68%)}
+html.theme-rose .hero::after{width:240px;height:130px;bottom:-22px;right:-10px;background:radial-gradient(circle at 18% 48%,rgba(255,255,255,.34) 0,rgba(255,255,255,.08) 38%,rgba(255,255,255,0) 70%)}
+html.theme-rose .hsub{opacity:.9}
+html.theme-rose .samt.neg{color:#de7f92}
+html.theme-rose .samt.pos{color:#8aac96}
+html.theme-rose .theme-opt.active{background:linear-gradient(180deg,rgba(250,240,242,.94),rgba(255,250,249,.98));box-shadow:0 0 0 3px rgba(232,143,161,.18),0 8px 20px rgba(214,189,195,.18)}
+html.theme-rose .sec{padding:14px 14px 0}
+html.theme-rose .card,html.theme-rose .sc{border-radius:26px}
+html.theme-rose .premium-stat{min-height:114px;padding:22px 20px;background:linear-gradient(180deg,rgba(255,255,255,.84),rgba(255,250,249,.98))}
+html.theme-rose .premium-stat .stat-badge{display:flex;position:absolute;right:18px;top:50%;transform:translateY(-50%);width:54px;height:54px;border-radius:50%;align-items:center;justify-content:center;background:rgba(255,252,251,.82);border:1px solid rgba(239,223,225,.96);box-shadow:0 12px 24px rgba(194,173,179,.18),inset 0 1px 0 rgba(255,255,255,.98);color:#c57f90}
+html.theme-rose .premium-stat .slbl{font-size:12px;letter-spacing:.08em;margin-bottom:10px;color:#9e7680}
+html.theme-rose .premium-stat .samt{font-size:26px;line-height:1.05}
+html.theme-rose .premium-stat .ssub{font-size:12px;color:#8d7077;margin-top:8px}
+html.theme-rose .premium-stat .samt.pos,html.theme-rose .premium-stat .samt.neg{color:#dc8597}
+html.theme-rose .premium-stat .samt.pos{font-weight:700}
+html.theme-rose .ctitle{font-size:14px;letter-spacing:.08em;color:#916f79}
+html.theme-rose .chart-menu{color:#a8858d}
+html.theme-rose .chart-list{margin-top:14px}
+html.theme-rose .chart-row{padding:10px 0;border-bottom-color:rgba(236,220,222,.96)}
+html.theme-rose .chart-icon-chip{border-radius:12px;box-shadow:0 12px 24px rgba(196,172,178,.16),inset 0 1px 0 rgba(255,255,255,.42)}
+html.theme-rose .chart-label{font-size:14px;font-weight:500;font-family:Iowan Old Style,Georgia,Times New Roman,serif;color:#5f444c}
+html.theme-rose .chart-amount{font-size:14px;font-weight:700;font-family:Iowan Old Style,Georgia,Times New Roman,serif;color:#5a434b}
+html.theme-rose .summary-swatch{display:none}
 html.theme-sunset{
   --p:#d85b25;--pd:#a83d12;--pl:#ffcbb2;
   --bg:#ffe3d2;--card:rgba(255,249,245,.98);--t1:#351b10;--t2:#7a5848;--t3:#a77e6c;
@@ -196,6 +233,7 @@ body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif
 .summary-row-label{display:flex;align-items:center;gap:8px;min-width:0}
 .summary-row strong{margin-left:auto;white-space:nowrap}
 .summary-swatch{width:11px;height:11px;border-radius:4px;display:inline-block;flex:none;box-shadow:0 0 0 2px color-mix(in srgb,currentColor 12%,transparent)}
+.chart-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.chart-menu{font-size:22px;line-height:1;color:var(--t3);letter-spacing:2px}.chart-list{margin-top:10px}.chart-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}.chart-row:last-child{border-bottom:none}.chart-meta{display:flex;align-items:center;gap:12px;min-width:0}.chart-icon-chip{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:var(--s1)}.chart-label{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chart-amount{font-size:13px;font-weight:700;flex:none}.premium-stat{position:relative;overflow:hidden}.stat-badge{display:none}
 @media (max-width:360px){.summary-head{gap:12px}.summary-date{flex-basis:116px;width:116px!important}}
 .settings-btn{line-height:0}
 .settings-btn .icon{transform:translate(0,0)}
@@ -301,6 +339,26 @@ function Icon({ name = 'tag', size = 20, strokeWidth = 1.8, className = '' }) {
 }
 const iconName = (item, fallback = 'tag') => item?.icon && ICON_PATHS[item.icon] ? item.icon : fallback;
 const CUSTOM_ICON_OPTIONS = ['tag', 'paw', 'coffee', 'book', 'plane', 'gift', 'health', 'music', 'bulb', 'game', 'bag', 'home'];
+const THEMED_CATEGORY_OVERRIDES = {
+  rose: {
+    food: { bg: '#f3b0b8', tc: '#fffaf8' },
+    housing: { bg: '#d7bfd9', tc: '#fffaf8' },
+    transport: { bg: '#d7c8bd', tc: '#fffaf8' },
+    health: { bg: '#f2c1c5', tc: '#fffaf8' },
+    entertainment: { bg: '#d7c3df', tc: '#fffaf8' },
+    shopping: { bg: '#e8c8bc', tc: '#fffaf8' },
+    bills: { bg: '#ddd2d1', tc: '#fffaf8' },
+    insurance: { bg: '#d4d5cd', tc: '#fffaf8' },
+    savings: { bg: '#cfdccf', tc: '#fffaf8' },
+    other: { bg: '#e4d9d7', tc: '#85656d' },
+    installments: { bg: '#e8c4ac', tc: '#fffaf8' }
+  }
+};
+const applyCategoryTheme = cat => {
+  const themeId = typeof document !== 'undefined' ? document.documentElement.dataset.theme || 'default' : 'default';
+  const override = THEMED_CATEGORY_OVERRIDES[themeId]?.[cat?.id];
+  return override ? { ...cat, ...override } : cat;
+};
 
 // DB
 let db;
@@ -493,7 +551,7 @@ const THEMES = [
   { id: 'midnight', labelKey: 'themeMidnight', className: '', dark: true, primary: '#9d8cff', bg: '#0b0a18', card: '#191730' },
   { id: 'ocean', labelKey: 'themeOcean', className: 'theme-ocean', dark: false, primary: '#057dbb', bg: '#dff3ff', card: '#f6fcff' },
   { id: 'forest', labelKey: 'themeForest', className: 'theme-forest', dark: false, primary: '#147a4f', bg: '#dff2e6', card: '#f7fdf9' },
-  { id: 'rose', labelKey: 'themeRose', className: 'theme-rose', dark: false, primary: '#c93875', bg: '#fde3ee', card: '#fff7fb' },
+  { id: 'rose', labelKey: 'themeRose', className: 'theme-rose', dark: false, primary: '#e88fa1', bg: '#f7efed', card: '#fffaf9' },
   { id: 'sunset', labelKey: 'themeSunset', className: 'theme-sunset', dark: false, primary: '#d85b25', bg: '#ffe3d2', card: '#fff9f5' }
 ];
 // Muted loft-inspired chart tones. These stay independent from the selected UI theme
@@ -511,12 +569,23 @@ const SOFT_CHART_TONES = [
   { light:'#E8E9D9', base:'#B5B88F', dark:'#919568' }, // soft olive
   { light:'#F2E4D8', base:'#D0AD91', dark:'#A9856C' }  // warm sand
 ];
+const ROSE_CHART_TONES = [
+  { light:'#F8D1D7', base:'#F0A8B3', dark:'#E48A98' },
+  { light:'#E6D9EA', base:'#C8B0D1', dark:'#AD95BE' },
+  { light:'#F6E1CD', base:'#E7C0A2', dark:'#D2A07F' },
+  { light:'#F2DBE3', base:'#DBB2BF', dark:'#C58A99' },
+  { light:'#E7E0EE', base:'#C5BED7', dark:'#A59BBC' },
+  { light:'#F3DDD8', base:'#E0B7AA', dark:'#CA968A' }
+];
+const currentThemeId = () => typeof document !== 'undefined' ? (document.documentElement.dataset.theme || 'default') : 'default';
+const activeChartPalette = () => currentThemeId() === 'rose' ? ROSE_CHART_TONES : SOFT_CHART_TONES;
 const chartToneFor = (categoryId, fallbackIndex = 0) => {
+  const tones = activeChartPalette();
   const known = expenseCats().findIndex(c => c.id === categoryId);
-  if (known >= 0) return SOFT_CHART_TONES[known % SOFT_CHART_TONES.length];
+  if (known >= 0) return tones[known % tones.length];
   let hash = 0;
   for (const ch of String(categoryId || '')) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  return SOFT_CHART_TONES[(hash || fallbackIndex) % SOFT_CHART_TONES.length];
+  return tones[(hash || fallbackIndex) % tones.length];
 };
 const chartToneCss = tone => `linear-gradient(135deg,${tone.light} 0%,${tone.base} 52%,${tone.dark} 100%)`;
 const chartCanvasFill = (ctx, tone, width, height) => {
@@ -775,7 +844,7 @@ const getFreqLabel = val => {
 };
 
 // Utils
-const getCat = id => expenseCats().find(c => c.id === id) || CATS.find(c => c.id === 'other');
+const getCat = id => applyCategoryTheme(expenseCats().find(c => c.id === id) || CATS.find(c => c.id === 'other'));
 const getICat = id => ICATS.find(c => c.id === id) || ICATS[ICATS.length - 1];
 const fmt = (n, sym = '$') => sym + Math.abs(Number(n) || 0).toLocaleString(currentLang === 'th' ? 'th-TH' : 'en-US', {
   minimumFractionDigits: 2,
@@ -1834,22 +1903,26 @@ function Dashboard({
   }, /*#__PURE__*/React.createElement("div", {
     className: "sgrid"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "sc"
+    className: "sc premium-stat"
   }, /*#__PURE__*/React.createElement("div", {
     className: "slbl"
   }, t('incomeLabel')), /*#__PURE__*/React.createElement("div", {
     className: "samt pos"
   }, fmt(totalInc, sym)), /*#__PURE__*/React.createElement("div", {
     className: "ssub"
-  }, t('thisMonth'))), /*#__PURE__*/React.createElement("div", {
-    className: "sc"
+  }, t('thisMonth')), /*#__PURE__*/React.createElement("div", {
+    className: "stat-badge"
+  }, /*#__PURE__*/React.createElement(Icon, { name: "wallet", size: 24 }))), /*#__PURE__*/React.createElement("div", {
+    className: "sc premium-stat"
   }, /*#__PURE__*/React.createElement("div", {
     className: "slbl"
   }, t('expensesLabel')), /*#__PURE__*/React.createElement("div", {
     className: "samt neg"
   }, fmt(totalExp, sym)), /*#__PURE__*/React.createElement("div", {
     className: "ssub"
-  }, fmt(fixed, sym), " ", t('fixed'))), allSav.length > 0 && /*#__PURE__*/React.createElement("div", {
+  }, fmt(fixed, sym), " ", t('fixed')), /*#__PURE__*/React.createElement("div", {
+    className: "stat-badge"
+  }, /*#__PURE__*/React.createElement(Icon, { name: "trend", size: 24 }))), allSav.length > 0 && /*#__PURE__*/React.createElement("div", {
     className: "sc full"
   }, /*#__PURE__*/React.createElement("div", {
     className: "fbet"
@@ -1875,43 +1948,38 @@ function Dashboard({
   }, /*#__PURE__*/React.createElement("div", {
     className: "card cp"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "ctitle mb10"
-  }, t('spendingByCategory')), /*#__PURE__*/React.createElement(DonutChart, {
+    className: "chart-head mb10"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "ctitle"
+  }, t('spendingByCategory')), /*#__PURE__*/React.createElement("div", {
+    className: "chart-menu",
+    'aria-hidden': true
+  }, "•••")), /*#__PURE__*/React.createElement(DonutChart, {
     data: cats.map(c => c.amt),
     labels: cats.map(c => getCatLabel(c.id)),
     colors: cats.map((c, index) => chartToneFor(c.id, index)),
     sym: sym
   }), /*#__PURE__*/React.createElement("div", {
-    className: "mt10"
+    className: "chart-list"
   }, cats.map((c, index) => {
     const tone = chartToneFor(c.id, index);
+    const themedCat = getCat(c.id);
     return /*#__PURE__*/React.createElement("div", {
     key: c.id,
-    className: "fbet",
-    style: {
-      padding: '6px 0',
-      borderBottom: '1px solid var(--border)'
-    }
+    className: "chart-row"
   }, /*#__PURE__*/React.createElement("div", {
-    className: "fb g8"
+    className: "chart-meta"
   }, /*#__PURE__*/React.createElement("span", {
     className: "summary-swatch",
     style: { background: chartToneCss(tone), color: tone.base },
     'aria-hidden': true
   }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 14
-    }
-  }, /*#__PURE__*/React.createElement(Icon, { name: iconName(c), size: 20 })), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 13,
-      fontWeight: 600
-    }
+    className: "chart-icon-chip",
+    style: { background: themedCat.bg, color: themedCat.tc }
+  }, /*#__PURE__*/React.createElement(Icon, { name: iconName(themedCat), size: 20 })), /*#__PURE__*/React.createElement("span", {
+    className: "chart-label"
   }, getCatLabel(c.id))), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 13,
-      fontWeight: 700
-    }
+    className: "chart-amount"
   }, fmt(c.amt, sym)));
   })))), /*#__PURE__*/React.createElement("div", {
     className: "sec"
