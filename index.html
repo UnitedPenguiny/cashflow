@@ -1262,6 +1262,11 @@ const previousMonthKey = key => {
 };
 const DAY = 86400000;
 
+// Mutable pay-cycle defaults are loaded from IndexedDB during app initialization.
+// They must exist before cycle helpers and the first React render reference them.
+let PAYDAY = 28;
+let CYCLE_LABEL = 'end';
+
 // Payday boundaries move back to Friday when the nominal salary day is on a weekend.
 const payBoundary = (y, m, payday = PAYDAY) => {
   const last = new Date(y, m + 1, 0).getDate();
