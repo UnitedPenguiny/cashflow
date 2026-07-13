@@ -180,29 +180,24 @@ html.theme-rose .premium-stat .stat-badge{right:14px;top:14px;transform:none;wid
 html.theme-rose .premium-stat .slbl{margin-bottom:22px}
 html.theme-rose .premium-stat .samt{font-size:clamp(20px,5.8vw,26px);white-space:nowrap;letter-spacing:-.045em}
 html{background:var(--card)}
-/* iOS viewport layout: the content shell follows the current usable viewport,
-   while the bottom navigation is fixed independently to the visible screen.
-   This avoids both the short-launch gap and the oversized 100lvh crop. */
-:root{--app-shell-height:100vh}
-@supports(height:100dvh){:root{--app-shell-height:100dvh}}
-html,body{width:100%;height:100%;min-height:100%;overflow:hidden}
-body{position:static;font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:radial-gradient(circle at 50% -12%,var(--glow) 0,transparent 48%),var(--bg);color:var(--t1);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-#root{display:flex;flex-direction:column;position:fixed;top:0;bottom:auto;left:0;right:0;width:100%;height:var(--app-shell-height);min-height:0;max-height:none;max-width:460px;margin:0 auto;background:linear-gradient(180deg,var(--root-top) 0,color-mix(in srgb,var(--root-top) 42%,var(--bg)) 170px,var(--bg) 340px);overflow:hidden;box-shadow:0 0 72px color-mix(in srgb,var(--p) 16%,transparent)}
-.hdr{position:absolute;top:0;left:0;transform:none;width:100%;max-width:none;height:calc(var(--hdr) + var(--st));padding-top:var(--st);background:var(--chrome);backdrop-filter:blur(18px);border-bottom:1px solid color-mix(in srgb,var(--p) 24%,var(--border));display:flex;align-items:center;justify-content:space-between;padding-left:18px;padding-right:14px;z-index:110}
+html,body{height:100%;height:100vh;height:100dvh;overflow:hidden}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:radial-gradient(circle at 50% -12%,var(--glow) 0,transparent 48%),var(--bg);color:var(--t1);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+#root{display:flex;flex-direction:column;height:100%;height:100vh;height:100dvh;max-width:460px;margin:0 auto;background:linear-gradient(180deg,var(--root-top) 0,color-mix(in srgb,var(--root-top) 42%,var(--bg)) 170px,var(--bg) 340px);position:relative;overflow:hidden;box-shadow:0 0 72px color-mix(in srgb,var(--p) 16%,transparent)}
+.hdr{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:460px;height:calc(var(--hdr) + var(--st));padding-top:var(--st);background:var(--chrome);backdrop-filter:blur(18px);border-bottom:1px solid color-mix(in srgb,var(--p) 24%,var(--border));display:flex;align-items:center;justify-content:space-between;padding-left:18px;padding-right:14px;z-index:110}
 .hdr-logo{display:flex;align-items:center;gap:8px}
 .hdr-icon{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,var(--hero-b),var(--hero-a));color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 7px 18px var(--hero-shadow)}
 .hdr-title{font-size:19px;font-weight:800;letter-spacing:-.55px}
 .hdr-right{display:flex;gap:8px}
 .ibtn{width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--card);color:var(--t2);display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:manipulation;box-shadow:var(--s1)}
 .ibtn:active{opacity:.6}
-.mnav{position:absolute;top:calc(var(--hdr) + var(--st));left:0;transform:none;width:100%;max-width:none;height:var(--mnav);background:var(--chrome);backdrop-filter:blur(18px);border-bottom:1px solid color-mix(in srgb,var(--p) 20%,var(--border));display:flex;align-items:center;justify-content:space-between;padding:0 14px;z-index:105}
+.mnav{position:fixed;top:calc(var(--hdr) + var(--st));left:50%;transform:translateX(-50%);width:100%;max-width:460px;height:var(--mnav);background:var(--chrome);backdrop-filter:blur(18px);border-bottom:1px solid color-mix(in srgb,var(--p) 20%,var(--border));display:flex;align-items:center;justify-content:space-between;padding:0 14px;z-index:105}
 .mbtn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:none;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--t2);touch-action:manipulation}
 .mbtn:active{background:var(--bg)}
 .mlbl{font-size:15px;font-weight:700;text-align:center}
 .mtoday{font-size:11px;color:var(--p);cursor:pointer;text-align:center;margin-top:1px}
-.main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-top:calc(var(--hdr) + var(--mnav) + var(--st));padding-bottom:calc(var(--nav) + var(--sbe) + 20px)}
+.main{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-top:calc(var(--hdr) + var(--mnav) + var(--st));padding-bottom:20px}
 .main::-webkit-scrollbar{display:none}
-.bnav{position:fixed;left:0;right:0;bottom:0;width:100%;max-width:460px;height:calc(var(--nav) + var(--sbe));padding:0 8px var(--sbe);margin:0 auto;background:var(--chrome);backdrop-filter:blur(18px);border:1px solid color-mix(in srgb,var(--p) 18%,var(--border));border-bottom:none;border-radius:22px 22px 0 0;display:flex;align-items:flex-start;justify-content:space-around;z-index:110;box-shadow:0 -10px 30px rgba(38,35,79,.09)}
+.bnav{width:100%;height:calc(var(--nav) + var(--sbe));padding:0 8px var(--sbe);margin:0;background:var(--chrome);backdrop-filter:blur(18px);border:1px solid color-mix(in srgb,var(--p) 18%,var(--border));border-bottom:none;border-radius:22px 22px 0 0;display:flex;align-items:flex-start;justify-content:space-around;z-index:110;box-shadow:0 -10px 30px rgba(38,35,79,.09);flex-shrink:0}
 .bnav::after{display:none}
 .nitem{flex:1;height:var(--nav);display:flex;flex-direction:column;align-items:center;justify-content:center;border:none;background:none;color:var(--t3);font-size:10px;font-weight:600;gap:3px;cursor:pointer;touch-action:manipulation;font-family:inherit;transition:color .15s}
 .nitem{position:relative;gap:4px;transition:color .2s,transform .2s}
@@ -212,9 +207,8 @@ body{position:static;font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro 
 .nemo{width:22px;height:22px;display:flex;align-items:center;justify-content:center;position:relative}
 .nemo::before{content:'';position:absolute;inset:-5px -9px;border-radius:11px;background:transparent;z-index:-1;transition:background .2s}
 .nitem.active .nemo::before{background:var(--pl)}
-.fab{position:fixed;bottom:calc(var(--nav) + var(--sbe) + 22px);right:18px;width:56px;height:56px;border-radius:18px;border:none;background:linear-gradient(145deg,var(--hero-b),var(--hero-a));color:#fff;box-shadow:var(--s3);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:108;touch-action:manipulation;transition:transform .2s}
+.fab{position:absolute;bottom:calc(var(--nav) + var(--sbe) + 22px);right:18px;width:56px;height:56px;border-radius:18px;border:none;background:linear-gradient(145deg,var(--hero-b),var(--hero-a));color:#fff;box-shadow:var(--s3);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:108;touch-action:manipulation;transition:transform .2s}
 .fab:active{transform:scale(.9)}
-@media (min-width:460px){.fab{right:calc((100vw - 460px)/2 + 18px)}}
 .sec{padding:12px 12px 0}
 .card{background:var(--card);border-radius:var(--rlg);border:1px solid var(--border);box-shadow:var(--s1);overflow:hidden}
 .cp{padding:16px}
@@ -485,7 +479,7 @@ html,body,#root{touch-action:pan-y}
 // Single-file release metadata. This build stores records locally in IndexedDB,
 // but it intentionally does not register a service worker or advertise offline/PWA
 // installation because the runtime libraries below are delivered by CDN.
-window.CASHFLOW_BUILD = Object.freeze({ version: '3.2.6', schema: 4, built: '2026-07-14' });
+window.CASHFLOW_BUILD = Object.freeze({ version: '3.2.7', schema: 4, built: '2026-07-14' });
 </script>
 <script>
 // ── DEPENDENCY GUARD (must run before anything else) ──
@@ -495,46 +489,6 @@ window.CASHFLOW_BUILD = Object.freeze({ version: '3.2.6', schema: 4, built: '202
   var stopGestureZoom = function (event) { event.preventDefault(); };
   document.addEventListener('gesturestart', stopGestureZoom, { passive: false });
   document.addEventListener('gesturechange', stopGestureZoom, { passive: false });
-})();
-
-// Keep only the scrollable content shell synchronized to the currently visible
-// viewport. The bottom navigation is fixed separately, so transient launch
-// measurements can no longer lift or crop it. Zoom is disabled in this build.
-(function () {
-  var doc = document.documentElement;
-  var timers = [];
-
-  function usableHeight() {
-    var vv = window.visualViewport;
-    var h = vv ? Number(vv.height) || 0 : 0;
-    if (!h) h = Number(window.innerHeight) || Number(doc.clientHeight) || 0;
-    return Math.round(h);
-  }
-
-  function syncShell() {
-    if (doc.classList.contains('keyboard-open')) return;
-    var h = usableHeight();
-    if (h >= 320) doc.style.setProperty('--app-shell-height', h + 'px');
-  }
-
-  function settle() {
-    timers.forEach(clearTimeout);
-    timers = [0, 60, 180, 400, 800].map(function (delay) {
-      return setTimeout(syncShell, delay);
-    });
-  }
-
-  settle();
-  window.addEventListener('pageshow', settle);
-  window.addEventListener('focus', settle);
-  window.addEventListener('resize', settle, { passive: true });
-  window.addEventListener('orientationchange', settle, { passive: true });
-  document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) settle();
-  });
-  if (window.visualViewport) {
-    window.visualViewport.addEventListener('resize', settle, { passive: true });
-  }
 })();
 
 (function () {
