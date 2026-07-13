@@ -466,7 +466,7 @@ html.keyboard-open .main{padding-bottom:max(12px,env(safe-area-inset-bottom,0px)
 // Single-file release metadata. This build stores records locally in IndexedDB,
 // but it intentionally does not register a service worker or advertise offline/PWA
 // installation because the runtime libraries below are delivered by CDN.
-window.CASHFLOW_BUILD = Object.freeze({ version: '3.1.0', schema: 3, built: '2026-07-14' });
+window.CASHFLOW_BUILD = Object.freeze({ version: '3.2.0', schema: 4, built: '2026-07-14' });
 </script>
 <script>
 // ── DEPENDENCY GUARD (must run before anything else) ──
@@ -602,6 +602,17 @@ try {
     settings: 'key',
     budgets: 'category'
   });
+  db.version(4).stores({
+    expenses: '++id,date,category,cardId',
+    recurring: '++id,category,isActive',
+    income: '++id,isActive',
+    savings: '++id',
+    savingsContributions: '++id,goalId,date',
+    cards: '++id',
+    installments: '++id,cardId,isComplete',
+    settings: 'key',
+    budgets: 'category'
+  });
 } catch (e) {
   document.getElementById('root').innerHTML = '<div style="padding:24px;font-family:system-ui;color:#ef4444"><b>Database error:</b> ' + e + '</div>';
   throw e;
@@ -631,6 +642,17 @@ const validMoney = (value, { allowZero = false } = {}) => isFiniteNum(value) && 
 const validDay = value => Number.isInteger(value) && value >= 1 && value <= 31;
 const validFrequency = value => ['monthly', 'weekly', 'biweekly', 'yearly', 'one-time'].includes(value);
 const validPeriods = periods => Array.isArray(periods) && periods.length <= 200 && periods.every(p => isPlainObj(p) && isValidMonthKey(p.startMonth) && (p.endMonth === null || p.endMonth === '' || isValidMonthKey(p.endMonth)) && (!p.endMonth || p.endMonth >= p.startMonth));
+const validIncomePeriods = periods => {
+  if (!Array.isArray(periods) || periods.length > 500) return false;
+  const cleaned = periods.map(p => isPlainObj(p) ? p : null);
+  if (cleaned.some(p => !p || !isValidISODate(p.startDate) || (p.endDate && !isValidISODate(p.endDate)) || (p.endDate && p.endDate <= p.startDate) || !validMoney(Number(p.amount)) || !validFrequency(p.frequency) || !isValidISODate(p.anchorDate))) return false;
+  const sorted = [...cleaned].sort((a,b)=>a.startDate.localeCompare(b.startDate));
+  for (let i=1;i<sorted.length;i++) {
+    const prev=sorted[i-1];
+    if (!prev.endDate || sorted[i].startDate < prev.endDate) return false;
+  }
+  return true;
+};
 const uniqueIds = (rows, name) => {
   const ids = new Set();
   for (const row of rows) {
@@ -643,7 +665,7 @@ const uniqueIds = (rows, name) => {
 };
 const normalizeBackup = input => {
   if (!isPlainObj(input)) throw new Error('Not a valid backup object');
-  if (!Number.isInteger(input.version) || input.version < 1 || input.version > 3) throw new Error('Unsupported or missing backup version');
+  if (!Number.isInteger(input.version) || input.version < 1 || input.version > 4) throw new Error('Unsupported or missing backup version');
   const data = structuredClone(input);
   const required = ['expenses', 'recurring', 'income', 'savings', 'cards', 'installments', 'settings'];
   for (const key of required) if (!Array.isArray(data[key])) throw new Error(`${key} is missing or not an array`);
@@ -651,7 +673,7 @@ const normalizeBackup = input => {
   if (!Array.isArray(data.budgets)) throw new Error('budgets is missing or not an array');
   if (data.version < 3 && data.savingsContributions === undefined) data.savingsContributions = [];
   if (!Array.isArray(data.savingsContributions)) throw new Error('savingsContributions is missing or not an array');
-  data.version = 3;
+  data.version = 4;
   for (const key of [...required, 'budgets', 'savingsContributions']) {
     if (data[key].length > 100000) throw new Error(`${key} contains too many records`);
     const err = uniqueIds(data[key], key); if (err) throw new Error(err);
@@ -670,7 +692,7 @@ const validateBackup = input => {
     });
     checkRows(data.expenses, 'expenses', r => !validText(r.name) ? 'invalid name' : !validMoney(r.amount) ? 'invalid amount' : !isValidISODate(r.date) ? 'invalid date' : !validText(r.category, 80) ? 'invalid category' : !validOptionalText(r.notes) ? 'invalid notes' : (r.cardId !== undefined && r.cardId !== '' && (!isSafeId(Number(r.cardId)) || !cardIds.has(Number(r.cardId)))) ? 'invalid cardId' : null);
     checkRows(data.recurring, 'recurring', r => !validText(r.name) ? 'invalid name' : !validMoney(r.amount) ? 'invalid amount' : !validDay(Number(r.dueDay)) ? 'invalid dueDay' : !validText(r.category, 80) ? 'invalid category' : (r.cardId !== undefined && r.cardId !== '' && (!isSafeId(Number(r.cardId)) || !cardIds.has(Number(r.cardId)))) ? 'invalid cardId' : (r.isActive !== undefined && !isBool(r.isActive)) ? 'invalid isActive' : (r.startMonth && !isValidMonthKey(r.startMonth)) ? 'invalid startMonth' : (r.endMonth && !isValidMonthKey(r.endMonth)) ? 'invalid endMonth' : (r.startMonth && r.endMonth && r.endMonth < r.startMonth) ? 'endMonth precedes startMonth' : (r.activePeriods !== undefined && !validPeriods(r.activePeriods)) ? 'invalid activePeriods' : null);
-    checkRows(data.income, 'income', r => !validText(r.name) ? 'invalid name' : !validMoney(r.amount) ? 'invalid amount' : !validFrequency(r.frequency) ? 'invalid frequency' : !validText(r.category, 80) ? 'invalid category' : (r.frequency === 'one-time' && !isValidISODate(r.date)) ? 'invalid date' : (r.frequency !== 'one-time' && r.startDate && !isValidISODate(r.startDate)) ? 'invalid startDate' : (r.startMonth && !isValidMonthKey(r.startMonth)) ? 'invalid startMonth' : (r.endMonth && !isValidMonthKey(r.endMonth)) ? 'invalid endMonth' : (r.startMonth && r.endMonth && r.endMonth < r.startMonth) ? 'endMonth precedes startMonth' : (r.isActive !== undefined && !isBool(r.isActive)) ? 'invalid isActive' : (r.activePeriods !== undefined && !validPeriods(r.activePeriods)) ? 'invalid activePeriods' : null);
+    checkRows(data.income, 'income', r => !validText(r.name) ? 'invalid name' : !validMoney(r.amount) ? 'invalid amount' : !validFrequency(r.frequency) ? 'invalid frequency' : !validText(r.category, 80) ? 'invalid category' : (r.frequency === 'one-time' && !isValidISODate(r.date)) ? 'invalid date' : (r.frequency !== 'one-time' && r.startDate && !isValidISODate(r.startDate)) ? 'invalid startDate' : (r.startMonth && !isValidMonthKey(r.startMonth)) ? 'invalid startMonth' : (r.endMonth && !isValidMonthKey(r.endMonth)) ? 'invalid endMonth' : (r.startMonth && r.endMonth && r.endMonth < r.startMonth) ? 'endMonth precedes startMonth' : (r.isActive !== undefined && !isBool(r.isActive)) ? 'invalid isActive' : (r.activePeriods !== undefined && !validPeriods(r.activePeriods)) ? 'invalid activePeriods' : (r.incomePeriods !== undefined && !validIncomePeriods(r.incomePeriods)) ? 'invalid incomePeriods' : null);
     checkRows(data.savings, 'savings', r => !validText(r.name) ? 'invalid name' : !validMoney(r.targetAmount) ? 'invalid targetAmount' : !validMoney(Number(r.currentAmount || 0), { allowZero: true }) ? 'invalid currentAmount' : !validOptionalText(r.notes) ? 'invalid notes' : null);
     checkRows(data.savingsContributions, 'savingsContributions', r => !isSafeId(Number(r.goalId)) || !goalIds.has(Number(r.goalId)) ? 'invalid goalId' : !validMoney(r.amount) ? 'invalid amount' : !isValidISODate(r.date) ? 'invalid date' : null);
     checkRows(data.cards, 'cards', r => !validText(r.name) ? 'invalid name' : !/^\d{4}$/.test(String(r.lastFour || '')) ? 'invalid lastFour' : !validMoney(r.creditLimit) ? 'invalid creditLimit' : !validDay(Number(r.statementDate)) ? 'invalid statementDate' : !validDay(Number(r.dueDate)) ? 'invalid dueDate' : !Number.isInteger(Number(r.colorIdx)) || Number(r.colorIdx) < 0 || Number(r.colorIdx) >= 8 ? 'invalid colorIdx' : null);
@@ -691,8 +713,8 @@ const validateBackup = input => {
         const ids = r.value.map(c => c.id); if (new Set(ids).size !== ids.length) return 'duplicate custom category id';
       }
       if (r.key === 'totalSavings' && !validMoney(Number(r.value), { allowZero: true })) return 'invalid totalSavings';
-      if (['migration-v3','migration-v4'].includes(r.key) && (!isPlainObj(r.value) || !isValidISODate(r.value.completed) || !validText(r.value.build, 40))) return 'invalid migration marker';
-      if (!['language','payday','cycleLabel','theme','darkMode','currency','customCategories','totalSavings','migration-v3','migration-v4'].includes(r.key)) return 'unknown setting key';
+      if (['migration-v3','migration-v4','migration-v5'].includes(r.key) && (!isPlainObj(r.value) || !isValidISODate(r.value.completed) || !validText(r.value.build, 40))) return 'invalid migration marker';
+      if (!['language','payday','cycleLabel','theme','darkMode','currency','customCategories','totalSavings','migration-v3','migration-v4','migration-v5'].includes(r.key)) return 'unknown setting key';
       return null;
     });
     return { ok: true, data };
@@ -1409,43 +1431,120 @@ const incomeStartDate = income => {
   if (income.frequency === 'one-time') return parseISODate(income.date);
   return parseISODate(income.startDate) || (income.startMonth ? parseISODate(`${income.startMonth}-01`) : null);
 };
+const monthAfterISO = monthKey => {
+  const d = parseMonthKey(monthKey);
+  return d ? isoLocal(addMonths(d, 1)) : null;
+};
+const normalizeIncomePeriods = income => {
+  if (!income || income.frequency === 'one-time') return [];
+  const existing = Array.isArray(income.incomePeriods) ? income.incomePeriods : [];
+  if (existing.length) {
+    return existing
+      .filter(p => p && isValidISODate(p.startDate) && (!p.endDate || isValidISODate(p.endDate)) && (!p.endDate || p.endDate > p.startDate) && validMoney(Number(p.amount)) && validFrequency(p.frequency) && isValidISODate(p.anchorDate))
+      .map(p => ({startDate:p.startDate,endDate:p.endDate||null,amount:roundMoney(p.amount),frequency:p.frequency,anchorDate:p.anchorDate}))
+      .sort((a,b)=>a.startDate.localeCompare(b.startDate));
+  }
+  const base = incomeStartDate(income);
+  if (!base) return [];
+  const baseISO = isoLocal(base);
+  const monthPeriods = activityPeriodsFor(income);
+  if (!monthPeriods.length) return income.isActive === false ? [] : [{startDate:baseISO,endDate:null,amount:roundMoney(income.amount),frequency:income.frequency,anchorDate:baseISO}];
+  return monthPeriods.map(p => {
+    const monthStart = `${p.startMonth}-01`;
+    const startDate = baseISO > monthStart ? baseISO : monthStart;
+    const endDate = p.endMonth ? monthAfterISO(p.endMonth) : null;
+    if (endDate && endDate <= startDate) return null;
+    return {startDate,endDate,amount:roundMoney(income.amount),frequency:income.frequency,anchorDate:baseISO};
+  }).filter(Boolean);
+};
+const incomeHasOpenPeriod = income => income.frequency !== 'one-time' && normalizeIncomePeriods(income).some(p=>!p.endDate);
+const scheduledIncomeDate = (frequency, anchorValue, targetValue, inclusive = true) => {
+  const anchor=parseISODate(anchorValue),target=parseISODate(targetValue);
+  if(!anchor||!target||frequency==='one-time')return null;
+  const qualifies=d=>inclusive?d>=target:d>target;
+  if(frequency==='weekly'||frequency==='biweekly'){
+    const step=frequency==='weekly'?7:14;
+    let date=new Date(anchor);
+    if(!qualifies(date)){
+      const diff=Math.max(0,Math.floor((target-date)/DAY));
+      date.setDate(date.getDate()+Math.floor(diff/step)*step);
+      while(!qualifies(date))date.setDate(date.getDate()+step);
+    }
+    return isoLocal(date);
+  }
+  if(frequency==='yearly'){
+    let year=Math.max(anchor.getFullYear(),target.getFullYear());
+    let date=clampedMonthlyDate(year,anchor.getMonth(),anchor.getDate());
+    if(date<anchor||!qualifies(date)){year++;date=clampedMonthlyDate(year,anchor.getMonth(),anchor.getDate());}
+    return isoLocal(date);
+  }
+  let date=clampedMonthlyDate(target.getFullYear(),target.getMonth(),anchor.getDate());
+  if(date<anchor||!qualifies(date))date=clampedMonthlyDate(target.getFullYear(),target.getMonth()+1,anchor.getDate());
+  return isoLocal(date);
+};
+const incomePeriodOccurrences = (period, start, end, income) => {
+  const periodStart=parseISODate(period.startDate),periodEnd=period.endDate?parseISODate(period.endDate):null,anchor=parseISODate(period.anchorDate);
+  if(!periodStart||!anchor)return [];
+  const rangeStart=periodStart>start?periodStart:start;
+  const rangeEnd=periodEnd&&periodEnd<end?periodEnd:end;
+  if(rangeStart>=rangeEnd)return [];
+  const occurrences=[];
+  const push=date=>{if(date>=rangeStart&&date<rangeEnd)occurrences.push({date:isoLocal(date),amount:roundMoney(period.amount),record:income,period});};
+  if(period.frequency==='weekly'||period.frequency==='biweekly'){
+    const step=period.frequency==='weekly'?7:14;
+    let date=new Date(anchor);
+    if(date<rangeStart){const jumps=Math.max(0,Math.floor((rangeStart-date)/DAY/step));date.setDate(date.getDate()+jumps*step);while(date<rangeStart)date.setDate(date.getDate()+step);}
+    let guard=0;while(date<rangeEnd&&guard++<20000){push(new Date(date));date.setDate(date.getDate()+step);}
+  }else if(period.frequency==='yearly'){
+    let year=Math.max(anchor.getFullYear(),rangeStart.getFullYear()-1),guard=0;
+    while(year<=rangeEnd.getFullYear()&&guard++<500){const date=clampedMonthlyDate(year,anchor.getMonth(),anchor.getDate());if(date>=anchor)push(date);year++;}
+  }else{
+    let cursor=new Date(anchor.getFullYear(),anchor.getMonth(),1,12),guard=0;
+    while(cursor<rangeEnd&&guard++<2400){const date=clampedMonthlyDate(cursor.getFullYear(),cursor.getMonth(),anchor.getDate());if(date>=anchor)push(date);cursor.setMonth(cursor.getMonth()+1);}
+  }
+  return occurrences;
+};
 const incomeOccurrences = (income, start, end) => {
   if (income.frequency === 'one-time') {
     const date = parseISODate(income.date);
     return date && dateInRange(date, start, end) ? [{ date: income.date, amount: roundMoney(income.amount), record: income }] : [];
   }
-  const first = incomeStartDate(income);
-  if (!first) return [];
-  const occurrences = [];
-  const push = date => {
-    if (dateInRange(date, start, end) && activeInMonthKey(income, mkKey(date))) occurrences.push({ date: isoLocal(date), amount: roundMoney(income.amount), record: income });
-  };
-  if (income.frequency === 'weekly' || income.frequency === 'biweekly') {
-    const step = income.frequency === 'weekly' ? 7 : 14;
-    let date = new Date(first);
-    if (date < start) {
-      const jumps = Math.max(0, Math.floor((start - date) / DAY / step));
-      date.setDate(date.getDate() + jumps * step);
-      while (date < start) date.setDate(date.getDate() + step);
-    }
-    let guard = 0;
-    while (date < end && guard++ < 20000) { push(new Date(date)); date.setDate(date.getDate() + step); }
-  } else if (income.frequency === 'yearly') {
-    let year = Math.max(first.getFullYear(), start.getFullYear() - 1), guard = 0;
-    while (year <= end.getFullYear() && guard++ < 500) {
-      const date = clampedMonthlyDate(year, first.getMonth(), first.getDate()); push(date); year++;
-    }
-  } else {
-    let cursor = new Date(first.getFullYear(), first.getMonth(), 1, 12), guard = 0;
-    while (cursor < end && guard++ < 2400) {
-      const date = clampedMonthlyDate(cursor.getFullYear(), cursor.getMonth(), first.getDate());
-      if (date >= first) push(date);
-      cursor.setMonth(cursor.getMonth() + 1);
-    }
-  }
-  return occurrences;
+  return normalizeIncomePeriods(income).flatMap(period=>incomePeriodOccurrences(period,start,end,income)).sort((a,b)=>a.date.localeCompare(b.date));
 };
 const incomeAmountInRange = (income, start, end) => moneySum(incomeOccurrences(income, start, end).map(o => o.amount));
+const setIncomeActive = (income, makeActive, actionDate = todayStr()) => {
+  let periods=normalizeIncomePeriods(income).map(p=>({...p}));
+  const openIndex=periods.findIndex(p=>!p.endDate);
+  if(makeActive){
+    if(openIndex>=0)return {incomePeriods:periods,isActive:true};
+    let startDate=scheduledIncomeDate(income.frequency,income.startDate||actionDate,actionDate,true)||actionDate;
+    const lastEnd=periods.length?periods[periods.length-1].endDate:null;
+    if(lastEnd&&startDate<lastEnd)startDate=lastEnd;
+    periods.push({startDate,endDate:null,amount:roundMoney(income.amount),frequency:income.frequency,anchorDate:income.startDate||startDate});
+    periods.sort((a,b)=>a.startDate.localeCompare(b.startDate));
+    return {incomePeriods:periods,isActive:true};
+  }
+  if(openIndex<0)return {incomePeriods:periods,isActive:false};
+  const open=periods[openIndex];
+  const endDate=scheduledIncomeDate(open.frequency,open.anchorDate,actionDate,false)||actionDate;
+  periods[openIndex]={...open,endDate};
+  return {incomePeriods:periods,isActive:false};
+};
+const applyIncomeEdit = (existing, updated, actionDate = todayStr()) => {
+  if(updated.frequency==='one-time'||existing.frequency==='one-time')return {...updated,incomePeriods:[],isActive:true};
+  let periods=normalizeIncomePeriods(existing).map(p=>({...p}));
+  const openIndex=periods.findIndex(p=>!p.endDate);
+  const financialChanged=roundMoney(existing.amount)!==roundMoney(updated.amount)||existing.frequency!==updated.frequency||(existing.startDate||'')!==(updated.startDate||'');
+  if(financialChanged&&openIndex>=0){
+    const open=periods[openIndex];
+    const effectiveDate=scheduledIncomeDate(open.frequency,open.anchorDate,actionDate,false)||actionDate;
+    periods[openIndex]={...open,endDate:effectiveDate};
+    const nextStart=scheduledIncomeDate(updated.frequency,updated.startDate||effectiveDate,effectiveDate,true)||effectiveDate;
+    periods.push({startDate:nextStart,endDate:null,amount:roundMoney(updated.amount),frequency:updated.frequency,anchorDate:updated.startDate||nextStart});
+    periods.sort((a,b)=>a.startDate.localeCompare(b.startDate));
+  }
+  return {...updated,incomePeriods:periods,isActive:openIndex>=0};
+};
 const toMonthly = (amount, frequency) => roundMoney(frequency === 'weekly' ? Number(amount) * 52 / 12 : frequency === 'biweekly' ? Number(amount) * 26 / 12 : frequency === 'yearly' ? Number(amount) / 12 : frequency === 'one-time' ? 0 : Number(amount));
 
 // An installment is defined by exact payment dates. Total financed is authoritative;
@@ -2118,7 +2217,6 @@ function IncomeForm({
     setErr('');
     const recurring = f.frequency !== 'one-time';
     const startMonth = f.date.slice(0, 7);
-    const periods = recurring ? (initial?.activePeriods?.length ? normalizeActivityPeriods(initial.activePeriods) : [{ startMonth, endMonth: null }]) : [];
     return onSave({
       ...f,
       name,
@@ -2126,8 +2224,7 @@ function IncomeForm({
       date: f.frequency === 'one-time' ? f.date : '',
       startDate: recurring ? f.date : '',
       startMonth: recurring ? startMonth : '',
-      activePeriods: periods,
-      isActive: true
+      isActive: initial ? initial.isActive !== false : true
     });
   };
   const submit = useGuardedSubmit(ok);
@@ -2156,7 +2253,7 @@ function IncomeForm({
   }, /*#__PURE__*/React.createElement(Sel, {
     value: f.frequency,
     onChange: e => s('frequency', e.target.value),
-    options: FREQS.map(fq => ({ value: fq.value, label: getFreqLabel(fq.value) }))
+    options: (initial ? (initial.frequency === 'one-time' ? FREQS.filter(fq=>fq.value==='one-time') : FREQS.filter(fq=>fq.value!=='one-time')) : FREQS).map(fq => ({ value: fq.value, label: getFreqLabel(fq.value) }))
   }))), /*#__PURE__*/React.createElement(Field, {
     label: f.frequency === 'one-time' ? t('date') : t('startDateIncome')
   }, /*#__PURE__*/React.createElement(Inp, {
@@ -2665,15 +2762,15 @@ function IncomeTab({ sym, currentMonth, payday }) {
   const cr=cycleRange(currentMonth,payday),selectedKey=mkKey(currentMonth),todayKey=mkKey(new Date());
   const load=useCallback(async()=>{const isLatest=latest();setLoadError(null);try{const rows=await db.income.toArray();if(isLatest())setIncs(rows);}catch(err){console.error(err);if(isLatest())setLoadError(err);}},[latest]);
   useEffect(()=>{load();},[load]);
-  const save=async f=>{try{if(f.id)await db.income.update(f.id,f);else await db.income.add(f);setModal(null);await load();showToast(f.id?t('updated'):t('incomeAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
+  const save=async f=>{try{if(f.id){const existing=incs.find(i=>i.id===f.id)||await db.income.get(f.id);const next=applyIncomeEdit(existing,f);await db.income.put(next);}else{const recurring=f.frequency!=='one-time';const first=f.startDate||f.date;const record={...f,incomePeriods:recurring?[{startDate:first,endDate:null,amount:roundMoney(f.amount),frequency:f.frequency,anchorDate:first}]:[],isActive:true};await db.income.add(record);}setModal(null);await load();showToast(f.id?t('updated'):t('incomeAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
   const del=inc=>setConfirmIncome(inc);
   const runDelete=async()=>{if(!confirmIncome||confirmBusy)return;setConfirmBusy(true);try{await db.income.delete(confirmIncome.id);setConfirmIncome(null);await load();showToast(t('deleted'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
-  const toggle=async inc=>{try{const current=activeInMonthKey(inc,todayKey);await db.income.update(inc.id,withActivityAtMonth(inc,!current,todayKey));await load();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const toggle=async inc=>{try{const current=incomeHasOpenPeriod(inc);await db.income.update(inc.id,setIncomeActive(inc,!current));await load();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const total=moneySum(incs.map(inc=>incomeAmountInRange(inc,cr.start,cr.end)));
   const oneTime=moneySum(incs.filter(i=>i.frequency==='one-time').map(i=>incomeAmountInRange(i,cr.start,cr.end)));
   if(loadError)return h('div',{className:'empty',role:'alert'},h('div',{className:'etxt'},t('loadFailed')),h('button',{className:'btn bpri',onClick:load},t('retry')));
   return h('div',null,h(Toast,{msg:toast}),h('section',{className:'sec'},h('div',{className:'hero hero--income',title:cycleRangeLabel(currentMonth,payday)},h('div',{className:'hlbl'},t('totalMonthlyIncome')),h('div',{className:'hamt'},fmt(total,sym)),oneTime>0&&h('div',{className:'hsub'},`${t('includes')} ${fmt(oneTime,sym)} ${t('oneTime')}`),total===0&&h('div',{className:'hsub'},t('addIncomeSources')))),
-    h('section',{className:'sec',style:{paddingBottom:14}},incs.length?h('div',{className:'card cp'},incs.map(inc=>{const cat=getICat(inc.category),amount=incomeAmountInRange(inc,cr.start,cr.end),selectedActive=inc.frequency==='one-time'?amount>0:activeInMonthKey(inc,selectedKey),currentActive=inc.frequency==='one-time'?true:activeInMonthKey(inc,todayKey);return h('div',{key:inc.id,className:'li',style:{opacity:selectedActive?1:.62}},h('div',{className:'lico',style:{background:'#d1fae5',color:'#065f46'}},h(Icon,{name:iconName(cat),size:20})),h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${inc.name}`,onClick:()=>setModal(inc)},h('span',{className:'lname'},inc.name),h('span',{className:'lsub'},inc.frequency==='one-time'?`${getFreqLabel('one-time')} · ${inc.date||''}`:`${getFreqLabel(inc.frequency)} · ${fmt(inc.amount,sym)}/period`)),h('div',{className:'fb g8'},h('div',{style:{textAlign:'right'}},h('div',{className:'lamt inc'},'+',fmt(amount,sym)),h('div',{style:{fontSize:10,color:'var(--t3)'}},t('perMonth'))),inc.frequency!=='one-time'&&h(Toggle,{checked:currentActive,label:`${currentActive?t('deactivate'):t('activate')} ${inc.name}`,onChange:()=>toggle(inc)}),h('button',{className:'btn bsm bdanger','aria-label':`${t('deleteItem')} ${inc.name}`,onClick:()=>del(inc)},h(Icon,{name:'trash',size:15}))));})):h('div',{className:'empty'},h('div',{className:'etxt'},t('noIncomeSources')),h('div',{className:'esub'},t('tapToAddIncome')))),
+    h('section',{className:'sec',style:{paddingBottom:14}},incs.length?h('div',{className:'card cp'},incs.map(inc=>{const cat=getICat(inc.category),amount=incomeAmountInRange(inc,cr.start,cr.end),selectedActive=inc.frequency==='one-time'?amount>0:amount>0,currentActive=inc.frequency==='one-time'?true:incomeHasOpenPeriod(inc);return h('div',{key:inc.id,className:'li',style:{opacity:selectedActive?1:.62}},h('div',{className:'lico',style:{background:'#d1fae5',color:'#065f46'}},h(Icon,{name:iconName(cat),size:20})),h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${inc.name}`,onClick:()=>setModal(inc)},h('span',{className:'lname'},inc.name),h('span',{className:'lsub'},inc.frequency==='one-time'?`${getFreqLabel('one-time')} · ${inc.date||''}`:`${getFreqLabel(inc.frequency)} · ${fmt(inc.amount,sym)}/period`)),h('div',{className:'fb g8'},h('div',{style:{textAlign:'right'}},h('div',{className:'lamt inc'},'+',fmt(amount,sym)),h('div',{style:{fontSize:10,color:'var(--t3)'}},t('perMonth'))),inc.frequency!=='one-time'&&h(Toggle,{checked:currentActive,label:`${currentActive?t('deactivate'):t('activate')} ${inc.name}`,onChange:()=>toggle(inc)}),h('button',{className:'btn bsm bdanger','aria-label':`${t('deleteItem')} ${inc.name}`,onClick:()=>del(inc)},h(Icon,{name:'trash',size:15}))));})):h('div',{className:'empty'},h('div',{className:'etxt'},t('noIncomeSources')),h('div',{className:'esub'},t('tapToAddIncome')))),
     h('button',{className:'fab','aria-label':t('addIncome'),onClick:()=>setModal('new')},h(Icon,{name:'plus',size:25})),modal&&h(Modal,{title:modal==='new'?t('addIncome'):t('editIncome'),onClose:()=>setModal(null)},h(IncomeForm,{onSave:save,initial:modal==='new'?null:modal})),confirmIncome&&h(ConfirmModal,{title:t('confirmDelete'),message:`${t('deleteIncomeConfirm')}: ${confirmIncome.name}?`,details:t('deleteItemMessage'),confirmLabel:t('deleteAction'),danger:true,busy:confirmBusy,onClose:()=>!confirmBusy&&setConfirmIncome(null),onConfirm:runDelete}));
 }
 
@@ -2845,9 +2942,9 @@ for(const tableName of ['expenses','recurring','income','savings','savingsContri
 async function migrateLegacyData(){
   const currentMonthKey=mkKey(new Date());
   await db.transaction('rw',[db.recurring,db.income,db.installments,db.savings,db.cards,db.settings],async()=>{
-    const [recurring,income,installments,savings,cards,doneV3,doneV4,totalSavingsSetting]=await Promise.all([
+    const [recurring,income,installments,savings,cards,doneV3,doneV4,doneV5,totalSavingsSetting]=await Promise.all([
       db.recurring.toArray(),db.income.toArray(),db.installments.toArray(),db.savings.toArray(),db.cards.toArray(),
-      db.settings.get('migration-v3'),db.settings.get('migration-v4'),db.settings.get('totalSavings')
+      db.settings.get('migration-v3'),db.settings.get('migration-v4'),db.settings.get('migration-v5'),db.settings.get('totalSavings')
     ]);
     if(!doneV3?.value){
       const recUpdates=recurring.map(r=>{
@@ -2883,6 +2980,15 @@ async function migrateLegacyData(){
       await db.settings.put({key:'totalSavings',value:initial});
       await db.settings.put({key:'migration-v4',value:{completed:todayStr(),build:window.CASHFLOW_BUILD.version}});
     }
+    if(!doneV5?.value){
+      const latestIncome=await db.income.toArray();
+      const updates=latestIncome.filter(i=>i.frequency!=='one-time').map(i=>{
+        const incomePeriods=normalizeIncomePeriods(i);
+        return {...i,incomePeriods,isActive:incomePeriods.some(p=>!p.endDate)};
+      });
+      if(updates.length)await db.income.bulkPut(updates);
+      await db.settings.put({key:'migration-v5',value:{completed:todayStr(),build:window.CASHFLOW_BUILD.version}});
+    }
   });
 }
 
@@ -2891,11 +2997,11 @@ function SettingsModal({ currCode,onCurrChange,onClose,showToast,lang,onLangChan
   const [curr,setCurr]=useState(currCode),[busy,setBusy]=useState(''),[pendingImport,setPendingImport]=useState(null),[confirmClear,setConfirmClear]=useState(false);
   const download=(blob,name)=>{const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),0);};
   const run=async(name,fn)=>{if(busy)return;setBusy(name);try{await fn();}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);}finally{setBusy('');}};
-  const doExportJSON=()=>run('json',async()=>{const data={version:3,build:window.CASHFLOW_BUILD,exported:new Date().toISOString(),expenses:await db.expenses.toArray(),recurring:await db.recurring.toArray(),income:await db.income.toArray(),savings:await db.savings.toArray(),savingsContributions:await db.savingsContributions.toArray(),cards:await db.cards.toArray(),installments:await db.installments.toArray(),budgets:await db.budgets.toArray(),settings:await db.settings.toArray()};download(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),`cashflow-backup-${todayStr()}.json`);showToast(t('jsonExported'));});
+  const doExportJSON=()=>run('json',async()=>{const data={version:4,build:window.CASHFLOW_BUILD,exported:new Date().toISOString(),expenses:await db.expenses.toArray(),recurring:await db.recurring.toArray(),income:await db.income.toArray(),savings:await db.savings.toArray(),savingsContributions:await db.savingsContributions.toArray(),cards:await db.cards.toArray(),installments:await db.installments.toArray(),budgets:await db.budgets.toArray(),settings:await db.settings.toArray()};download(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),`cashflow-backup-${todayStr()}.json`);showToast(t('jsonExported'));});
   const csvSafe=value=>{let text=String(value??'');if(/^[\s]*[=+\-@]/.test(text))text="'"+text;return `"${text.replace(/"/g,'""')}"`;};
   const doExportCSV=()=>run('csv',async()=>{const [e,r,inc,inst,sav,contrib,totalSetting]=await Promise.all([db.expenses.toArray(),db.recurring.toArray(),db.income.toArray(),db.installments.toArray(),db.savings.toArray(),db.savingsContributions.toArray(),db.settings.get('totalSavings')]);const rows=[['Type','Name','Amount','Date / Frequency','Category','Notes','CardId'],...e.map(x=>['variable_expense',x.name,x.amount,x.date,x.category,x.notes||'',x.cardId||'']),...r.map(x=>['fixed_expense',x.name,x.amount,`monthly-day${x.dueDay}`,x.category,'',x.cardId||'']),...inc.map(x=>['income',x.name,x.amount,x.frequency,x.category,'','']),...inst.map(x=>['installment',x.name,x.monthlyPayment,x.startDate,'installments',x.completedDate?`completed ${x.completedDate}`:'',x.cardId||'']),['savings_total',t('totalSavings'),Number(totalSetting?.value||0),'current','savings','',''],...sav.map(x=>['legacy_savings_goal',x.name,x.currentAmount,`target ${x.targetAmount}`,'savings','','']),...contrib.map(x=>['legacy_savings_contribution',`goal ${x.goalId}`,x.amount,x.date,'savings','',''])];download(new Blob(['\uFEFF'+rows.map(row=>row.map(csvSafe).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),`cashflow-${todayStr()}.csv`);showToast(t('csvExported'));});
   const doImport=()=>{if(busy)return;const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>10*1024*1024){showToast(`${t('invalidBackup')}: ${t('importTooLarge')}`);return;}setBusy('import-read');try{const parsed=JSON.parse(await file.text()),check=validateBackup(parsed);if(!check.ok)throw new Error(check.reason);const data=check.data;const keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];const counts=keys.map(k=>`${k}: ${data[k].length}`).join('\n');setPendingImport({data,counts,date:data.exported?.split('T')[0]||'unknown'});}catch(err){console.error(err);showToast(`${t('invalidBackup')}: ${err.message||err}`);}finally{setBusy('');}};input.click();};
-  const applyImport=()=>run('import',async()=>{if(!pendingImport)return;const data=pendingImport.data,keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];await db.transaction('rw',[db.expenses,db.recurring,db.income,db.savings,db.savingsContributions,db.cards,db.installments,db.budgets,db.settings],async()=>{for(const key of keys)await db[key].clear();for(const key of keys)if(data[key].length)await db[key].bulkPut(data[key]);await db.settings.delete('migration-v3');await db.settings.delete('migration-v4');});setPendingImport(null);showToast(t('dataRestored'));onClose();setTimeout(()=>location.reload(),250);});
+  const applyImport=()=>run('import',async()=>{if(!pendingImport)return;const data=pendingImport.data,keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];await db.transaction('rw',[db.expenses,db.recurring,db.income,db.savings,db.savingsContributions,db.cards,db.installments,db.budgets,db.settings],async()=>{for(const key of keys)await db[key].clear();for(const key of keys)if(data[key].length)await db[key].bulkPut(data[key]);await db.settings.delete('migration-v3');await db.settings.delete('migration-v4');await db.settings.delete('migration-v5');});setPendingImport(null);showToast(t('dataRestored'));onClose();setTimeout(()=>location.reload(),250);});
   const applyClear=()=>run('clear',async()=>{await db.transaction('rw',[db.expenses,db.recurring,db.income,db.savings,db.savingsContributions,db.cards,db.installments,db.budgets,db.settings],async()=>{for(const key of ['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'])await db[key].clear();});setConfirmClear(false);showToast(t('dataCleared'));onClose();setTimeout(()=>location.reload(),250);});
   return h(React.Fragment,null,
     h(Modal,{title:t('settingsTitle'),onClose,busy:!!busy},
@@ -2974,7 +3080,7 @@ function App() {
   useEffect(()=>{document.documentElement.lang=lang;},[lang]);
   useEffect(()=>{const receive=()=>{setSyncVersion(v=>v+1);loadApp();};const onMessage=e=>{if(e.data?.type==='changed')receive();};const onStorage=e=>{if(e.key===DATA_CHANGE_KEY)receive();};dataChannel?.addEventListener('message',onMessage);window.addEventListener('storage',onStorage);return()=>{dataChannel?.removeEventListener('message',onMessage);window.removeEventListener('storage',onStorage);};},[loadApp]);
   useEffect(()=>{const onPop=()=>{const r=parseRoute();setTab(r.tab);if(r.month)setMonth(r.month);};window.addEventListener('popstate',onPop);return()=>window.removeEventListener('popstate',onPop);},[]);
-  useEffect(()=>{const vv=window.visualViewport;const sync=()=>{const keyboardOpen=!!vv&&(window.innerHeight-vv.height>120);document.documentElement.classList.toggle('keyboard-open',keyboardOpen);};const onFocus=()=>setTimeout(sync,60);vv?.addEventListener('resize',sync);window.addEventListener('focusin',onFocus);window.addEventListener('focusout',onFocus);sync();return()=>{vv?.removeEventListener('resize',sync);window.removeEventListener('focusin',onFocus);window.removeEventListener('focusout',onFocus);document.documentElement.classList.remove('keyboard-open');};},[]);
+  useEffect(()=>{const vv=window.visualViewport;let baseline=vv?.height||window.innerHeight,raf=0,timer=0;const isTextEntry=el=>{if(!(el instanceof HTMLElement))return false;if(el.isContentEditable)return true;if(el.tagName==='TEXTAREA')return !el.disabled&&!el.readOnly;if(el.tagName==='SELECT')return !el.disabled;if(el.tagName!=='INPUT')return false;const type=(el.getAttribute('type')||'text').toLowerCase();return !['button','submit','reset','checkbox','radio','range','color','file','image','hidden'].includes(type)&&!el.disabled&&!el.readOnly;};const sync=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{const scale=vv?.scale||1,zoomed=Math.abs(scale-1)>.02,focused=isTextEntry(document.activeElement),height=vv?.height||window.innerHeight;if(!zoomed&&!focused)baseline=height;const threshold=Math.max(120,baseline*.18),keyboardOpen=!zoomed&&focused&&(baseline-height>threshold);document.documentElement.classList.toggle('keyboard-open',keyboardOpen);});};const settle=()=>{sync();clearTimeout(timer);timer=setTimeout(sync,180);};const onFocus=()=>setTimeout(settle,60),onBlur=()=>setTimeout(settle,120);vv?.addEventListener('resize',settle);vv?.addEventListener('scroll',settle);window.addEventListener('resize',settle);window.addEventListener('focusin',onFocus);window.addEventListener('focusout',onBlur);window.addEventListener('pageshow',settle);document.addEventListener('gestureend',settle,{passive:true});sync();return()=>{cancelAnimationFrame(raf);clearTimeout(timer);vv?.removeEventListener('resize',settle);vv?.removeEventListener('scroll',settle);window.removeEventListener('resize',settle);window.removeEventListener('focusin',onFocus);window.removeEventListener('focusout',onBlur);window.removeEventListener('pageshow',settle);document.removeEventListener('gestureend',settle);document.documentElement.classList.remove('keyboard-open');};},[]);
   useEffect(()=>{if(!ready)return;const hash=`tab=${tab}&month=${mkKey(month)}`;if(location.hash.slice(1)!==hash)history.replaceState({tab,month:mkKey(month)},'',`#${hash}`);},[ready,tab,month]);
   const navigate=(nextTab=tab,nextMonth=month)=>{const hash=`tab=${nextTab}&month=${mkKey(nextMonth)}`;history.pushState({tab:nextTab,month:mkKey(nextMonth)},'',`#${hash}`);setTab(nextTab);setMonth(nextMonth);};
   const safeSetting=async(action)=>{try{await action();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
