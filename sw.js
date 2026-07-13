@@ -2,11 +2,10 @@
 // Pre-caches the app shell AND the CDN libraries on install so the app
 // works fully offline after the first successful load, even after the
 // browser is closed or the phone is restarted.
-const C = 'cf-v6';
+const C = 'cf-v5';
 const ASSETS = [
   './',
   './index.html',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.4/dexie.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js',
