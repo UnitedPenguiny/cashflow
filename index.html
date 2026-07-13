@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Cashflow">
@@ -464,6 +464,14 @@ html.theme-rose .confirm-icon.danger{background:#fbe9ec;color:#db7288}
 html.keyboard-open .bnav,html.keyboard-open .fab{display:none!important}
 html.keyboard-open .main{padding-bottom:max(12px,env(safe-area-inset-bottom,0px))}
 
+/* iOS zoom lock. Safari automatically zooms focused controls whose computed
+   font size is below 16px. Keep editable controls at 16px on touch screens,
+   disallow pinch/double-tap zoom, and retain normal vertical app scrolling. */
+html,body,#root{touch-action:pan-y}
+@media (hover:none) and (pointer:coarse){
+  input,select,textarea{font-size:16px!important}
+}
+
 </style>
 </head>
 <body>
@@ -476,10 +484,18 @@ html.keyboard-open .main{padding-bottom:max(12px,env(safe-area-inset-bottom,0px)
 // Single-file release metadata. This build stores records locally in IndexedDB,
 // but it intentionally does not register a service worker or advertise offline/PWA
 // installation because the runtime libraries below are delivered by CDN.
-window.CASHFLOW_BUILD = Object.freeze({ version: '3.2.2', schema: 4, built: '2026-07-14' });
+window.CASHFLOW_BUILD = Object.freeze({ version: '3.2.3', schema: 4, built: '2026-07-14' });
 </script>
 <script>
 // ── DEPENDENCY GUARD (must run before anything else) ──
+// Keep iOS Safari at a fixed scale. The viewport declaration handles normal
+// cases; these gesture handlers cover older Safari/PWA behavior as a fallback.
+(function () {
+  var stopGestureZoom = function (event) { event.preventDefault(); };
+  document.addEventListener('gesturestart', stopGestureZoom, { passive: false });
+  document.addEventListener('gesturechange', stopGestureZoom, { passive: false });
+})();
+
 (function () {
   var missing = [];
   if (typeof React === 'undefined') missing.push('React');
