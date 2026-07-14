@@ -554,138 +554,6 @@ html,body,#root{touch-action:pan-y}
 .slip-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:2px}
 @media(max-width:360px){.slip-actions{grid-template-columns:1fr}.slip-confidence{margin-left:0}}
 
-
-/* 3.10.6: theme personality pass
-   Each theme now carries a distinct surface language beyond the hero card:
-   typography, card geometry, row treatments, icon shapes and decorative motifs. */
-:root{
-  --personality-surface:linear-gradient(155deg,rgba(255,255,255,.96),rgba(246,243,255,.94));
-  --personality-row:rgba(241,237,255,.58);
-  --personality-row-border:rgba(111,92,218,.12);
-  --personality-accent:#7568dc;
-  --personality-accent-soft:rgba(117,104,220,.16);
-  --personality-decoration:radial-gradient(circle,rgba(130,111,234,.22) 0 34%,transparent 36%);
-}
-.card:not(.hero),.sc{position:relative;isolation:isolate}
-.card:not(.hero)>*,.sc>*{position:relative;z-index:1}
-.card:not(.hero)::before,.sc::before{content:"";position:absolute;pointer-events:none;z-index:0}
-.card:not(.hero){background:var(--personality-surface)!important}
-.card:not(.hero) .ctitle{display:inline-flex;align-items:center;gap:8px;color:var(--premium-heading,var(--t2))}
-.card:not(.hero) .ctitle::before,.summary-title::before{content:"";width:8px;height:8px;border-radius:50%;flex:none;background:var(--personality-accent);box-shadow:0 0 0 5px var(--personality-accent-soft)}
-.summary-title{display:flex;align-items:center;gap:10px}
-.card .li,.chart-row,.summary-row{border:1px solid var(--personality-row-border)!important;background:var(--personality-row);border-radius:15px;padding:10px 11px;margin-top:7px}
-.card .li:last-child,.chart-row:last-child{border-bottom:1px solid var(--personality-row-border)!important}
-.chart-list,.savings-breakdown{display:grid;gap:7px}
-.chart-row{margin-top:0}
-.savings-line{border:1px solid transparent;border-radius:14px;padding:10px 11px}
-.savings-line:nth-child(odd){background:var(--personality-row);border-color:var(--personality-row-border)}
-.card-action-btn,.summary-date-pill,.summary-mode-toggle,.seg,.filter-search,.category-filter,.fi,.fsel,.fta{box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 8px 22px color-mix(in srgb,var(--personality-accent) 10%,transparent)}
-.card-action-btn{border:1px solid var(--personality-row-border)}
-.stat-badge,.eico,.confirm-icon,.slip-picker-icon{background:color-mix(in srgb,var(--personality-accent-soft) 72%,var(--card))!important;color:var(--personality-accent)!important;border-color:var(--personality-row-border)!important}
-.nitem.active .nemo::before{background:color-mix(in srgb,var(--personality-accent-soft) 78%,var(--card));box-shadow:0 7px 18px color-mix(in srgb,var(--personality-accent) 18%,transparent)}
-.pbar{height:9px;background:color-mix(in srgb,var(--personality-row) 78%,var(--bg));border-color:var(--personality-row-border)}
-.pbf{box-shadow:0 0 10px color-mix(in srgb,currentColor 30%,transparent)}
-.theme-preview{transition:transform .2s ease,box-shadow .2s ease}
-.theme-opt:active .theme-preview{transform:scale(.98)}
-
-/* Lavender Cloud — airy, dreamy and softly luminous. */
-html:not(.dark):not(.theme-ocean):not(.theme-forest):not(.theme-rose):not(.theme-sunset){
-  --personality-surface:radial-gradient(circle at 94% 4%,rgba(172,157,255,.24),transparent 34%),linear-gradient(150deg,rgba(255,255,255,.97),rgba(244,240,255,.95));
-  --personality-row:linear-gradient(135deg,rgba(247,244,255,.94),rgba(238,233,255,.72));
-  --personality-row-border:rgba(112,93,216,.14);
-  --personality-accent:#7464df;--personality-accent-soft:rgba(116,100,223,.14)
-}
-html:not(.dark):not(.theme-ocean):not(.theme-forest):not(.theme-rose):not(.theme-sunset) .card:not(.hero)::before,
-html:not(.dark):not(.theme-ocean):not(.theme-forest):not(.theme-rose):not(.theme-sunset) .sc::before{width:118px;height:118px;right:-48px;top:-52px;border-radius:50%;background:radial-gradient(circle,rgba(137,118,235,.18) 0 36%,rgba(190,178,255,.10) 37% 54%,transparent 56%)}
-html:not(.dark):not(.theme-ocean):not(.theme-forest):not(.theme-rose):not(.theme-sunset) .premium-stat .stat-badge{border-radius:18px 18px 24px 18px;transform:rotate(2deg)}
-html:not(.dark):not(.theme-ocean):not(.theme-forest):not(.theme-rose):not(.theme-sunset) .card:not(.hero){border-color:rgba(163,147,233,.42);box-shadow:0 20px 42px rgba(88,71,172,.13),inset 0 1px 0 rgba(255,255,255,.9)}
-
-/* Midnight Aurora — darker geometry with restrained neon depth. */
-html.dark{
-  --personality-surface:radial-gradient(circle at 88% -4%,rgba(170,128,255,.20),transparent 31%),linear-gradient(155deg,rgba(42,36,72,.98),rgba(20,18,41,.99));
-  --personality-row:linear-gradient(135deg,rgba(64,54,101,.48),rgba(35,31,62,.72));
-  --personality-row-border:rgba(174,146,255,.18);
-  --personality-accent:#b59aff;--personality-accent-soft:rgba(181,154,255,.15)
-}
-html.dark .hdr-title,html.dark .mlbl,html.dark .hlbl,html.dark .hamt,html.dark .slbl,html.dark .ctitle,html.dark .chart-label,html.dark .chart-amount{font-family:Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif}
-html.dark .card:not(.hero),html.dark .sc{border-color:rgba(167,137,255,.23);box-shadow:0 20px 44px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.055),0 0 0 1px rgba(125,96,214,.05)}
-html.dark .card:not(.hero)::before,html.dark .sc::before{inset:0;border-radius:inherit;background:linear-gradient(120deg,rgba(182,151,255,.16),transparent 24%,transparent 73%,rgba(215,112,181,.09));mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);padding:1px;mask-composite:exclude;-webkit-mask-composite:xor}
-html.dark .premium-stat .stat-badge{border-radius:12px 22px 12px 22px;box-shadow:0 0 26px rgba(169,132,255,.18),inset 0 1px 0 rgba(255,255,255,.08)}
-html.dark .card:not(.hero) .ctitle{letter-spacing:.12em;text-transform:uppercase;font-size:11px}
-html.dark .bnav{background:rgba(17,15,34,.9)}
-
-/* Ocean — fluid shapes, pale tide lines and clean coastal typography. */
-html.theme-ocean{
-  --personality-surface:radial-gradient(ellipse at 94% -4%,rgba(91,190,221,.23),transparent 34%),linear-gradient(155deg,rgba(255,255,255,.96),rgba(237,249,253,.97));
-  --personality-row:linear-gradient(135deg,rgba(242,251,254,.96),rgba(222,244,251,.72));
-  --personality-row-border:rgba(49,143,177,.15);
-  --personality-accent:#3f9dbc;--personality-accent-soft:rgba(63,157,188,.14)
-}
-html.theme-ocean .hdr-title,html.theme-ocean .mlbl,html.theme-ocean .hlbl,html.theme-ocean .hamt,html.theme-ocean .slbl,html.theme-ocean .ctitle,html.theme-ocean .chart-label,html.theme-ocean .chart-amount{font-family:'Avenir Next',Inter,-apple-system,BlinkMacSystemFont,sans-serif}
-html.theme-ocean .card:not(.hero),html.theme-ocean .sc{border-radius:30px 30px 24px 24px;border-color:rgba(114,189,214,.38);box-shadow:0 22px 42px rgba(53,126,152,.13),inset 0 1px 0 rgba(255,255,255,.9)}
-html.theme-ocean .card:not(.hero)::before,html.theme-ocean .sc::before{width:160px;height:68px;right:-24px;top:-32px;border:1px solid rgba(65,165,199,.20);border-radius:50%;box-shadow:0 13px 0 -12px rgba(65,165,199,.24),0 24px 0 -23px rgba(65,165,199,.16)}
-html.theme-ocean .premium-stat .stat-badge{border-radius:58% 42% 60% 40% / 44% 58% 42% 56%;box-shadow:0 13px 25px rgba(64,154,187,.16),inset 0 1px 0 rgba(255,255,255,.8)}
-html.theme-ocean .chart-icon-chip,html.theme-ocean .lico{border-radius:50% 50% 46% 54% / 54% 46% 54% 46%}
-html.theme-ocean .bnav{border-radius:30px 30px 0 0}
-
-/* Forest — botanical paper surfaces, leaf corners and softer earthy rhythm. */
-html.theme-forest{
-  --personality-surface:radial-gradient(ellipse at 100% 0%,rgba(125,176,135,.19),transparent 35%),linear-gradient(150deg,rgba(255,255,252,.97),rgba(240,248,238,.97));
-  --personality-row:linear-gradient(135deg,rgba(248,252,245,.96),rgba(229,241,226,.76));
-  --personality-row-border:rgba(65,125,79,.14);
-  --personality-accent:#5b956a;--personality-accent-soft:rgba(91,149,106,.14)
-}
-html.theme-forest .hdr-title,html.theme-forest .mlbl,html.theme-forest .hlbl,html.theme-forest .hamt,html.theme-forest .slbl,html.theme-forest .ctitle,html.theme-forest .chart-label,html.theme-forest .chart-amount{font-family:Georgia,'Iowan Old Style',serif}
-html.theme-forest .card:not(.hero),html.theme-forest .sc{border-radius:22px 22px 32px 22px;border-color:rgba(141,185,147,.38);box-shadow:0 20px 40px rgba(63,111,72,.12),inset 0 1px 0 rgba(255,255,255,.88)}
-html.theme-forest .card:not(.hero)::before,html.theme-forest .sc::before{width:96px;height:48px;right:-18px;top:-8px;border-radius:100% 0 100% 0;background:linear-gradient(135deg,rgba(108,158,115,.18),rgba(165,197,156,.05));transform:rotate(-10deg)}
-html.theme-forest .premium-stat .stat-badge,html.theme-forest .eico,html.theme-forest .confirm-icon{border-radius:65% 20% 65% 20%;transform:rotate(-2deg)}
-html.theme-forest .card:not(.hero) .ctitle::before,html.theme-forest .summary-title::before{width:10px;height:7px;border-radius:100% 0 100% 0;transform:rotate(-24deg)}
-html.theme-forest .chart-icon-chip,html.theme-forest .lico{border-radius:14px 14px 20px 14px}
-
-/* Rose — editorial blush, petal details and a more crafted card edge. */
-html.theme-rose{
-  --personality-surface:radial-gradient(circle at 96% 3%,rgba(237,168,181,.18),transparent 31%),linear-gradient(155deg,rgba(255,255,255,.94),rgba(255,248,247,.98));
-  --personality-row:linear-gradient(135deg,rgba(255,252,251,.96),rgba(249,235,237,.68));
-  --personality-row-border:rgba(201,134,149,.13);
-  --personality-accent:#c97f90;--personality-accent-soft:rgba(201,127,144,.13)
-}
-html.theme-rose .card:not(.hero),html.theme-rose .sc{border-radius:30px;border-color:rgba(225,190,197,.48);box-shadow:0 22px 44px rgba(178,145,154,.13),inset 0 1px 0 rgba(255,255,255,.96)}
-html.theme-rose .card:not(.hero)::before,html.theme-rose .sc::before{width:84px;height:84px;right:-38px;top:-37px;border-radius:50%;background:radial-gradient(ellipse at 38% 60%,rgba(229,149,166,.16) 0 22%,transparent 24%),radial-gradient(ellipse at 64% 37%,rgba(229,149,166,.12) 0 22%,transparent 24%)}
-html.theme-rose .premium-stat .stat-badge{border-radius:50%;box-shadow:0 0 0 6px rgba(242,218,223,.46),0 13px 26px rgba(190,151,161,.15),inset 0 1px 0 rgba(255,255,255,.9)}
-html.theme-rose .card:not(.hero) .ctitle::before,html.theme-rose .summary-title::before{border-radius:2px;transform:rotate(45deg);box-shadow:0 0 0 4px rgba(201,127,144,.10)}
-html.theme-rose .card-action-btn,html.theme-rose .summary-date-pill,html.theme-rose .summary-mode-toggle{border-radius:999px}
-
-/* Sunset — terracotta warmth, sun-disc accents and grounded surfaces. */
-html.theme-sunset{
-  --personality-surface:radial-gradient(circle at 92% 2%,rgba(244,151,105,.25) 0 16%,transparent 17% 100%),linear-gradient(150deg,rgba(255,253,250,.97),rgba(255,239,230,.97));
-  --personality-row:linear-gradient(135deg,rgba(255,250,246,.97),rgba(255,224,207,.72));
-  --personality-row-border:rgba(186,91,46,.14);
-  --personality-accent:#c96a3e;--personality-accent-soft:rgba(201,106,62,.14)
-}
-html.theme-sunset .hdr-title,html.theme-sunset .mlbl,html.theme-sunset .hlbl,html.theme-sunset .hamt,html.theme-sunset .slbl,html.theme-sunset .ctitle,html.theme-sunset .chart-label,html.theme-sunset .chart-amount{font-family:'Avenir Next',Inter,-apple-system,BlinkMacSystemFont,sans-serif;font-weight:700}
-html.theme-sunset .card:not(.hero),html.theme-sunset .sc{border-radius:24px 24px 30px 30px;border-color:rgba(223,146,108,.42);box-shadow:0 20px 40px rgba(151,75,37,.13),inset 0 1px 0 rgba(255,255,255,.9)}
-html.theme-sunset .card:not(.hero)::before,html.theme-sunset .sc::before{width:118px;height:64px;right:-18px;top:-18px;background:repeating-linear-gradient(0deg,transparent 0 8px,rgba(206,101,55,.09) 9px 10px);border-radius:50%}
-html.theme-sunset .premium-stat .stat-badge{border-radius:50% 50% 16px 16px;box-shadow:0 14px 25px rgba(187,88,44,.15),inset 0 1px 0 rgba(255,255,255,.82)}
-html.theme-sunset .card:not(.hero) .ctitle::before,html.theme-sunset .summary-title::before{border-radius:50% 50% 3px 3px}
-html.theme-sunset .chart-icon-chip,html.theme-sunset .lico{border-radius:16px 16px 20px 20px}
-
-/* Theme picker previews now hint at the actual personality, not just the color. */
-.theme-opt[data-theme-option="midnight"] .theme-preview{background:radial-gradient(circle at 82% 15%,rgba(186,135,255,.65),transparent 28%),linear-gradient(145deg,#171329,#292047)}
-.theme-opt[data-theme-option="midnight"] .theme-preview::after{border-radius:8px 16px 8px 16px;background:#24203b;border-color:#6e589b}
-.theme-opt[data-theme-option="ocean"] .theme-preview{background:radial-gradient(ellipse at 82% 4%,rgba(255,255,255,.68),transparent 36%),linear-gradient(145deg,#dff5fc,#a9ddec)}
-.theme-opt[data-theme-option="ocean"] .theme-preview::after{border-radius:16px 16px 9px 9px}
-.theme-opt[data-theme-option="forest"] .theme-preview{background:radial-gradient(ellipse at 92% 0%,rgba(84,143,91,.28),transparent 38%),linear-gradient(145deg,#edf5e9,#c9dec5)}
-.theme-opt[data-theme-option="forest"] .theme-preview::after{border-radius:8px 8px 18px 8px}
-.theme-opt[data-theme-option="rose"] .theme-preview{background:radial-gradient(circle at 86% 8%,rgba(239,165,181,.36),transparent 34%),linear-gradient(145deg,#fff9f8,#f2dcdf)}
-.theme-opt[data-theme-option="rose"] .theme-preview::after{border-radius:18px}
-.theme-opt[data-theme-option="sunset"] .theme-preview{background:radial-gradient(circle at 82% 15%,#f5a074 0 13%,transparent 14%),linear-gradient(145deg,#fff1e7,#f5c3a8)}
-.theme-opt[data-theme-option="sunset"] .theme-preview::after{border-radius:10px 10px 16px 16px}
-
-@media (max-width:360px){
-  .card .li,.chart-row,.summary-row{padding-left:9px;padding-right:9px}
-  .card:not(.hero) .ctitle{gap:7px}
-}
-
 </style>
 </head>
 <body>
@@ -697,7 +565,7 @@ html.theme-sunset .chart-icon-chip,html.theme-sunset .lico{border-radius:16px 16
 <script>
 // Release metadata. Mandatory runtimes are cached by the companion service worker
 // after the first successful hosted load; Chart.js is loaded only when a chart is shown.
-window.CASHFLOW_BUILD = Object.freeze({ version: '3.10.7', schema: 6, built: '2026-07-15', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'canonical-integer-cents-with-mismatch-rejection', cardQueries: 'compound-card-date-index', savings: 'total-savings-hero-starting-balance-plus-all-time-accumulated-cashflow', timezone: 'Asia/Bangkok', offline: 'service-worker-runtime-cache-after-first-hosted-load', slipScanner: 'offline-permanent-bank-templates-with-provisional-scb7-ktb8-qr-and-visual-layout-batch-review', themePersonality: 'distinct-lavender-midnight-ocean-forest-rose-sunset-surface-languages' });
+window.CASHFLOW_BUILD = Object.freeze({ version: '3.10.6', schema: 6, built: '2026-07-15', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'canonical-integer-cents-with-mismatch-rejection', cardQueries: 'compound-card-date-index', savings: 'total-savings-hero-starting-balance-plus-all-time-accumulated-cashflow', timezone: 'Asia/Bangkok', offline: 'service-worker-runtime-cache-after-first-hosted-load', slipScanner: 'offline-permanent-bank-templates-with-provisional-scb7-ktb8-qr-and-visual-layout-batch-review' });
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./cashflow-sw.js').catch(error => console.warn('Offline cache registration failed', error)));
 }
@@ -3609,7 +3477,7 @@ function SettingsModal({ currCode,onCurrChange,onClose,showToast,lang,onLangChan
   return h(React.Fragment,null,
     h(Modal,{title:t('settingsTitle'),onClose,busy:!!busy},
       h(Field,{label:t('language')},h(Sel,{value:lang||'en',onChange:e=>onLangChange?.(e.target.value),options:[{value:'en',label:'English'},{value:'th',label:'ไทย'}]})),
-      h(Field,{label:t('theme')},h('div',{className:'theme-grid',role:'radiogroup'},THEMES.map(th=>h('button',{type:'button',key:th.id,role:'radio','aria-checked':theme===th.id,className:`theme-opt${theme===th.id?' active':''}`,'data-theme-option':th.id,onClick:()=>onThemeChange(th.id)},h('span',{className:'theme-preview',style:{'--theme-primary':th.primary,'--theme-bg':th.bg,'--theme-card':th.card}}),theme===th.id&&h('span',{className:'theme-check'},h(Icon,{name:'check',size:12,strokeWidth:2.4})),h('span',{className:'theme-name'},t(th.labelKey)))))),
+      h(Field,{label:t('theme')},h('div',{className:'theme-grid',role:'radiogroup'},THEMES.map(th=>h('button',{type:'button',key:th.id,role:'radio','aria-checked':theme===th.id,className:`theme-opt${theme===th.id?' active':''}`,onClick:()=>onThemeChange(th.id)},h('span',{className:'theme-preview',style:{'--theme-primary':th.primary,'--theme-bg':th.bg,'--theme-card':th.card}}),theme===th.id&&h('span',{className:'theme-check'},h(Icon,{name:'check',size:12,strokeWidth:2.4})),h('span',{className:'theme-name'},t(th.labelKey)))))),
       h(Field,{label:t('currency'),hint:t('currencyDisplayOnly')},h(Sel,{value:curr,onChange:e=>{const c=CURRS.find(x=>x.code===e.target.value);setCurr(e.target.value);if(c)onCurrChange(c);},options:CURRS.map(c=>({value:c.code,label:`${c.code} (${c.sym})`}))})),
       h('section',{style:{marginTop:22}},h('h2',{className:'ctitle mb10'},t('payCycleTitle')),h('div',{className:'frow'},h(Field,{label:t('paydayLabel')},h(Sel,{value:String(payday),onChange:e=>onPaydayChange(e.target.value),options:Array.from({length:31},(_,i)=>({value:String(i+1),label:String(i+1)}))})),h(Field,{label:t('cycleLabelLabel')},h(Sel,{value:cycleLabel,onChange:e=>onCycleLabelChange(e.target.value),options:[{value:'end',label:t('cycleLabelEnd')},{value:'start',label:t('cycleLabelStart')}]}))),h('p',{className:'fhint'},t('paydayHint'))),
       h('section',{style:{marginTop:22}},h('h2',{className:'ctitle mb10'},t('backupRestore')),h('p',{className:'fhint'},t('plainTextWarning')),h('div',{style:{display:'flex',flexDirection:'column',gap:10}},h('button',{className:'btn bghost',disabled:!!busy,'aria-busy':busy==='json',onClick:doExportJSON},t('exportJSON')),h('button',{className:'btn bghost',disabled:!!busy,'aria-busy':busy==='csv',onClick:doExportCSV},t('exportCSV')),h('button',{className:'btn bghost',disabled:!!busy,'aria-busy':busy==='import-read',onClick:doImport},t('importJSON')))),
