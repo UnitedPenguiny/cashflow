@@ -80,8 +80,8 @@ html.theme-rose .premium-stat .stat-badge{display:flex;position:absolute;right:1
 html.theme-rose .premium-stat .slbl{font-size:12px;letter-spacing:.08em;margin-bottom:10px;color:#9e7680}
 html.theme-rose .premium-stat .samt{font-size:26px;line-height:1.05}
 html.theme-rose .premium-stat .ssub{font-size:12px;color:#8d7077;margin-top:8px}
-html.theme-rose .premium-stat .samt.pos,html.theme-rose .premium-stat .samt.neg{color:#dc8597}
-html.theme-rose .premium-stat .samt.pos{font-weight:700}
+html.theme-rose .premium-stat .samt.pos{color:var(--success);font-weight:700}
+html.theme-rose .premium-stat .samt.neg{color:var(--danger)}
 html.theme-rose .ctitle{font-size:14px;letter-spacing:.08em;color:#916f79}
 html.theme-rose .chart-menu{color:#a8858d}
 html.theme-rose .chart-list{margin-top:14px}
@@ -164,7 +164,8 @@ html:not(.theme-rose) .premium-stat .stat-badge{display:flex;position:absolute;r
 html:not(.theme-rose) .premium-stat .slbl{font-size:12px;letter-spacing:.08em;margin-bottom:22px;color:var(--premium-muted)}
 html:not(.theme-rose) .premium-stat .samt{font-size:clamp(20px,5.8vw,26px);line-height:1.05;white-space:nowrap;letter-spacing:-.045em}
 html:not(.theme-rose) .premium-stat .ssub{font-size:12px;color:var(--premium-muted);margin-top:8px}
-html:not(.theme-rose) .premium-stat .samt.pos,html:not(.theme-rose) .premium-stat .samt.neg{color:var(--premium-chip)}
+html:not(.theme-rose) .premium-stat .samt.pos{color:var(--success)}
+html:not(.theme-rose) .premium-stat .samt.neg{color:var(--danger)}
 html:not(.theme-rose) .ctitle{font-size:14px;letter-spacing:.08em;color:var(--premium-heading)}
 html:not(.theme-rose) .chart-menu{color:var(--premium-muted)}
 html:not(.theme-rose) .chart-list{margin-top:14px}
@@ -179,7 +180,8 @@ html.theme-rose .premium-stat{min-height:124px}
 html.theme-rose .premium-stat .stat-badge{right:14px;top:14px;transform:none;width:42px;height:42px}
 html.theme-rose .premium-stat .slbl{margin-bottom:22px}
 html.theme-rose .premium-stat .samt{font-size:clamp(20px,5.8vw,26px);white-space:nowrap;letter-spacing:-.045em}
-html{background:var(--card)}
+html{background:var(--card);color-scheme:light}
+html.dark{color-scheme:dark}
 /*
   Single-source application geometry
   ----------------------------------
@@ -450,10 +452,10 @@ html.theme-rose .confirm-icon{background:rgba(249,238,240,.9);border-color:rgba(
 html.theme-rose .confirm-icon.danger{background:#fbe9ec;color:#db7288}
 
 .savings-breakdown{display:grid;gap:0;margin-top:4px}
-.savings-line{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px}
+.savings-line{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--border);font-size:13px}
 .savings-line:last-child{border-bottom:0}
 .savings-line span{color:var(--t2)}
-.savings-line strong{white-space:nowrap;color:var(--t1)}
+.savings-line strong{min-width:0;max-width:62%;white-space:normal;overflow-wrap:anywhere;text-align:right;color:var(--t1)}
 .savings-line.total{margin-top:3px;padding-top:14px;font-size:14px}
 .savings-line.total strong{color:var(--p);font-size:17px}
 .savings-explainer{margin-top:10px;padding:10px 12px;border-radius:var(--rmd);background:color-mix(in srgb,var(--pl) 38%,var(--bg));color:var(--t2);font-size:11px;line-height:1.5}
@@ -499,9 +501,16 @@ html,body,#root{touch-action:pan-y}
 .home-savings-combined{text-align:right;justify-self:end}
 @media (max-width:420px){
   .home-savings-card .home-savings-row{grid-template-columns:1fr;gap:10px}
+  .savings-stat .samt,.home-savings-primary .samt,.home-savings-combined{white-space:normal!important;overflow-wrap:anywhere;line-height:1.08;max-width:100%}
+  .savings-stat .samt{padding-right:44px}
+  .savings-line{gap:10px}
+  .savings-line strong{max-width:58%}
   .home-savings-combined{justify-self:start;text-align:left;padding-top:10px;border-top:1px solid var(--border)}
 }
 
+
+/* Responsive monetary typography: accepted maximum values wrap instead of clipping. */
+html:not(.theme-rose) .premium-stat .samt,html.theme-rose .premium-stat .samt{max-width:100%;white-space:normal;overflow-wrap:anywhere;word-break:break-word;font-size:clamp(14px,4.8vw,26px);line-height:1.08}
 </style>
 </head>
 <body>
@@ -509,12 +518,13 @@ html,body,#root{touch-action:pan-y}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.4/dexie.min.js" integrity="sha384-vG8R9Zn5YZHCeXt9gLNp8MnsUCqmIy7HPxhdOdLGa/30/c8uZXFrrN0iKGID/ZvC" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" integrity="sha384-tMH8h3BGESGckSAVGZ82T9n90ztNXxvdwvdM6UoR56cYcf+0iGXBliJ29D+wZ/x8" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" integrity="sha384-bm7MnzvK++ykSwVJ2tynSE5TRdN+xL418osEVF2DE/L/gfWHj91J2Sphe582B1Bh" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" integrity="sha384-bs/nf9FbdNouRbMiFcrcZfLXYPKiPaGVGplVbv7dLGECccEXDW+S3zjqSKR5ZEaD" crossorigin="anonymous"></script>
 <script>
-// Single-file release metadata. This build stores records locally in IndexedDB,
-// but it intentionally does not register a service worker or advertise offline/PWA
-// installation because the runtime libraries below are delivered by CDN.
-window.CASHFLOW_BUILD = Object.freeze({ version: '3.7.0', schema: 6, built: '2026-07-14', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'integer-cents', cardQueries: 'compound-card-date-index', savings: 'confirmed-balance-anchor-plus-post-anchor-cashflow' });
+// Release metadata. Mandatory runtimes are cached by the companion service worker
+// after the first successful hosted load; Chart.js is loaded only when a chart is shown.
+window.CASHFLOW_BUILD = Object.freeze({ version: '3.8.0', schema: 6, built: '2026-07-14', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'canonical-integer-cents-with-mismatch-rejection', cardQueries: 'compound-card-date-index', savings: 'confirmed-balance-plus-date-filtered-post-anchor-cashflow', timezone: 'Asia/Bangkok', offline: 'service-worker-runtime-cache-after-first-hosted-load' });
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./cashflow-sw.js').catch(error => console.warn('Offline cache registration failed', error)));
+}
 </script>
 <script>
 // ── DEPENDENCY GUARD (must run before anything else) ──
@@ -736,40 +746,80 @@ const safeAddCents = (a, b) => {
   if (!Number.isSafeInteger(a) || !Number.isSafeInteger(b) || !Number.isSafeInteger(a + b)) throw new Error('Money total exceeds the supported safe range');
   return a + b;
 };
-const syncMoneyField = (record, field, { signed = false } = {}) => {
+const MONEY_FIELDS_BY_TABLE = Object.freeze({
+  expenses:['amount'], recurring:['amount'], income:['amount'], savings:['targetAmount','currentAmount'],
+  savingsContributions:['amount'], cards:['creditLimit'], installments:['totalAmount','monthlyPayment'], budgets:['amount']
+});
+const hasOwn = (object, key) => Object.prototype.hasOwnProperty.call(object || {}, key);
+const syncMoneyField = (record, field, { signed = false, rejectMismatch = true, prefer = 'display' } = {}) => {
   if (!record || (record[field] === undefined && record[`${field}Cents`] === undefined)) return record;
-  const cents = Number.isSafeInteger(record[`${field}Cents`]) ? record[`${field}Cents`] : parseMoneyCents(record[field]);
+  const centsKey = `${field}Cents`;
+  const hasDisplay = record[field] !== undefined && record[field] !== null && record[field] !== '';
+  const hasCents = Number.isSafeInteger(record[centsKey]);
+  const displayCents = hasDisplay ? parseMoneyCents(record[field]) : null;
+  const storedCents = hasCents ? record[centsKey] : null;
+  if (hasDisplay && hasCents && displayCents !== storedCents && rejectMismatch) throw new Error(`${field} and ${centsKey} do not match`);
+  const cents = hasDisplay && (!hasCents || prefer === 'display') ? displayCents : storedCents;
+  if (!Number.isSafeInteger(cents)) throw new Error(`${field} requires a valid money value`);
   if (!signed && cents < 0) throw new Error(`${field} cannot be negative`);
-  record[`${field}Cents`] = cents;
+  record[centsKey] = cents;
   record[field] = centsToMoney(cents);
   return record;
 };
-const synchronizeMoneyRecord = (tableName, input) => {
-  const row = structuredClone(input || {});
-  const fields = {
-    expenses:['amount'], recurring:['amount'], income:['amount'], savings:['targetAmount','currentAmount'],
-    savingsContributions:['amount'], cards:['creditLimit'], installments:['totalAmount','monthlyPayment'], budgets:['amount']
-  }[tableName] || [];
-  fields.forEach(field => syncMoneyField(row, field));
-  if (tableName === 'recurring' && Array.isArray(row.postedOccurrences)) row.postedOccurrences = row.postedOccurrences.map(item => syncMoneyField({...item}, 'amount'));
-  if (tableName === 'income') {
-    if (Array.isArray(row.incomePeriods)) row.incomePeriods = row.incomePeriods.map(item => syncMoneyField({...item}, 'amount'));
-    if (Array.isArray(row.editHistory)) row.editHistory = row.editHistory.map(entry => ({...entry, previous: entry?.previous ? syncMoneyField({...entry.previous}, 'amount') : entry?.previous}));
+const syncSavingsSetting = (row, options = {}) => {
+  if (row.key === 'totalSavings') {
+    const holder = {value:row.value,valueCents:row.valueCents};
+    syncMoneyField(holder,'value',{...options});
+    if (holder.valueCents < 0) throw new Error('totalSavings cannot be negative');
+    row.value=holder.value; row.valueCents=holder.valueCents;
   }
-  if (tableName === 'installments' && Array.isArray(row.postedPayments)) row.postedPayments = row.postedPayments.map(item => syncMoneyField({...item}, 'amount', {signed:true}));
-  if (tableName === 'settings' && row.key === 'totalSavings') {
-    const cents = Number.isSafeInteger(row.valueCents) ? row.valueCents : parseMoneyCents(row.value ?? 0);
-    if (cents < 0) throw new Error('totalSavings cannot be negative');
-    row.valueCents = cents; row.value = centsToMoney(cents);
-  }
-  if (tableName === 'settings' && row.key === 'savingsAnchor' && isPlainObj(row.value)) {
-    const amountCents = Number.isSafeInteger(row.value.amountCents) ? row.value.amountCents : parseMoneyCents(row.value.amount ?? 0);
-    const accumulatedCents = Number.isSafeInteger(row.value.accumulatedAtAnchorCents) ? row.value.accumulatedAtAnchorCents : parseMoneyCents(row.value.accumulatedAtAnchor ?? 0);
-    if (amountCents < 0) throw new Error('savingsAnchor amount cannot be negative');
-    row.value = {...row.value,amount:centsToMoney(amountCents),amountCents,accumulatedAtAnchor:centsToMoney(accumulatedCents),accumulatedAtAnchorCents:accumulatedCents};
+  if (row.key === 'savingsAnchor' && isPlainObj(row.value)) {
+    const value={...row.value};
+    syncMoneyField(value,'amount',{...options});
+    syncMoneyField(value,'accumulatedAtAnchor',{...options,signed:true});
+    if (value.amountCents < 0) throw new Error('savingsAnchor amount cannot be negative');
+    row.value=value;
   }
   return row;
 };
+const synchronizeMoneyRecord = (tableName, input, options = {}) => {
+  const row = structuredClone(input || {});
+  (MONEY_FIELDS_BY_TABLE[tableName] || []).forEach(field => syncMoneyField(row, field, options));
+  if (tableName === 'recurring' && Array.isArray(row.postedOccurrences)) row.postedOccurrences = row.postedOccurrences.map(item => syncMoneyField({...item}, 'amount', options));
+  if (tableName === 'income') {
+    if (Array.isArray(row.incomePeriods)) row.incomePeriods = row.incomePeriods.map(item => syncMoneyField({...item}, 'amount', options));
+    if (Array.isArray(row.editHistory)) row.editHistory = row.editHistory.map(entry => ({...entry, previous: entry?.previous ? syncMoneyField({...entry.previous}, 'amount', options) : entry?.previous}));
+  }
+  if (tableName === 'installments' && Array.isArray(row.postedPayments)) row.postedPayments = row.postedPayments.map(item => syncMoneyField({...item}, 'amount', {...options,signed:true}));
+  if (tableName === 'settings') syncSavingsSetting(row,options);
+  return row;
+};
+const synchronizeMoneyUpdate = (tableName, mods, current) => {
+  const next = structuredClone({...current,...mods});
+  for (const field of MONEY_FIELDS_BY_TABLE[tableName] || []) {
+    const centsKey=`${field}Cents`, displayChanged=hasOwn(mods,field), centsChanged=hasOwn(mods,centsKey);
+    if (displayChanged && !centsChanged) next[centsKey]=parseMoneyCents(mods[field]);
+    else if (!displayChanged && centsChanged) next[field]=centsToMoney(mods[centsKey]);
+    else if (displayChanged && centsChanged && parseMoneyCents(mods[field])!==mods[centsKey]) throw new Error(`${field} and ${centsKey} do not match`);
+  }
+  if (tableName==='settings' && current?.key==='totalSavings') {
+    const displayChanged=hasOwn(mods,'value'),centsChanged=hasOwn(mods,'valueCents');
+    if(displayChanged&&!centsChanged)next.valueCents=parseMoneyCents(mods.value);
+    else if(!displayChanged&&centsChanged)next.value=centsToMoney(mods.valueCents);
+    else if(displayChanged&&centsChanged&&parseMoneyCents(mods.value)!==mods.valueCents)throw new Error('value and valueCents do not match');
+  }
+  return synchronizeMoneyRecord(tableName,next);
+};
+const canonicalForWrite = (tableName, value) => synchronizeMoneyRecord(tableName,value,MIGRATION_MODE?{rejectMismatch:false,prefer:'display'}:{});
+const refreshEditableMoneyFields = (tableName, input) => {
+  const row=structuredClone(input||{});
+  for(const field of MONEY_FIELDS_BY_TABLE[tableName]||[])if(row[field]!==undefined&&row[field]!==null&&row[field]!=='')row[`${field}Cents`]=parseMoneyCents(row[field]);
+  return row;
+};
+const addCanonicalRecord = (tableName, value) => db[tableName].add(canonicalForWrite(tableName,value));
+const putCanonicalRecord = (tableName, value) => db[tableName].put(canonicalForWrite(tableName,value));
+const updateCanonicalRecord = async (tableName, id, mods) => { const current=await db[tableName].get(id); if(!current)throw new Error(`${tableName} record no longer exists`); const next=synchronizeMoneyUpdate(tableName,mods,current); next.id=current.id; return db[tableName].put(next); };
+const bulkPutCanonicalRecords = (tableName, values) => db[tableName].bulkPut(values.map(value=>canonicalForWrite(tableName,value)));
 const assertBackupMoneySafety = data => {
   let absoluteCents = 0;
   const add = value => {
@@ -789,6 +839,8 @@ const assertBackupMoneySafety = data => {
   const savingsAnchor = data.settings.find(r=>r?.key==='savingsAnchor'); if (savingsAnchor?.value) { add(savingsAnchor.value.amount||0); add(savingsAnchor.value.accumulatedAtAnchor||0); }
 };
 const BUILTIN_EXPENSE_CATEGORY_IDS = new Set(['housing','food','transport','health','entertainment','shopping','bills','insurance','savings','other','installments']);
+const FORBIDDEN_CATEGORY_IDS = new Set(['__proto__','prototype','constructor']);
+const isSafeCategoryId = id => typeof id === 'string' && validText(id,80) && !BUILTIN_EXPENSE_CATEGORY_IDS.has(id) && !FORBIDDEN_CATEGORY_IDS.has(id.toLowerCase());
 const isFiniteNum = v => typeof v === 'number' && Number.isFinite(v);
 const isPlainObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const isSafeId = v => Number.isSafeInteger(v) && v > 0;
@@ -826,7 +878,31 @@ const validIncomePeriods = periods => {
   return true;
 };
 const validRecurringPostings = rows => Array.isArray(rows) && rows.length <= 100000 && rows.every(row => isPlainObj(row) && isValidISODate(row.date) && validMoney(Number(row.amount)) && validText(row.name || 'Recurring charge') && validText(row.category,80) && (row.cardId === '' || row.cardId === null || row.cardId === undefined || isSafeId(Number(row.cardId))));
-const validInstallmentPostings = rows => Array.isArray(rows) && rows.length <= 100000 && rows.every(row => isPlainObj(row) && isValidISODate(row.date) && validSignedMoney(Number(row.amount)) && ['payment','payoff','reversal'].includes(row.type || 'payment') && validText(row.name || 'Installment payment') && (row.cardId === '' || row.cardId === null || row.cardId === undefined || isSafeId(Number(row.cardId))));
+const installmentLedgerError = record => {
+  const rows=record?.postedPayments||[];
+  if(!Array.isArray(rows)||rows.length>100000)return 'invalid postedPayments';
+  const start=record?.startDate,completion=record?.completedDate||'';
+  let running=0; const monthlyDates=new Set();
+  for(const row of [...rows].sort((a,b)=>String(a?.date||'').localeCompare(String(b?.date||'')))){
+    if(!isPlainObj(row)||!isValidISODate(row.date)||!validSignedMoney(Number(row.amount))||!['payment','payoff','reversal'].includes(row.type||'payment')||!validText(row.name||'Installment payment')||(row.cardId!==''&&row.cardId!==null&&row.cardId!==undefined&&!isSafeId(Number(row.cardId))))return 'invalid postedPayments';
+    const cents=parseMoneyCents(row.amount),type=row.type||'payment';
+    if((type==='payment'||type==='payoff')&&cents<=0)return `${type} must be positive`;
+    if(type==='reversal'&&cents>=0)return 'reversal must be negative';
+    if(isValidISODate(start)&&row.date<start)return 'payment precedes startDate';
+    if(completion&&row.date>completion)return 'payment follows completedDate';
+    if(type==='payment'){
+      const key=row.date.slice(0,7);
+      if(monthlyDates.has(key))return 'duplicate scheduled payment month';
+      monthlyDates.add(key);
+    }
+    running=safeAddCents(running,cents);
+    if(running<0)return 'posted principal becomes negative';
+    if(validMoney(Number(record?.totalAmount))&&running>parseMoneyCents(record.totalAmount))return 'posted principal exceeds totalAmount';
+  }
+  if((record?.isComplete||completion)&&validMoney(Number(record?.totalAmount))&&running!==parseMoneyCents(record.totalAmount))return 'completed installment has unpaid principal';
+  return null;
+};
+const validInstallmentPostings = rows => !installmentLedgerError({postedPayments:rows});
 const uniqueIds = (rows, name) => {
   const ids = new Set();
   for (const row of rows) {
@@ -851,8 +927,7 @@ const normalizePostedRows = (rows, kind) => {
     name: String(row.name || (kind === 'installment' ? 'Installment payment' : 'Recurring charge')),
     ...(kind === 'recurring' ? { category: String(row.category || 'other') } : {})
   })).sort((a,b)=>a.date.localeCompare(b.date)).filter(row => {
-    const ordinaryMonthly = kind === 'recurring' || (kind === 'installment' && row.type === 'payment');
-    if (!ordinaryMonthly || !isValidISODate(row.date)) return true;
+    if (kind !== 'recurring' || !isValidISODate(row.date)) return true;
     const key=row.date.slice(0,7);
     if (seenMonthly.has(key)) return false;
     seenMonthly.add(key); return true;
@@ -937,11 +1012,8 @@ const validateBackup = input => {
       if (r.deletedAt && !isValidISODate(r.deletedAt)) return 'invalid deletedAt';
       if (r.completedDate && !isValidISODate(r.completedDate)) return 'invalid completedDate';
       if (r.completedDate && r.completedDate < r.startDate) return 'completedDate precedes startDate';
-      if (!validInstallmentPostings(r.postedPayments || [])) return 'invalid postedPayments';
+      const ledgerError=installmentLedgerError(r); if(ledgerError)return ledgerError;
       if ((r.postedPayments || []).some(row => row.cardId !== '' && (!isSafeId(row.cardId) || !cardIds.has(row.cardId)))) return 'invalid posted payment cardId';
-      const paid = Math.round((r.postedPayments || []).reduce((sum,row)=>sum+Number(row.amount||0),0)*100)/100;
-      if (paid < 0 || paid > total + .01) return 'posted payments contradict principal';
-      if ((r.isComplete || r.completedDate) && Math.abs(total-paid) > .01) return 'completed installment has unpaid principal';
       return null;
     });
     const budgetCats = new Set();
@@ -956,13 +1028,14 @@ const validateBackup = input => {
       if (r.key === 'darkMode' && !isBool(r.value)) return 'invalid darkMode';
       if (r.key === 'currency' && (!isPlainObj(r.value) || !validText(r.value.code, 8) || !validText(r.value.sym, 8))) return 'invalid currency';
       if (r.key === 'customCategories') {
-        if (!Array.isArray(r.value) || r.value.length > 100 || r.value.some(c => !isPlainObj(c) || !validText(c.id, 80) || !validText(c.label, 80) || !validText(c.icon, 40) || (c.archived !== undefined && !isBool(c.archived)) || BUILTIN_EXPENSE_CATEGORY_IDS.has(c.id))) return 'invalid customCategories or reserved id collision';
+        if (!Array.isArray(r.value) || r.value.length > 100 || r.value.some(c => !isPlainObj(c) || !isSafeCategoryId(c.id) || !validText(c.label, 80) || !validText(c.icon, 40) || (c.archived !== undefined && !isBool(c.archived)) || BUILTIN_EXPENSE_CATEGORY_IDS.has(c.id))) return 'invalid customCategories or reserved id collision';
         const ids = r.value.map(c => c.id); if (new Set(ids).size !== ids.length) return 'duplicate custom category id';
       }
       if (r.key === 'totalSavings' && !validMoney(Number(r.value), { allowZero: true })) return 'invalid totalSavings';
       if (r.key === 'savingsAnchor' && (!isPlainObj(r.value) || !validMoney(Number(r.value.amount), {allowZero:true}) || !isValidISODate(r.value.date) || !validAnyMoney(Number(r.value.accumulatedAtAnchor)))) return 'invalid savingsAnchor';
-      if (['migration-v3','migration-v4','migration-v5','migration-v6','migration-v7','migration-v8'].includes(r.key) && (!isPlainObj(r.value) || !isValidISODate(r.value.completed) || !validText(r.value.build, 40))) return 'invalid migration marker';
-      if (!['language','payday','cycleLabel','theme','darkMode','currency','customCategories','totalSavings','savingsAnchor','migration-v3','migration-v4','migration-v5','migration-v6','migration-v7','migration-v8'].includes(r.key)) return 'unknown setting key';
+      if (r.key === 'moneyRepairLog' && (!isPlainObj(r.value) || !Number.isInteger(r.value.count) || r.value.count < 0 || !isValidISODate(r.value.completed))) return 'invalid moneyRepairLog';
+      if (['migration-v3','migration-v4','migration-v5','migration-v6','migration-v7','migration-v8','migration-v9','migration-v10'].includes(r.key) && (!isPlainObj(r.value) || !isValidISODate(r.value.completed) || !validText(r.value.build, 40))) return 'invalid migration marker';
+      if (!['language','payday','cycleLabel','theme','darkMode','currency','customCategories','totalSavings','savingsAnchor','moneyRepairLog','migration-v3','migration-v4','migration-v5','migration-v6','migration-v7','migration-v8','migration-v9','migration-v10'].includes(r.key)) return 'unknown setting key';
       return null;
     });
     return { ok: true, data };
@@ -1189,6 +1262,7 @@ const applyTheme = id => {
   document.documentElement.classList.remove('dark', ...THEME_CLASSES);
   if (selected.className) document.documentElement.classList.add(selected.className);
   if (selected.dark) document.documentElement.classList.add('dark');
+  document.documentElement.style.colorScheme=selected.dark?'dark':'light';
   document.documentElement.dataset.theme = selected.id;
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) meta.setAttribute('content', selected.primary);
@@ -1462,7 +1536,7 @@ Object.assign(LANGS.en, {
   estimatedOutstanding:'Estimated current outstanding', estimateNote:'Estimate assumes scheduled payments and does not replace your card statement.',
   selectedCycleCharges:'Selected-cycle charges', overLimitBy:'Over limit by', currentOutstanding:'Current outstanding',
   savedThisCycle:'saved this cycle', surplus:'surplus', errSavedOverTarget:'Already saved cannot exceed the target.',
-  dataStorage:'Data storage:', onlineInstructions:'Records are stored on this device in IndexedDB. This single-file build requires an internet connection to load its runtime libraries.',
+  dataStorage:'Data storage:', onlineInstructions:'Records are stored on this device in IndexedDB. After one successful hosted launch, the service worker caches the app shell and runtime libraries for later offline use. The first launch still requires internet access.',
   plaintextWarning:'JSON and CSV exports contain unencrypted financial data. Store and share them securely.',
   importTooLarge:'Backup file is too large.', retry:'Retry', loadFailed:'Could not load data.',
   actualSpend:'Actual spending', scheduledSpend:'Scheduled spending', noProjectionPastFuture:'Projection is shown only for the current active cycle.',
@@ -1481,7 +1555,7 @@ Object.assign(LANGS.th, {
   estimatedOutstanding:'ยอดคงค้างปัจจุบันโดยประมาณ', estimateNote:'เป็นค่าประมาณจากกำหนดชำระ ไม่ใช่ยอดตามใบแจ้งหนี้บัตร',
   selectedCycleCharges:'รายการในรอบที่เลือก', overLimitBy:'เกินวงเงิน', currentOutstanding:'ยอดคงค้างปัจจุบัน',
   savedThisCycle:'ออมในรอบนี้', surplus:'เกินเป้าหมาย', errSavedOverTarget:'ยอดที่ออมแล้วต้องไม่เกินเป้าหมาย',
-  dataStorage:'การจัดเก็บข้อมูล:', onlineInstructions:'ข้อมูลถูกเก็บในอุปกรณ์ผ่าน IndexedDB ไฟล์เดี่ยวรุ่นนี้ต้องใช้อินเทอร์เน็ตเพื่อโหลดไลบรารีของแอป',
+  dataStorage:'การจัดเก็บข้อมูล:', onlineInstructions:'ข้อมูลถูกเก็บในอุปกรณ์ผ่าน IndexedDB หลังจากเปิดผ่านเว็บโฮสต์สำเร็จหนึ่งครั้ง Service Worker จะเก็บตัวแอปและไลบรารีไว้เพื่อเปิดแบบออฟไลน์ในครั้งต่อไป การเปิดครั้งแรกยังต้องใช้อินเทอร์เน็ต',
   plaintextWarning:'ไฟล์ JSON และ CSV มีข้อมูลการเงินแบบไม่เข้ารหัส ควรจัดเก็บและส่งต่ออย่างปลอดภัย',
   importTooLarge:'ไฟล์สำรองมีขนาดใหญ่เกินไป', retry:'ลองอีกครั้ง', loadFailed:'โหลดข้อมูลไม่สำเร็จ',
   actualSpend:'รายจ่ายจริง', scheduledSpend:'รายจ่ายตามกำหนด', noProjectionPastFuture:'แสดงการคาดการณ์เฉพาะรอบปัจจุบัน',
@@ -1586,7 +1660,7 @@ const moneyFontStyle = (value, sym = '$', kind = 'stat') => {
     hero: [[12,30],[15,26],[18,23],[21,20],[24,18],[28,16],[Infinity,14]],
     stat: [[10,26],[12,23],[14,20],[16,18],[18,16],[21,15],[24,14],[Infinity,13]],
     card: [[12,24],[15,21],[18,18],[21,16],[24,15],[Infinity,14]],
-    savings: [[11,30],[14,27],[17,24],[20,21],[23,18],[Infinity,16]],
+    savings: [[11,30],[14,27],[17,23],[20,19],[23,17],[27,15],[Infinity,13]],
     summary: [[12,26],[15,22],[18,19],[21,17],[24,15],[Infinity,14]]
   };
   const size = (scales[kind] || scales.stat).find(([max])=>length<=max)[1];
@@ -1600,19 +1674,26 @@ const mkLabel = d => d.toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-U
   year: 'numeric'
 });
 const isoLocal = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-const todayStr = () => isoLocal(new Date());
+const THAILAND_TIME_ZONE = 'Asia/Bangkok';
+const thailandDateFormatter = new Intl.DateTimeFormat('en-CA',{timeZone:THAILAND_TIME_ZONE,year:'numeric',month:'2-digit',day:'2-digit'});
+const thailandTodayISO = () => {
+  const parts=Object.fromEntries(thailandDateFormatter.formatToParts(new Date()).filter(part=>part.type!=='literal').map(part=>[part.type,part.value]));
+  return `${parts.year}-${parts.month}-${parts.day}`;
+};
+const todayStr = thailandTodayISO;
 const parseISODate = value => isValidISODate(value) ? new Date(`${value}T12:00:00`) : null;
 const parseMonthKey = value => isValidMonthKey(value) ? new Date(`${value}-01T12:00:00`) : null;
+const thailandTodayDate = () => parseISODate(todayStr());
+const isoEpochDay = value => { const [y,m,d]=value.split('-').map(Number); return Math.floor(Date.UTC(y,m-1,d)/86400000); };
+const addISODays = (value,days) => { const [y,m,d]=value.split('-').map(Number),date=new Date(Date.UTC(y,m-1,d+Number(days||0))); return `${date.getUTCFullYear()}-${String(date.getUTCMonth()+1).padStart(2,'0')}-${String(date.getUTCDate()).padStart(2,'0')}`; };
+const calendarDayDiff = (startISO,endISO) => isoEpochDay(endISO)-isoEpochDay(startISO);
+const addCalendarDays = (date,days) => parseISODate(addISODays(isoLocal(date),days));
 const daysInMonth = (year, monthIndex) => new Date(year, monthIndex + 1, 0).getDate();
 const clampedMonthlyDate = (year, monthIndex, day) => new Date(year, monthIndex, Math.min(Math.max(1, Number(day) || 1), daysInMonth(year, monthIndex)), 12);
-const endExclusiveAfterISO = value => {
-  const d = parseISODate(value); if (!d) return null;
-  d.setDate(d.getDate() + 1); return d;
-};
+const endExclusiveAfterISO = value => isValidISODate(value) ? parseISODate(addISODays(value,1)) : null;
 const previousMonthKey = key => {
   const d = parseMonthKey(key); return d ? mkKey(addMonths(d, -1)) : key;
 };
-const DAY = 86400000;
 
 // Mutable pay-cycle defaults are loaded from IndexedDB during app initialization.
 // They must exist before cycle helpers and the first React render reference them.
@@ -1632,18 +1713,29 @@ const cycleRange = (anchor, payday = PAYDAY, label = CYCLE_LABEL) => {
   const y = anchor.getFullYear(), m = anchor.getMonth();
   const start = payBoundary(y, label === 'start' ? m : m - 1, payday);
   const end = payBoundary(y, label === 'start' ? m + 1 : m, payday);
+  if (isoLocal(end) <= isoLocal(start)) throw new Error('Invalid salary cycle boundary');
   return { start, end, startISO: isoLocal(start), endISO: isoLocal(end) };
 };
+const cycleBoundaryEntries = (date, payday = PAYDAY) => {
+  const entries=[];
+  for(let offset=-4;offset<=4;offset++){
+    const anchor=new Date(date.getFullYear(),date.getMonth()+offset,1,12);
+    entries.push({anchor,boundary:payBoundary(anchor.getFullYear(),anchor.getMonth(),payday)});
+  }
+  return entries.sort((a,b)=>a.boundary-b.boundary);
+};
 const cycleAnchor = (date, payday = PAYDAY, label = CYCLE_LABEL) => {
-  const y = date.getFullYear(), m = date.getMonth();
-  const onOrAfter = isoLocal(date) >= isoLocal(payBoundary(y, m, payday));
-  const offset = label === 'start' ? (onOrAfter ? 0 : -1) : (onOrAfter ? 1 : 0);
-  return new Date(y, m + offset, 1);
+  const selectedISO=isoLocal(date),entries=cycleBoundaryEntries(date,payday);
+  let startIndex=0;
+  for(let i=0;i<entries.length;i++)if(isoLocal(entries[i].boundary)<=selectedISO)startIndex=i;
+  const startEntry=entries[startIndex],endEntry=entries[startIndex+1];
+  if(!startEntry||!endEntry)throw new Error('Unable to resolve salary cycle');
+  return label==='start'?new Date(startEntry.anchor):new Date(endEntry.anchor);
 };
 const inCycle = (dateString, range) => !!dateString && dateString >= range.startISO && dateString < range.endISO;
 const dateInRange = (date, start, end) => date >= start && date < end;
 const CASHFLOW_HISTORY_START = new Date(1970, 0, 1);
-const currentSalaryCycleRange = (payday = PAYDAY) => cycleRange(cycleAnchor(new Date(), payday, CYCLE_LABEL), payday, CYCLE_LABEL);
+const currentSalaryCycleRange = (payday = PAYDAY) => cycleRange(cycleAnchor(thailandTodayDate(), payday, CYCLE_LABEL), payday, CYCLE_LABEL);
 const realizedCashflowThrough = ({ incomes = [], recurring = [], installments = [], expenses = [] }, throughISO = todayStr()) => {
   const safeThroughISO = isValidISODate(throughISO) ? throughISO : todayStr();
   const cutoffExclusive = endExclusiveAfterISO(safeThroughISO);
@@ -1661,8 +1753,19 @@ const savingsAnchorState = (setting, fallbackAmount, accumulatedNet) => {
   }
   return {amount:Math.max(0,roundMoney(fallbackAmount||0)),date:todayStr(),accumulatedAtAnchor:roundMoney(accumulatedNet||0)};
 };
-const savingsTotalFromAnchor = (anchor, accumulatedNet) => {
-  const since=moneyDifference(accumulatedNet||0,anchor?.accumulatedAtAnchor||0);
+const realizedCashflowAfter = (ledger, anchorISO, throughISO = todayStr()) => {
+  if(!isValidISODate(anchorISO))throw new Error('Savings anchor requires a valid date');
+  const start=parseISODate(addISODays(anchorISO,1)),end=endExclusiveAfterISO(throughISO);
+  if(!start||!end||start>=end)return {income:0,expenses:0,net:0,cutoffISO:throughISO};
+  const income=moneySum((ledger?.incomes||[]).map(record=>incomeAmountInRange(record,start,end)));
+  const variable=moneySum((ledger?.expenses||[]).filter(record=>record?.date&&record.date>anchorISO&&record.date<=throughISO).map(record=>record.amount||0));
+  const fixed=moneySum((ledger?.recurring||[]).map(record=>recurringAmountInRange(record,start,end)));
+  const installment=moneySum((ledger?.installments||[]).map(record=>installmentAmountInRange(record,start,end)));
+  const expenses=moneySum([variable,fixed,installment]);
+  return {income,expenses,net:moneyDifference(income,expenses),cutoffISO:throughISO};
+};
+const savingsTotalFromAnchor = (anchor, ledger, throughISO = todayStr()) => {
+  const since=realizedCashflowAfter(ledger,anchor?.date||todayStr(),throughISO).net;
   return {cashflowSinceAnchor:since,totalSavings:moneySum([anchor?.amount||0,since])};
 };
 
@@ -1707,7 +1810,7 @@ const withActivityAtMonth = (record, makeActive, effectiveMonth) => {
     });
   }
   periods = normalizeActivityPeriods(periods);
-  const todayKey = mkKey(new Date());
+  const todayKey = mkKey(thailandTodayDate());
   return {
     activePeriods: periods,
     startMonth: periods[0]?.startMonth || record.startMonth || effectiveMonth,
@@ -1787,7 +1890,7 @@ const freezeRecurringThrough = (record, throughISO = todayStr()) => {
   if (!record || !isValidISODate(throughISO)) return record;
   const throughEnd = endExclusiveAfterISO(throughISO);
   const existing = normalizeRecurringPostings(record);
-  const firstMonth = recurringActivityPeriodsFor(record)[0]?.startDate.slice(0,7) || record.startMonth || mkKey(new Date());
+  const firstMonth = recurringActivityPeriodsFor(record)[0]?.startDate.slice(0,7) || record.startMonth || mkKey(thailandTodayDate());
   const projectionStart = record.postedThrough && isValidISODate(record.postedThrough) ? endExclusiveAfterISO(record.postedThrough) : parseMonthKey(firstMonth);
   const byDate = new Map(existing.map(row => [row.date, row]));
   if (projectionStart && projectionStart < throughEnd) {
@@ -1850,7 +1953,7 @@ const scheduledIncomeDate = (frequency, anchorValue, targetValue, inclusive = tr
     const step=frequency==='weekly'?7:14;
     let date=new Date(anchor);
     if(!qualifies(date)){
-      const diff=Math.max(0,Math.floor((target-date)/DAY));
+      const diff=Math.max(0,calendarDayDiff(isoLocal(date),isoLocal(target)));
       date.setDate(date.getDate()+Math.floor(diff/step)*step);
       while(!qualifies(date))date.setDate(date.getDate()+step);
     }
@@ -1877,7 +1980,7 @@ const incomePeriodOccurrences = (period, start, end, income) => {
   if(period.frequency==='weekly'||period.frequency==='biweekly'){
     const step=period.frequency==='weekly'?7:14;
     let date=new Date(anchor);
-    if(date<rangeStart){const jumps=Math.max(0,Math.floor((rangeStart-date)/DAY/step));date.setDate(date.getDate()+jumps*step);while(date<rangeStart)date.setDate(date.getDate()+step);}
+    if(date<rangeStart){const jumps=Math.max(0,Math.floor(calendarDayDiff(isoLocal(date),isoLocal(rangeStart))/step));date=addCalendarDays(date,jumps*step);while(date<rangeStart)date=addCalendarDays(date,step);}
     let guard=0;while(date<rangeEnd&&guard++<20000){push(new Date(date));date.setDate(date.getDate()+step);}
   }else if(period.frequency==='yearly'){
     let year=Math.max(anchor.getFullYear(),rangeStart.getFullYear()-1),guard=0;
@@ -2035,12 +2138,12 @@ const installmentOccurrences = (installment, start, end) => {
   return [...posted,...projected].sort((a,b)=>a.date.localeCompare(b.date));
 };
 const installmentAmountInRange = (installment, start, end) => moneySum(installmentOccurrences(installment, start, end).map(row => row.amount));
-const instRemaining = (installment, asOf = new Date()) => {
+const instRemaining = (installment, asOf = thailandTodayDate()) => {
   const asOfISO=isoLocal(asOf),posted=installmentPostedTotal(installment,asOfISO),projected=moneySum(installmentSchedule(installment).filter(row=>row.date<=asOfISO).map(row=>row.amount));
   return Math.max(0,moneySum([installment.totalAmount||0,-posted,-projected]));
 };
-const instMonthsLeft = (installment, asOf = new Date()) => instRemaining(installment,asOf)<=0?0:installmentSchedule(installment).filter(row=>row.date>isoLocal(asOf)).length;
-const instActive = (installment, asOf = new Date()) => !installment?.isDeleted && instRemaining(installment, asOf) > 0;
+const instMonthsLeft = (installment, asOf = thailandTodayDate()) => instRemaining(installment,asOf)<=0?0:installmentSchedule(installment).filter(row=>row.date>isoLocal(asOf)).length;
+const instActive = (installment, asOf = thailandTodayDate()) => !installment?.isDeleted && instRemaining(installment, asOf) > 0;
 const nextInstallmentDateAfter = (startDate, afterISO) => {
   const base=parseISODate(startDate),after=parseISODate(afterISO);
   if(!base||!after)return startDate;
@@ -2065,6 +2168,34 @@ const reopenInstallmentRecord = (installment, reopenISO = todayStr()) => {
   return {...next,monthsRemaining:projectedInstallmentSchedule(next).length};
 };
 const archiveInstallmentRecord = (installment, deletedISO = todayStr()) => ({...freezeInstallmentThrough(installment,deletedISO),isDeleted:true,deletedAt:deletedISO,isComplete:installment.isComplete,completedDate:installment.completedDate||''});
+const installmentFinancialFieldsChanged=(existing,form)=>['totalAmount','monthlyPayment','cardId','startDate'].some(field=>field==='totalAmount'||field==='monthlyPayment'?parseMoneyCents(existing?.[field]||0)!==parseMoneyCents(form?.[field]||0):String(existing?.[field]??'')!==String(form?.[field]??''));
+const buildInstallmentRecord=(existing,form,asOfISO=todayStr())=>{
+  if(existing){
+    const frozen=freezeInstallmentThrough(existing,asOfISO),completed=!!(frozen.isComplete||frozen.completedDate);
+    if(completed&&installmentFinancialFieldsChanged(frozen,form))throw new Error('Completed installment financial fields are locked. Reopen it before changing them.');
+    const earliest=normalizeInstallmentPostings(frozen)[0]?.date;
+    if(!completed&&earliest&&form.startDate>earliest)throw new Error('Start date cannot move after a posted payment');
+    const total=completed?frozen.totalAmount:roundMoney(form.totalAmount),monthly=completed?frozen.monthlyPayment:roundMoney(form.monthlyPayment),cardId=completed?frozen.cardId:Number(form.cardId),startDate=completed?frozen.startDate:form.startDate;
+    if(!completed&&moneyDifference(total,installmentPostedTotal(frozen))<0)throw new Error('Total cannot be less than posted payments');
+    const candidateStart=startDate>asOfISO?startDate:nextInstallmentDateAfter(startDate,asOfISO);
+    let next={...frozen,name:form.name,totalAmount:total,monthlyPayment:monthly,cardId,startDate,postedPayments:frozen.postedPayments,postedThrough:frozen.postedThrough,isDeleted:!!existing.isDeleted,deletedAt:existing.deletedAt||'',isComplete:!!existing.isComplete,completedDate:existing.completedDate||'',nextPaymentDate:completed?(frozen.nextPaymentDate||''):candidateStart};
+    if(!completed){const projected=projectedInstallmentSchedule(next);next={...next,nextPaymentDate:projected[0]?.date||candidateStart,monthsRemaining:projected.length};}
+    else next.monthsRemaining=0;
+    // The editable values are authoritative for this explicit domain edit.
+    next=synchronizeMoneyRecord('installments',refreshEditableMoneyFields('installments',next));
+    const error=installmentLedgerError(next);if(error)throw new Error(error);
+    return next;
+  }
+  let next=freezeInstallmentThrough({name:form.name,totalAmount:roundMoney(form.totalAmount),monthlyPayment:roundMoney(form.monthlyPayment),monthsRemaining:form.monthsRemaining,cardId:Number(form.cardId),startDate:form.startDate,postedPayments:[],postedThrough:'',nextPaymentDate:form.startDate,isDeleted:false,deletedAt:'',isComplete:false,completedDate:''},asOfISO);
+  next=synchronizeMoneyRecord('installments',next);const error=installmentLedgerError(next);if(error)throw new Error(error);return next;
+};
+const persistInstallmentForm=async form=>{
+  const existing=form.id?await db.installments.get(form.id):null;
+  if(form.id&&!existing)throw new Error('Installment no longer exists');
+  const next=buildInstallmentRecord(existing,form,todayStr());
+  if(existing){next.id=existing.id;await putCanonicalRecord('installments',next);}else await addCanonicalRecord('installments',next);
+  return next;
+};
 
 // Credit-card totals are date-based estimates because the app does not store real card payments.
 const dateOnly = value => parseISODate(isoLocal(value)) || value;
@@ -2081,21 +2212,21 @@ const monthlyAfter = (day, from) => {
   return date;
 };
 const cardChargeStart = (card, asOf) => {
-  const compare=dateOnly(asOf),cutoffThis=monthlyOnOrBefore(Number(card.statementDate)||1,compare),cutoffPrev=monthlyOnOrBefore(Number(card.statementDate)||1,new Date(cutoffThis.getTime()-DAY)),due=monthlyAfter(Number(card.dueDate)||15,cutoffThis);
+  const compare=dateOnly(asOf),cutoffThis=monthlyOnOrBefore(Number(card.statementDate)||1,compare),cutoffPrev=monthlyOnOrBefore(Number(card.statementDate)||1,addCalendarDays(cutoffThis,-1)),due=monthlyAfter(Number(card.dueDate)||15,cutoffThis);
   return isoLocal(due)>isoLocal(compare)?cutoffPrev:cutoffThis;
 };
 const cardExpOutstanding = (card, cardExpenses, asOf) => {
   const startISO = isoLocal(cardChargeStart(card, asOf)), endISO = isoLocal(asOf);
   return moneySum(cardExpenses.filter(expense => Number(expense.cardId) === Number(card.id) && expense.date >= startISO && expense.date <= endISO).map(expense => expense.amount));
 };
-const calculateCardBalance = (card, cardExpenses, recurring, installments, asOf = new Date()) => {
+const calculateCardBalance = (card, cardExpenses, recurring, installments, asOf = thailandTodayDate()) => {
   const start = cardChargeStart(card, asOf);
   const end = new Date(asOf); end.setDate(end.getDate() + 1); end.setHours(0, 0, 0, 0);
   const recurringBalance = moneySum(recurring.flatMap(record => recurringOccurrences(record, start, end)).filter(row => Number(row.cardId) === Number(card.id)).map(row => row.amount));
   const installmentBalance = moneySum(installments.filter(item => !item.isDeleted && Number(item.cardId) === Number(card.id)).map(item => instRemaining(item, asOf)));
   return moneySum([cardExpOutstanding(card,cardExpenses,asOf),recurringBalance,installmentBalance]);
 };
-const loadOutstandingCardExpenses = async (cards, asOf = new Date()) => {
+const loadOutstandingCardExpenses = async (cards, asOf = thailandTodayDate()) => {
   const endISO = isoLocal(asOf);
   const batches = await Promise.all((cards || []).filter(card=>isSafeId(Number(card.id))).map(card => {
     const startISO = isoLocal(cardChargeStart(card, asOf));
@@ -2110,15 +2241,15 @@ const cycleRangeLabel = (anchor, payday = PAYDAY, label = CYCLE_LABEL) => {
   return `${start.toLocaleDateString(locale, { month: 'short', day: 'numeric' })} – ${last.toLocaleDateString(locale, { month: 'short', day: 'numeric' })}`;
 };
 const mondayWeekRange = dateString => {
-  const selected = parseISODate(dateString || todayStr()) || new Date();
+  const selected = parseISODate(dateString || todayStr()) || thailandTodayDate();
   const start = new Date(selected), day = start.getDay();
   start.setDate(start.getDate() + (day === 0 ? -6 : 1 - day)); start.setHours(0, 0, 0, 0);
   const end = new Date(start); end.setDate(end.getDate() + 7); end.setHours(0, 0, 0, 0);
-  return { start, end, startISO: isoLocal(start), endISO: isoLocal(new Date(end.getTime() - DAY)) };
+  return { start, end, startISO: isoLocal(start), endISO: isoLocal(addCalendarDays(end,-1)) };
 };
 const mondayWeekLabel = dateString => {
   const { start, end } = mondayWeekRange(dateString);
-  const last = new Date(end.getTime() - DAY);
+  const last = addCalendarDays(end,-1);
   const locale = currentLang === 'th' ? 'th-TH' : 'en-US';
   const options = { weekday: 'short', month: 'short', day: 'numeric' };
   return `${start.toLocaleDateString(locale, options)} – ${last.toLocaleDateString(locale, options)}`;
@@ -2178,6 +2309,11 @@ const syncModalStack = () => {
     const dialog = node.querySelector('[role="dialog"]');
     if (dialog) dialog.setAttribute('aria-modal', active ? 'true' : 'false');
   });
+  const appRoot=document.getElementById('root');
+  if(appRoot){
+    appRoot.toggleAttribute('inert',!!top);
+    if(top)appRoot.setAttribute('aria-hidden','true');else appRoot.removeAttribute('aria-hidden');
+  }
 };
 function Modal({ title, onClose, children, busy = false }) {
   const modalId = useRef(`modal-${++modalIdCounter}`).current;
@@ -2243,7 +2379,7 @@ let fieldIdCounter = 0;
 const Field = ({ label, children, hint, error }) => {
   const id = useRef(`field-${++fieldIdCounter}`).current;
   const labelId = `${id}-label`, hintId = `${id}-hint`, errorId = `${id}-error`;
-  const native = React.isValidElement(children) && typeof children.type === 'string' && ['input', 'select', 'textarea'].includes(children.type);
+  const native = React.isValidElement(children) && ((typeof children.type === 'string' && ['input','select','textarea'].includes(children.type)) || [Inp,Sel,Txa].includes(children.type));
   const describedBy = [hint ? hintId : '', error ? errorId : ''].filter(Boolean).join(' ') || undefined;
   const child = native ? React.cloneElement(children, {
     id: children.props.id || id,
@@ -2320,769 +2456,107 @@ function PBar({
 }
 
 // Charts
-function DonutChart({
-  data,
-  labels,
-  colors,
-  sym = '$'
-}) {
-  const ref = useRef(null);
-  const inst = useRef(null);
-  const themeKey = document.documentElement.dataset.theme || 'default';
-  useEffect(() => {
-    if (!ref.current || !data?.length || typeof Chart === 'undefined') return;
+const CHART_JS_URL='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js';
+let chartLoadPromise=null;
+const ensureChartJs=()=>{
+  if(typeof window.Chart!=='undefined')return Promise.resolve(window.Chart);
+  if(chartLoadPromise)return chartLoadPromise;
+  chartLoadPromise=new Promise((resolve,reject)=>{
+    const script=document.createElement('script');
+    script.src=CHART_JS_URL;script.async=true;script.crossOrigin='anonymous';
+    script.integrity='sha384-bs/nf9FbdNouRbMiFcrcZfLXYPKiPaGVGplVbv7dLGECccEXDW+S3zjqSKR5ZEaD';
+    script.onload=()=>typeof window.Chart!=='undefined'?resolve(window.Chart):reject(new Error('Chart.js loaded without Chart global'));
+    script.onerror=()=>reject(new Error('Chart.js could not be loaded'));
+    document.head.appendChild(script);
+  }).catch(error=>{chartLoadPromise=null;throw error;});
+  return chartLoadPromise;
+};
+const useChartStatus=()=>{
+  const [status,setStatus]=useState(typeof window.Chart!=='undefined'?'ready':'loading');
+  useEffect(()=>{let active=true;if(status!=='ready')ensureChartJs().then(()=>active&&setStatus('ready')).catch(()=>active&&setStatus('failed'));return()=>{active=false;};},[]);
+  return status;
+};
+function DonutChart({data,labels,colors,sym='$'}) {
+  const ref=useRef(null),inst=useRef(null),status=useChartStatus();
+  const themeKey=document.documentElement.dataset.theme||'default';
+  useEffect(()=>{
+    if(status!=='ready'||!ref.current||!data?.length)return;
     inst.current?.destroy();
-    const css = getComputedStyle(document.documentElement);
-    const chartBorder = css.getPropertyValue('--card').trim() || '#fff';
-    const ctx = ref.current.getContext('2d');
-    const width = ref.current.clientWidth || ref.current.width || 320;
-    const height = ref.current.clientHeight || ref.current.height || 170;
-    const fills = (colors || []).map(color => {
-      if (color && typeof color === 'object' && color.light && color.base && color.dark) {
-        return chartCanvasFill(ctx, color, width, height);
-      }
-      return color;
-    });
-    inst.current = new Chart(ref.current, {
-      type: 'doughnut',
-      data: {
-        labels,
-        datasets: [{
-          data,
-          backgroundColor: fills,
-          borderWidth: 3,
-          borderColor: chartBorder,
-          hoverOffset: 5
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
-          },
-          tooltip: {
-            callbacks: {
-              label: ctx => ` ${ctx.label}: ${sym}${Number(ctx.raw || 0).toFixed(2)}`
-            }
-          }
-        },
-        cutout: '64%',
-        animation: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? false : undefined
-      }
-    });
-    return () => inst.current?.destroy();
-  }, [JSON.stringify(data), JSON.stringify(labels), JSON.stringify(colors), sym, themeKey]);
-  if (typeof Chart === 'undefined') return /*#__PURE__*/React.createElement("div", { className: "chart-unavailable", role: "status" }, t('chartUnavailable'));
-  return /*#__PURE__*/React.createElement("div", { style: { position: 'relative', height: 170 } }, /*#__PURE__*/React.createElement("canvas", {
-    ref: ref, role: "img", 'aria-label': labels.map((label, i) => `${label}: ${fmt(data[i] || 0, sym)}`).join('; ')
-  }));
+    const css=getComputedStyle(document.documentElement),chartBorder=css.getPropertyValue('--card').trim()||'#fff',ctx=ref.current.getContext('2d'),width=ref.current.clientWidth||ref.current.width||320,height=ref.current.clientHeight||ref.current.height||170;
+    const fills=(colors||[]).map(color=>color&&typeof color==='object'&&color.light&&color.base&&color.dark?chartCanvasFill(ctx,color,width,height):color);
+    inst.current=new window.Chart(ref.current,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:fills,borderWidth:3,borderColor:chartBorder,hoverOffset:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${sym}${Number(ctx.raw||0).toFixed(2)}`}}},cutout:'64%',animation:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?false:undefined}});
+    return()=>inst.current?.destroy();
+  },[status,JSON.stringify(data),JSON.stringify(labels),JSON.stringify(colors),sym,themeKey]);
+  if(status==='loading')return h('div',{className:'chart-unavailable',role:'status'},t('loading'));
+  if(status==='failed')return h('div',{className:'chart-unavailable',role:'status'},t('chartUnavailable'));
+  return h('div',{style:{position:'relative',height:170}},h('canvas',{ref,role:'img','aria-label':labels.map((label,i)=>`${label}: ${fmt(data[i]||0,sym)}`).join('; ')}));
 }
-function BarChart({
-  labels,
-  datasets,
-  sym = '$'
-}) {
-  const ref = useRef(null);
-  const inst = useRef(null);
-  const themeKey = document.documentElement.dataset.theme || 'default';
-  useEffect(() => {
-    if (!ref.current || typeof Chart === 'undefined') return;
+function BarChart({labels,datasets,sym='$'}) {
+  const ref=useRef(null),inst=useRef(null),status=useChartStatus();
+  const themeKey=document.documentElement.dataset.theme||'default';
+  useEffect(()=>{
+    if(status!=='ready'||!ref.current)return;
     inst.current?.destroy();
-    const ctx = ref.current.getContext('2d');
-    const width = ref.current.clientWidth || ref.current.width || 320;
-    const height = ref.current.clientHeight || ref.current.height || 175;
-    const preparedDatasets = datasets.map(ds => {
-      if (!ds.gradient) return ds;
-      return {
-        ...ds,
-        backgroundColor: chartCanvasFill(ctx, ds.gradient, width, height),
-        borderColor: ds.gradient.dark,
-        borderWidth: 1
-      };
-    });
-    inst.current = new Chart(ref.current, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: preparedDatasets
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: true,
-            position: 'bottom',
-            labels: {
-              boxWidth: 12,
-              font: {
-                size: 11
-              }
-            }
-          }
-        },
-        animation: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? false : undefined,
-        scales: {
-          x: {
-            grid: {
-              display: false
-            }
-          },
-          y: {
-            grid: {
-              color: document.documentElement.classList.contains('dark') ? '#334155' : '#f1f5f9'
-            },
-            ticks: {
-              callback: v => sym + v.toFixed(0)
-            }
-          }
-        }
-      }
-    });
-    return () => inst.current?.destroy();
-  }, [JSON.stringify(labels), JSON.stringify(datasets), sym, themeKey]);
-  const descriptionId = useRef(`bar-chart-${++fieldIdCounter}`).current;
-  return /*#__PURE__*/React.createElement(React.Fragment, null,
-    typeof Chart === 'undefined' ? /*#__PURE__*/React.createElement("div", { className: "chart-unavailable", role: "status" }, t('chartUnavailable')) : /*#__PURE__*/React.createElement("div", { style: { height: 175 } }, /*#__PURE__*/React.createElement("canvas", {
-      ref: ref, role: "img", 'aria-label': t('incomeVsExpenses'), 'aria-describedby': descriptionId
-    })),
-    /*#__PURE__*/React.createElement("table", { className: "chart-table", id: descriptionId },
-      /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null,
-        /*#__PURE__*/React.createElement("th", { scope: "col" }, t('month')),
-        datasets.map(ds => /*#__PURE__*/React.createElement("th", { key: ds.label, scope: "col" }, ds.label)))),
-      /*#__PURE__*/React.createElement("tbody", null, labels.map((label, index) => /*#__PURE__*/React.createElement("tr", { key: label },
-        /*#__PURE__*/React.createElement("th", { scope: "row" }, label),
-        datasets.map(ds => /*#__PURE__*/React.createElement("td", { key: ds.label }, fmt(ds.data[index] || 0, sym)))))))
-  );
+    const ctx=ref.current.getContext('2d'),width=ref.current.clientWidth||ref.current.width||320,height=ref.current.clientHeight||ref.current.height||175;
+    const preparedDatasets=datasets.map(ds=>!ds.gradient?ds:{...ds,backgroundColor:chartCanvasFill(ctx,ds.gradient,width,height),borderColor:ds.gradient.dark,borderWidth:1});
+    inst.current=new window.Chart(ref.current,{type:'bar',data:{labels,datasets:preparedDatasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:12,font:{size:11}}}},animation:window.matchMedia?.('(prefers-reduced-motion: reduce)').matches?false:undefined,scales:{x:{grid:{display:false}},y:{grid:{color:document.documentElement.classList.contains('dark')?'#334155':'#f1f5f9'},ticks:{callback:v=>sym+v.toFixed(0)}}}}});
+    return()=>inst.current?.destroy();
+  },[status,JSON.stringify(labels),JSON.stringify(datasets),sym,themeKey]);
+  const descriptionId=useRef(`bar-chart-${++fieldIdCounter}`).current;
+  return h(React.Fragment,null,status==='loading'?h('div',{className:'chart-unavailable',role:'status'},t('loading')):status==='failed'?h('div',{className:'chart-unavailable',role:'status'},t('chartUnavailable')):h('div',{style:{height:175}},h('canvas',{ref,role:'img','aria-label':t('incomeVsExpenses'),'aria-describedby':descriptionId})),h('table',{className:'chart-table',id:descriptionId},h('thead',null,h('tr',null,h('th',{scope:'col'},t('month')),datasets.map(ds=>h('th',{key:ds.label,scope:'col'},ds.label)))),h('tbody',null,labels.map((label,index)=>h('tr',{key:label},h('th',{scope:'row'},label),datasets.map(ds=>h('td',{key:ds.label},fmt(ds.data[index]||0,sym))))))));
 }
 
 // ── Forms ──
-function ExpenseForm({
-  onSave,
-  cards,
-  onManageCategories,
-  initial = null,
-  catVersion = 0
-}) {
-  const [f, sf] = useState({
-    name: '',
-    amount: '',
-    date: todayStr(),
-    category: 'other',
-    notes: '',
-    cardId: '',
-    ...initial,
-    amount: initial?.amount ?? ''
-  });
-  const s = (k, v) => sf(p => ({
-    ...p,
-    [k]: v
-  }));
-  useEffect(() => {
-    if (f.category && !expenseCats().some(c => c.id === f.category)) s('category', 'other');
-  }, [catVersion]);
-  const [err, setErr] = useState('');
-  const ok = () => {
-    const name = f.name.trim();
-    const amount = Number(f.amount);
-    if (!name) return setErr(t('errName'));
-    if (!validMoney(amount)) return setErr(t('errAmount'));
-    if (!isValidISODate(f.date)) return setErr(t('errDate'));
-    setErr('');
-    return onSave({
-      ...f,
-      name,
-      amount: roundMoney(amount),
-      cardId: f.cardId ? Number(f.cardId) : ''
-    });
-  };
-  const submit = useGuardedSubmit(ok);
-  return /*#__PURE__*/React.createElement("form", { onSubmit: submit.onSubmit, noValidate: true }, /*#__PURE__*/React.createElement(Field, {
-    label: t('name')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "text",
-    placeholder: "e.g. Grocery run",
-    value: f.name,
-    onChange: e => s('name', e.target.value),
-    autoFocus: true
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "frow"
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: t('amount')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "number",
-    placeholder: "0.00",
-    step: "0.01",
-    min: "0.01",
-    inputMode: "decimal",
-    value: f.amount,
-    onChange: e => s('amount', e.target.value)
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: t('date')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "date",
-    value: f.date,
-    onChange: e => s('date', e.target.value)
-  }))), err && /*#__PURE__*/React.createElement("div", { className: "form-err", role: "alert" }, err), /*#__PURE__*/React.createElement(Field, {
-    label: t('category')
-  }, /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    onClick: onManageCategories,
-    style: { width: 'fit-content', padding: '7px 11px', marginBottom: 10, border: '1px solid var(--border)', borderRadius: 8, background: 'var(--bg)', color: 'var(--p)', fontWeight: 700, cursor: 'pointer' }
-  }, t('manageExpenseTypes')), /*#__PURE__*/React.createElement(CatPicker, {
-    value: f.category,
-    onChange: v => s('category', v),
-    labelFn: getCatLabel
-  })), cards?.length > 0 && /*#__PURE__*/React.createElement(Field, {
-    label: t('cardOptional')
-  }, /*#__PURE__*/React.createElement(Sel, {
-    value: f.cardId ?? '',
-    onChange: e => s('cardId', e.target.value),
-    options: [{
-      value: '',
-      label: t('cashDebit')
-    }, ...cards.map(c => ({
-      value: String(c.id),
-      label: `${c.name} ••••${c.lastFour}`
-    }))]
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: t('notesOptional')
-  }, /*#__PURE__*/React.createElement(Txa, {
-    placeholder: t('anyNotes'),
-    value: f.notes,
-    onChange: e => s('notes', e.target.value),
-    rows: 2
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "btn bpri",
-    type: "submit",
-    disabled: submit.busy,
-    'aria-busy': submit.busy
-  }, initial ? t('saveChanges') : t('addExpenseBtn')));
+const useFormErrors=()=>{
+  const [errors,setErrors]=useState({});
+  const fail=(field,message)=>{setErrors({[field]:message});requestAnimationFrame(()=>document.querySelector(`[name="${field}"]`)?.focus?.());return false;};
+  const clear=field=>setErrors(current=>current[field]?{}:current);
+  return {errors,fail,clear,reset:()=>setErrors({})};
+};
+function ExpenseForm({onSave,cards,onManageCategories,initial=null,catVersion=0}){
+  const [f,sf]=useState({id:initial?.id,name:initial?.name||'',amount:initial?.amount??'',date:initial?.date||todayStr(),category:initial?.category||'other',notes:initial?.notes||'',cardId:initial?.cardId||''});
+  const validation=useFormErrors(),set=(k,v)=>{sf(x=>({...x,[k]:v}));validation.clear(k);};
+  useEffect(()=>{if(f.category&&!expenseCats().some(c=>c.id===f.category))set('category','other');},[catVersion]);
+  const submit=useGuardedSubmit(()=>{const name=f.name.trim(),amount=Number(f.amount);if(!name)return validation.fail('name',t('errName'));if(!validMoney(amount))return validation.fail('amount',t('errAmount'));if(!isValidISODate(f.date))return validation.fail('date',t('errDate'));validation.reset();return onSave({id:f.id,name,amount:roundMoney(amount),date:f.date,category:f.category,notes:f.notes,cardId:f.cardId?Number(f.cardId):''});});
+  return h('form',{onSubmit:submit.onSubmit,noValidate:true},
+    h(Field,{label:t('name'),error:validation.errors.name},h(Inp,{name:'name',type:'text',placeholder:'e.g. Grocery run',value:f.name,onChange:e=>set('name',e.target.value),autoFocus:true})),
+    h('div',{className:'frow'},h(Field,{label:t('amount'),error:validation.errors.amount},h(Inp,{name:'amount',type:'number',placeholder:'0.00',step:'0.01',min:'0.01',inputMode:'decimal',value:f.amount,onChange:e=>set('amount',e.target.value)})),h(Field,{label:t('date'),error:validation.errors.date},h(Inp,{name:'date',type:'date',value:f.date,onChange:e=>set('date',e.target.value)}))),
+    h(Field,{label:t('category')},h('button',{type:'button',onClick:onManageCategories,style:{width:'fit-content',padding:'7px 11px',marginBottom:10,border:'1px solid var(--border)',borderRadius:8,background:'var(--bg)',color:'var(--p)',fontWeight:700,cursor:'pointer'}},t('manageExpenseTypes')),h(CatPicker,{value:f.category,onChange:v=>set('category',v),labelFn:getCatLabel})),
+    cards?.length>0&&h(Field,{label:t('cardOptional')},h(Sel,{name:'cardId',value:f.cardId??'',onChange:e=>set('cardId',e.target.value),options:[{value:'',label:t('cashDebit')},...cards.map(c=>({value:String(c.id),label:`${c.name} ••••${c.lastFour}`}))]})),
+    h(Field,{label:t('notesOptional')},h(Txa,{name:'notes',placeholder:t('anyNotes'),value:f.notes,onChange:e=>set('notes',e.target.value),rows:2})),
+    h('button',{className:'btn bpri',type:'submit',disabled:submit.busy,'aria-busy':submit.busy},initial?t('saveChanges'):t('addExpenseBtn')));
 }
-function RecurringForm({
-  onSave,
-  cards,
-  initial = null,
-  catVersion = 0
-}) {
-  const [f, sf] = useState({
-    name: '',
-    amount: '',
-    dueDay: 1,
-    category: 'bills',
-    cardId: '',
-    isActive: true,
-    startMonth: mkKey(new Date()),
-    endMonth: '',
-    ...initial,
-    amount: initial?.amount ?? ''
-  });
-  const s = (k, v) => sf(p => ({
-    ...p,
-    [k]: v
-  }));
-  useEffect(() => {
-    if (f.category && !expenseCats().some(c => c.id === f.category)) s('category', 'other');
-  }, [catVersion]);
-  const [err, setErr] = useState('');
-  const ok = () => {
-    const name = f.name.trim();
-    const amount = Number(f.amount);
-    const dueDay = Number(f.dueDay);
-    if (!name) return setErr(t('errName'));
-    if (!validMoney(amount)) return setErr(t('errAmount'));
-    if (!Number.isInteger(dueDay) || dueDay < 1 || dueDay > 31) return setErr(t('errDueDay'));
-    if (f.endMonth && f.startMonth && f.endMonth < f.startMonth) return setErr(t('errEndBeforeStart'));
-    setErr('');
-    const periods = initial?.activePeriods?.length ? normalizeActivityPeriods(initial.activePeriods) : normalizeActivityPeriods([{ startMonth: f.startMonth, endMonth: f.endMonth || null }]);
-    return onSave({
-      ...f,
-      name,
-      amount: roundMoney(amount),
-      dueDay,
-      cardId: f.cardId ? Number(f.cardId) : '',
-      activePeriods: periods,
-      startMonth: periods[0]?.startMonth || f.startMonth,
-      endMonth: periods.length === 1 ? (periods[0]?.endMonth || '') : '',
-      isActive: periods.some(period => period.startMonth <= mkKey(new Date()) && (!period.endMonth || period.endMonth >= mkKey(new Date())))
-    });
-  };
-  const submit = useGuardedSubmit(ok);
-  return /*#__PURE__*/React.createElement("form", { onSubmit: submit.onSubmit, noValidate: true }, /*#__PURE__*/React.createElement(Field, {
-    label: t('name')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "text",
-    placeholder: "e.g. Rent, Netflix",
-    value: f.name,
-    onChange: e => s('name', e.target.value),
-    autoFocus: true
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "frow"
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: t('monthlyAmount')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "number",
-    placeholder: "0.00",
-    step: "0.01",
-    min: "0.01",
-    inputMode: "decimal",
-    value: f.amount,
-    onChange: e => s('amount', e.target.value)
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: t('dueDayForm')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "number",
-    min: "1",
-    max: "31",
-    value: f.dueDay,
-    onChange: e => s('dueDay', e.target.value)
-  }))), err && /*#__PURE__*/React.createElement("div", { className: "form-err", role: "alert" }, err), /*#__PURE__*/React.createElement(Field, {
-    label: t('category')
-  }, /*#__PURE__*/React.createElement(CatPicker, {
-    value: f.category,
-    onChange: v => s('category', v),
-    labelFn: getCatLabel
-  })), cards?.length > 0 && /*#__PURE__*/React.createElement(Field, {
-    label: t('cardOptional')
-  }, /*#__PURE__*/React.createElement(Sel, {
-    value: f.cardId ?? '',
-    onChange: e => s('cardId', e.target.value),
-    options: [{
-      value: '',
-      label: t('cashDebit')
-    }, ...cards.map(c => ({
-      value: String(c.id),
-      label: `${c.name} ••••${c.lastFour}`
-    }))]
-  })), !initial && /*#__PURE__*/React.createElement("div", {
-    className: "frow"
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: t('startMonth')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "month",
-    value: f.startMonth,
-    onChange: e => s('startMonth', e.target.value)
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: t('endMonth'),
-    hint: t('leaveBlank')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "month",
-    value: f.endMonth,
-    onChange: e => s('endMonth', e.target.value)
-  }))), /*#__PURE__*/React.createElement("button", {
-    className: "btn bpri",
-    type: "submit",
-    disabled: submit.busy,
-    'aria-busy': submit.busy
-  }, initial ? t('saveChanges') : t('addFixedCostBtn')));
+function RecurringForm({onSave,cards,initial=null,catVersion=0}){
+  const [f,sf]=useState({id:initial?.id,name:initial?.name||'',amount:initial?.amount??'',dueDay:initial?.dueDay||1,category:initial?.category||'bills',cardId:initial?.cardId||'',startMonth:initial?.startMonth||mkKey(thailandTodayDate()),endMonth:initial?.endMonth||'',activePeriods:initial?.activePeriods});
+  const validation=useFormErrors(),set=(k,v)=>{sf(x=>({...x,[k]:v}));validation.clear(k);};
+  useEffect(()=>{if(f.category&&!expenseCats().some(c=>c.id===f.category))set('category','other');},[catVersion]);
+  const submit=useGuardedSubmit(()=>{const name=f.name.trim(),amount=Number(f.amount),dueDay=Number(f.dueDay);if(!name)return validation.fail('name',t('errName'));if(!validMoney(amount))return validation.fail('amount',t('errAmount'));if(!Number.isInteger(dueDay)||dueDay<1||dueDay>31)return validation.fail('dueDay',t('errDueDay'));if(f.endMonth&&f.startMonth&&f.endMonth<f.startMonth)return validation.fail('endMonth',t('errEndBeforeStart'));const periods=initial?.activePeriods?.length?normalizeActivityPeriods(initial.activePeriods):normalizeActivityPeriods([{startMonth:f.startMonth,endMonth:f.endMonth||null}]);validation.reset();return onSave({id:f.id,name,amount:roundMoney(amount),dueDay,category:f.category,cardId:f.cardId?Number(f.cardId):'',activePeriods:periods,startMonth:periods[0]?.startMonth||f.startMonth,endMonth:periods.length===1?(periods[0]?.endMonth||''):'',isActive:periods.some(period=>period.startMonth<=mkKey(thailandTodayDate())&&(!period.endMonth||period.endMonth>=mkKey(thailandTodayDate())))});});
+  return h('form',{onSubmit:submit.onSubmit,noValidate:true},h(Field,{label:t('name'),error:validation.errors.name},h(Inp,{name:'name',type:'text',placeholder:'e.g. Rent, Netflix',value:f.name,onChange:e=>set('name',e.target.value),autoFocus:true})),h('div',{className:'frow'},h(Field,{label:t('monthlyAmount'),error:validation.errors.amount},h(Inp,{name:'amount',type:'number',placeholder:'0.00',step:'0.01',min:'0.01',inputMode:'decimal',value:f.amount,onChange:e=>set('amount',e.target.value)})),h(Field,{label:t('dueDayForm'),error:validation.errors.dueDay},h(Inp,{name:'dueDay',type:'number',min:'1',max:'31',value:f.dueDay,onChange:e=>set('dueDay',e.target.value)}))),h(Field,{label:t('category')},h(CatPicker,{value:f.category,onChange:v=>set('category',v),labelFn:getCatLabel})),cards?.length>0&&h(Field,{label:t('cardOptional')},h(Sel,{name:'cardId',value:f.cardId??'',onChange:e=>set('cardId',e.target.value),options:[{value:'',label:t('cashDebit')},...cards.map(c=>({value:String(c.id),label:`${c.name} ••••${c.lastFour}`}))]})),!initial&&h('div',{className:'frow'},h(Field,{label:t('startMonth')},h(Inp,{name:'startMonth',type:'month',value:f.startMonth,onChange:e=>set('startMonth',e.target.value)})),h(Field,{label:t('endMonth'),hint:t('leaveBlank'),error:validation.errors.endMonth},h(Inp,{name:'endMonth',type:'month',value:f.endMonth,onChange:e=>set('endMonth',e.target.value)}))),h('button',{className:'btn bpri',type:'submit',disabled:submit.busy,'aria-busy':submit.busy},initial?t('saveChanges'):t('addFixedCostBtn')));
 }
-function IncomeForm({
-  onSave,
-  initial = null
-}) {
-  const [f, sf] = useState({
-    name: '',
-    amount: '',
-    frequency: 'monthly',
-    category: 'salary',
-    date: initial?.startDate || initial?.date || todayStr(),
-    startDate: initial?.startDate || initial?.date || todayStr(),
-    startMonth: initial?.startMonth || mkKey(new Date()),
-    isActive: true,
-    ...initial,
-    amount: initial?.amount ?? '',
-    date: initial?.startDate || initial?.date || todayStr()
-  });
-  const s = (k, v) => sf(p => ({
-    ...p,
-    [k]: v
-  }));
-  const [err, setErr] = useState('');
-  const receivedOneTime = !!(initial?.frequency==='one-time' && isValidISODate(initial.date) && initial.date<=todayStr());
-  const ok = () => {
-    const name = f.name.trim();
-    const amount = Number(f.amount);
-    if (!name) return setErr(t('errName'));
-    if (!validMoney(amount)) return setErr(t('errAmount'));
-    if (!isValidISODate(f.date)) return setErr(t('errDate'));
-    setErr('');
-    const recurring = f.frequency !== 'one-time';
-    const startMonth = f.date.slice(0, 7);
-    return onSave({
-      ...f,
-      name,
-      amount: roundMoney(amount),
-      date: f.frequency === 'one-time' ? f.date : '',
-      startDate: recurring ? f.date : '',
-      startMonth: recurring ? startMonth : '',
-      isActive: initial ? initial.isActive !== false : true
-    });
-  };
-  const submit = useGuardedSubmit(ok);
-  return /*#__PURE__*/React.createElement("form", { onSubmit: submit.onSubmit, noValidate: true }, /*#__PURE__*/React.createElement(Field, {
-    label: t('sourceName')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "text",
-    placeholder: "e.g. Main Job",
-    value: f.name,
-    onChange: e => s('name', e.target.value),
-    autoFocus: true
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "frow"
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: t('amount'),
-    hint: receivedOneTime ? t('receivedOneTimeLocked') : undefined
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "number",
-    placeholder: "0.00",
-    step: "0.01",
-    min: "0.01",
-    inputMode: "decimal",
-    value: f.amount,
-    disabled: receivedOneTime,
-    onChange: e => s('amount', e.target.value)
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: t('frequency')
-  }, /*#__PURE__*/React.createElement(Sel, {
-    value: f.frequency,
-    onChange: e => s('frequency', e.target.value),
-    options: (initial ? (initial.frequency === 'one-time' ? FREQS.filter(fq=>fq.value==='one-time') : FREQS.filter(fq=>fq.value!=='one-time')) : FREQS).map(fq => ({ value: fq.value, label: getFreqLabel(fq.value) }))
-  }))), /*#__PURE__*/React.createElement(Field, {
-    label: f.frequency === 'one-time' ? t('date') : t('startDateIncome')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "date",
-    value: f.date,
-    disabled: receivedOneTime,
-    onChange: e => s('date', e.target.value)
-  })), err && /*#__PURE__*/React.createElement("div", { className: "form-err", role: "alert" }, err), /*#__PURE__*/React.createElement(Field, {
-    label: t('category')
-  }, /*#__PURE__*/React.createElement(CatPicker, {
-    value: f.category,
-    onChange: v => s('category', v),
-    cats: ICATS,
-    labelFn: getICatLabel
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "btn bpri",
-    type: "submit",
-    disabled: submit.busy,
-    'aria-busy': submit.busy
-  }, initial ? t('saveChanges') : t('addIncomeBtn')));
+function IncomeForm({onSave,initial=null}){
+  const [f,sf]=useState({id:initial?.id,name:initial?.name||'',amount:initial?.amount??'',frequency:initial?.frequency||'monthly',category:initial?.category||'salary',date:initial?.startDate||initial?.date||todayStr(),isActive:initial?.isActive!==false});
+  const validation=useFormErrors(),set=(k,v)=>{sf(x=>({...x,[k]:v}));validation.clear(k);},receivedOneTime=!!(initial?.frequency==='one-time'&&isValidISODate(initial.date)&&initial.date<=todayStr());
+  const submit=useGuardedSubmit(()=>{const name=f.name.trim(),amount=Number(f.amount);if(!name)return validation.fail('name',t('errName'));if(!validMoney(amount))return validation.fail('amount',t('errAmount'));if(!isValidISODate(f.date))return validation.fail('date',t('errDate'));const recurring=f.frequency!=='one-time';validation.reset();return onSave({id:f.id,name,amount:roundMoney(amount),frequency:f.frequency,category:f.category,date:recurring?'':f.date,startDate:recurring?f.date:'',startMonth:recurring?f.date.slice(0,7):'',isActive:initial?initial.isActive!==false:true});});
+  const options=(initial?(initial.frequency==='one-time'?FREQS.filter(x=>x.value==='one-time'):FREQS.filter(x=>x.value!=='one-time')):FREQS).map(x=>({value:x.value,label:getFreqLabel(x.value)}));
+  return h('form',{onSubmit:submit.onSubmit,noValidate:true},h(Field,{label:t('sourceName'),error:validation.errors.name},h(Inp,{name:'name',type:'text',placeholder:'e.g. Main Job',value:f.name,onChange:e=>set('name',e.target.value),autoFocus:true})),h('div',{className:'frow'},h(Field,{label:t('amount'),hint:receivedOneTime?t('receivedOneTimeLocked'):undefined,error:validation.errors.amount},h(Inp,{name:'amount',type:'number',placeholder:'0.00',step:'0.01',min:'0.01',inputMode:'decimal',value:f.amount,disabled:receivedOneTime,onChange:e=>set('amount',e.target.value)})),h(Field,{label:t('frequency')},h(Sel,{name:'frequency',value:f.frequency,onChange:e=>set('frequency',e.target.value),options}))),h(Field,{label:f.frequency==='one-time'?t('date'):t('startDateIncome'),error:validation.errors.date},h(Inp,{name:'date',type:'date',value:f.date,disabled:receivedOneTime,onChange:e=>set('date',e.target.value)})),h(Field,{label:t('category')},h(CatPicker,{value:f.category,onChange:v=>set('category',v),cats:ICATS,labelFn:getICatLabel})),h('button',{className:'btn bpri',type:'submit',disabled:submit.busy,'aria-busy':submit.busy},initial?t('saveChanges'):t('addIncomeBtn')));
 }
-function SavingsForm({
-  onSave,
-  initial = null
-}) {
-  const [f, sf] = useState({
-    name: '',
-    targetAmount: '',
-    currentAmount: 0,
-    notes: '',
-    icon: initial?.icon || 'target',
-    ...initial,
-    targetAmount: initial?.targetAmount ?? '',
-    currentAmount: initial?.currentAmount ?? 0
-  });
-  const s = (k, v) => sf(p => ({
-    ...p,
-    [k]: v
-  }));
-  const [err, setErr] = useState('');
-  const ok = () => {
-    const name = f.name.trim();
-    const targetAmount = Number(f.targetAmount);
-    const currentAmount = Number(f.currentAmount || 0);
-    if (!name) return setErr(t('errName'));
-    if (!validMoney(targetAmount)) return setErr(t('errAmount'));
-    if (!Number.isFinite(currentAmount) || currentAmount < 0) return setErr(t('errAmount'));
-    setErr('');
-    return onSave({
-      ...f,
-      name,
-      targetAmount: roundMoney(targetAmount),
-      currentAmount: roundMoney(currentAmount)
-    });
-  };
-  const goalIcons = ['target', 'coins', 'car', 'home', 'laptop', 'plane', 'gift', 'book', 'health', 'paw', 'music', 'bulb'];
-  const submit = useGuardedSubmit(ok);
-  return /*#__PURE__*/React.createElement("form", { onSubmit: submit.onSubmit, noValidate: true }, /*#__PURE__*/React.createElement(Field, {
-    label: t('goalName')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "text",
-    placeholder: "e.g. Emergency Fund",
-    value: f.name,
-    onChange: e => s('name', e.target.value),
-    autoFocus: true
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: t('icon')
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "catg",
-    style: {
-      gridTemplateColumns: 'repeat(6,1fr)'
-    }
-  }, goalIcons.map(e => /*#__PURE__*/React.createElement("button", {
-    key: e,
-    type: "button",
-    className: `copt${f.icon === e ? ' sel' : ''}`,
-    onClick: () => s('icon', e)
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "cico"
-  }, /*#__PURE__*/React.createElement(Icon, { name: e, size: 22 })))))), /*#__PURE__*/React.createElement("div", {
-    className: "frow"
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: t('target')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "number",
-    placeholder: "0.00",
-    step: "0.01",
-    inputMode: "decimal",
-    value: f.targetAmount,
-    onChange: e => s('targetAmount', e.target.value)
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: t('alreadySaved')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "number",
-    placeholder: "0.00",
-    step: "0.01",
-    inputMode: "decimal",
-    value: f.currentAmount,
-    onChange: e => s('currentAmount', e.target.value)
-  }))), err && /*#__PURE__*/React.createElement("div", { className: "form-err", role: "alert" }, err), /*#__PURE__*/React.createElement(Field, {
-    label: t('notesOptional')
-  }, /*#__PURE__*/React.createElement(Txa, {
-    placeholder: t('savingFor'),
-    value: f.notes,
-    onChange: e => s('notes', e.target.value),
-    rows: 2
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "btn bpri",
-    type: "submit",
-    disabled: submit.busy,
-    'aria-busy': submit.busy
-  }, initial ? t('saveChanges') : t('addGoalBtn')));
+function SavingsForm({onSave,initial=null}){
+  const [f,sf]=useState({id:initial?.id,name:initial?.name||'',targetAmount:initial?.targetAmount??'',currentAmount:initial?.currentAmount??0,notes:initial?.notes||'',icon:initial?.icon||'target'}),validation=useFormErrors(),set=(k,v)=>{sf(x=>({...x,[k]:v}));validation.clear(k);};
+  const submit=useGuardedSubmit(()=>{const name=f.name.trim(),targetAmount=Number(f.targetAmount),currentAmount=Number(f.currentAmount||0);if(!name)return validation.fail('name',t('errName'));if(!validMoney(targetAmount))return validation.fail('targetAmount',t('errAmount'));if(!Number.isFinite(currentAmount)||currentAmount<0)return validation.fail('currentAmount',t('errAmount'));validation.reset();return onSave({id:f.id,name,targetAmount:roundMoney(targetAmount),currentAmount:roundMoney(currentAmount),notes:f.notes,icon:f.icon});});
+  const icons=['target','coins','car','home','laptop','plane','gift','book','health','paw','music','bulb'];
+  return h('form',{onSubmit:submit.onSubmit,noValidate:true},h(Field,{label:t('goalName'),error:validation.errors.name},h(Inp,{name:'name',type:'text',placeholder:'e.g. Emergency Fund',value:f.name,onChange:e=>set('name',e.target.value),autoFocus:true})),h(Field,{label:t('icon')},h('div',{className:'catg',style:{gridTemplateColumns:'repeat(6,1fr)'}},icons.map(icon=>h('button',{key:icon,type:'button',className:`copt${f.icon===icon?' sel':''}`,'aria-label':`${t('icon')} ${icon}`,'aria-pressed':f.icon===icon,onClick:()=>set('icon',icon)},h('span',{className:'cico'},h(Icon,{name:icon,size:22})))))),h('div',{className:'frow'},h(Field,{label:t('target'),error:validation.errors.targetAmount},h(Inp,{name:'targetAmount',type:'number',placeholder:'0.00',step:'0.01',inputMode:'decimal',value:f.targetAmount,onChange:e=>set('targetAmount',e.target.value)})),h(Field,{label:t('alreadySaved'),error:validation.errors.currentAmount},h(Inp,{name:'currentAmount',type:'number',placeholder:'0.00',step:'0.01',inputMode:'decimal',value:f.currentAmount,onChange:e=>set('currentAmount',e.target.value)}))),h(Field,{label:t('notesOptional')},h(Txa,{name:'notes',placeholder:t('savingFor'),value:f.notes,onChange:e=>set('notes',e.target.value),rows:2})),h('button',{className:'btn bpri',type:'submit',disabled:submit.busy,'aria-busy':submit.busy},initial?t('saveChanges'):t('addGoalBtn')));
 }
-function CardForm({
-  onSave,
-  initial = null
-}) {
-  const [f, sf] = useState({
-    name: '',
-    lastFour: '',
-    creditLimit: '',
-    statementDate: 1,
-    dueDate: 15,
-    colorIdx: 0,
-    ...initial,
-    creditLimit: initial?.creditLimit ?? ''
-  });
-  const s = (k, v) => sf(p => ({
-    ...p,
-    [k]: v
-  }));
-  const [err, setErr] = useState('');
-  const ok = () => {
-    const name = f.name.trim();
-    const creditLimit = Number(f.creditLimit);
-    const statementDate = Number(f.statementDate);
-    const dueDate = Number(f.dueDate);
-    if (!name) return setErr(t('errName'));
-    if (!/^\d{4}$/.test(f.lastFour)) return setErr(t('errLastFour'));
-    if (!validMoney(creditLimit)) return setErr(t('errAmount'));
-    if (!Number.isInteger(statementDate) || statementDate < 1 || statementDate > 31) return setErr(t('errDueDay'));
-    if (!Number.isInteger(dueDate) || dueDate < 1 || dueDate > 31) return setErr(t('errDueDay'));
-    setErr('');
-    return onSave({
-      ...f,
-      name,
-      creditLimit: roundMoney(creditLimit),
-      statementDate,
-      dueDate,
-      colorIdx: Number(f.colorIdx)
-    });
-  };
-  const submit = useGuardedSubmit(ok);
-  return /*#__PURE__*/React.createElement("form", { onSubmit: submit.onSubmit, noValidate: true }, /*#__PURE__*/React.createElement(Field, {
-    label: t('cardName')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "text",
-    placeholder: "e.g. Chase Sapphire",
-    value: f.name,
-    onChange: e => s('name', e.target.value),
-    autoFocus: true
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "frow"
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: t('lastFourDigits')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "text",
-    placeholder: "1234",
-    maxLength: "4",
-    inputMode: "numeric",
-    value: f.lastFour,
-    onChange: e => s('lastFour', e.target.value.replace(/\D/g, '').slice(0, 4))
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: t('creditLimit')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "number",
-    placeholder: "5000",
-    step: "0.01",
-    min: "0.01",
-    inputMode: "decimal",
-    value: f.creditLimit,
-    onChange: e => s('creditLimit', e.target.value)
-  }))), err && /*#__PURE__*/React.createElement("div", { className: "form-err", role: "alert" }, err), /*#__PURE__*/React.createElement("div", {
-    className: "frow"
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: t('statementDayForm')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "number",
-    min: "1",
-    max: "31",
-    value: f.statementDate,
-    onChange: e => s('statementDate', e.target.value)
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: t('dueDayFormCard')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "number",
-    min: "1",
-    max: "31",
-    value: f.dueDate,
-    onChange: e => s('dueDate', e.target.value)
-  }))), /*#__PURE__*/React.createElement(Field, {
-    label: t('cardColor')
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "cdots"
-  }, CCOLORS.map(([a, b], i) => /*#__PURE__*/React.createElement("button", {
-    type: "button",
-    key: i,
-    className: `cdot${f.colorIdx === i ? ' sel' : ''}`,
-    style: {
-      background: `linear-gradient(135deg,${a},${b})`
-    },
-    'aria-pressed': f.colorIdx === i,
-    'aria-label': `${t('cardColor')} ${i + 1}`,
-    onClick: () => s('colorIdx', i)
-  })))), /*#__PURE__*/React.createElement("button", {
-    className: "btn bpri",
-    type: "submit",
-    disabled: submit.busy,
-    'aria-busy': submit.busy
-  }, initial ? t('saveChanges') : t('addCardBtn')));
+function CardForm({onSave,initial=null}){
+  const [f,sf]=useState({id:initial?.id,name:initial?.name||'',lastFour:initial?.lastFour||'',creditLimit:initial?.creditLimit??'',statementDate:initial?.statementDate||1,dueDate:initial?.dueDate||15,colorIdx:initial?.colorIdx||0}),validation=useFormErrors(),set=(k,v)=>{sf(x=>({...x,[k]:v}));validation.clear(k);};
+  const submit=useGuardedSubmit(()=>{const name=f.name.trim(),creditLimit=Number(f.creditLimit),statementDate=Number(f.statementDate),dueDate=Number(f.dueDate);if(!name)return validation.fail('name',t('errName'));if(!/^\d{4}$/.test(f.lastFour))return validation.fail('lastFour',t('errLastFour'));if(!validMoney(creditLimit))return validation.fail('creditLimit',t('errAmount'));if(!Number.isInteger(statementDate)||statementDate<1||statementDate>31)return validation.fail('statementDate',t('errDueDay'));if(!Number.isInteger(dueDate)||dueDate<1||dueDate>31)return validation.fail('dueDate',t('errDueDay'));validation.reset();return onSave({id:f.id,name,lastFour:f.lastFour,creditLimit:roundMoney(creditLimit),statementDate,dueDate,colorIdx:Number(f.colorIdx)});});
+  return h('form',{onSubmit:submit.onSubmit,noValidate:true},h(Field,{label:t('cardName'),error:validation.errors.name},h(Inp,{name:'name',type:'text',placeholder:'e.g. Chase Sapphire',value:f.name,onChange:e=>set('name',e.target.value),autoFocus:true})),h('div',{className:'frow'},h(Field,{label:t('lastFourDigits'),error:validation.errors.lastFour},h(Inp,{name:'lastFour',type:'text',placeholder:'1234',maxLength:'4',inputMode:'numeric',value:f.lastFour,onChange:e=>set('lastFour',e.target.value.replace(/\D/g,'').slice(0,4))})),h(Field,{label:t('creditLimit'),error:validation.errors.creditLimit},h(Inp,{name:'creditLimit',type:'number',placeholder:'5000',step:'0.01',min:'0.01',inputMode:'decimal',value:f.creditLimit,onChange:e=>set('creditLimit',e.target.value)}))),h('div',{className:'frow'},h(Field,{label:t('statementDayForm'),error:validation.errors.statementDate},h(Inp,{name:'statementDate',type:'number',min:'1',max:'31',value:f.statementDate,onChange:e=>set('statementDate',e.target.value)})),h(Field,{label:t('dueDayFormCard'),error:validation.errors.dueDate},h(Inp,{name:'dueDate',type:'number',min:'1',max:'31',value:f.dueDate,onChange:e=>set('dueDate',e.target.value)}))),h(Field,{label:t('cardColor')},h('div',{className:'cdots'},CCOLORS.map(([a,b],i)=>h('button',{type:'button',key:i,className:`cdot${Number(f.colorIdx)===i?' sel':''}`,style:{background:`linear-gradient(135deg,${a},${b})`},'aria-pressed':Number(f.colorIdx)===i,'aria-label':`${t('cardColor')} ${i+1}`,onClick:()=>set('colorIdx',i)})))),h('button',{className:'btn bpri',type:'submit',disabled:submit.busy,'aria-busy':submit.busy},initial?t('saveChanges'):t('addCardBtn')));
 }
-function InstallForm({
-  onSave,
-  cards,
-  initial = null,
-  defaultCardId = null
-}) {
-  const [f, sf] = useState({
-    name: '',
-    totalAmount: '',
-    monthlyPayment: '',
-    monthsRemaining: '',
-    cardId: defaultCardId || cards[0]?.id || '',
-    startDate: todayStr(),
-    ...initial,
-    totalAmount: initial?.totalAmount ?? '',
-    monthlyPayment: initial?.monthlyPayment ?? '',
-    monthsRemaining: initial?.monthsRemaining ?? ''
-  });
-  const s = (k, v) => sf(p => ({
-    ...p,
-    [k]: v
-  }));
-  const [err, setErr] = useState('');
-  const ok = () => {
-    const name = f.name.trim();
-    const totalAmount = Number(f.totalAmount);
-    const monthlyPayment = Number(f.monthlyPayment);
-    const requestedMonths = Number(f.monthsRemaining);
-    const monthsRemaining = Number.isFinite(totalAmount) && Number.isFinite(monthlyPayment) && monthlyPayment > 0 ? Math.ceil(totalAmount / monthlyPayment) : requestedMonths;
-    const cardId = Number(f.cardId);
-    if (!name) return setErr(t('errName'));
-    if (!validMoney(totalAmount)) return setErr(t('errAmount'));
-    if (!validMoney(monthlyPayment)) return setErr(t('errAmount'));
-    if (!Number.isInteger(monthsRemaining) || monthsRemaining <= 0 || monthsRemaining > MAX_INSTALLMENT_PAYMENTS) return setErr(t('errMonths'));
-    const alreadyPosted=initial?installmentPostedTotal(initial):0;
-    if (totalAmount + .001 < alreadyPosted) return setErr(t('errAmount'));
-    if (!f.cardId || !Number.isFinite(cardId)) return setErr(t('errCardId'));
-    if (!isValidISODate(f.startDate)) return setErr(t('errDate'));
-    setErr('');
-    return onSave({
-      ...f,
-      name,
-      totalAmount: roundMoney(totalAmount),
-      monthlyPayment: roundMoney(monthlyPayment),
-      monthsRemaining,
-      cardId,
-      isComplete: initial?.isComplete || false,
-      completedDate: initial?.completedDate || null
-    });
-  };
-  const submit = useGuardedSubmit(ok);
-  return /*#__PURE__*/React.createElement("form", { onSubmit: submit.onSubmit, noValidate: true }, /*#__PURE__*/React.createElement(Field, {
-    label: t('description')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "text",
-    placeholder: "e.g. MacBook Pro",
-    value: f.name,
-    onChange: e => s('name', e.target.value),
-    autoFocus: true
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: t('card')
-  }, /*#__PURE__*/React.createElement(Sel, {
-    value: String(f.cardId),
-    onChange: e => s('cardId', Number(e.target.value)),
-    options: cards.map(c => ({
-      value: String(c.id),
-      label: `${c.name} ••••${c.lastFour}`
-    }))
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "frow"
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: t('totalAmount')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "number",
-    placeholder: "0.00",
-    min: "0.01",
-    inputMode: "decimal",
-    value: f.totalAmount,
-    onChange: e => s('totalAmount', e.target.value)
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: t('monthlyPayment')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "number",
-    placeholder: "0.00",
-    min: "0.01",
-    inputMode: "decimal",
-    value: f.monthlyPayment,
-    onChange: e => s('monthlyPayment', e.target.value)
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "frow"
-  }, /*#__PURE__*/React.createElement(Field, {
-    label: t('monthsLeftForm'),
-    hint: t('installmentTermCalculated')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "number",
-    placeholder: "12",
-    min: "1",
-    step: "1",
-    inputMode: "numeric",
-    value: (Number(f.totalAmount) > 0 && Number(f.monthlyPayment) > 0) ? Math.ceil(Number(f.totalAmount) / Number(f.monthlyPayment)) : f.monthsRemaining,
-    readOnly: true
-  })), /*#__PURE__*/React.createElement(Field, {
-    label: t('startDate')
-  }, /*#__PURE__*/React.createElement(Inp, {
-    type: "date",
-    value: f.startDate,
-    onChange: e => s('startDate', e.target.value)
-  }))), err && /*#__PURE__*/React.createElement("div", { className: "form-err", role: "alert" }, err), /*#__PURE__*/React.createElement("button", {
-    className: "btn bpri",
-    type: "submit",
-    disabled: submit.busy,
-    'aria-busy': submit.busy
-  }, initial ? t('saveChanges') : t('addInstallmentBtn')));
+function InstallForm({onSave,cards,initial=null,defaultCardId=null}){
+  const completedLocked=!!(initial?.isComplete||initial?.completedDate);
+  const [f,sf]=useState({id:initial?.id,name:initial?.name||'',totalAmount:initial?.totalAmount??'',monthlyPayment:initial?.monthlyPayment??'',monthsRemaining:initial?.monthsRemaining??'',cardId:initial?.cardId||defaultCardId||cards[0]?.id||'',startDate:initial?.startDate||todayStr()}),validation=useFormErrors(),set=(k,v)=>{sf(x=>({...x,[k]:v}));validation.clear(k);};
+  const submit=useGuardedSubmit(()=>{const name=f.name.trim(),totalAmount=Number(f.totalAmount),monthlyPayment=Number(f.monthlyPayment),monthsRemaining=validMoney(totalAmount)&&validMoney(monthlyPayment)?Math.ceil(totalAmount/monthlyPayment):Number(f.monthsRemaining),cardId=Number(f.cardId);if(!name)return validation.fail('name',t('errName'));if(!validMoney(totalAmount))return validation.fail('totalAmount',t('errAmount'));if(!validMoney(monthlyPayment))return validation.fail('monthlyPayment',t('errAmount'));if(!Number.isInteger(monthsRemaining)||monthsRemaining<=0||monthsRemaining>MAX_INSTALLMENT_PAYMENTS)return validation.fail('monthsRemaining',t('errMonths'));if(!f.cardId||!Number.isFinite(cardId))return validation.fail('cardId',t('errCardId'));if(!isValidISODate(f.startDate))return validation.fail('startDate',t('errDate'));validation.reset();return onSave({id:f.id,name,totalAmount:roundMoney(totalAmount),monthlyPayment:roundMoney(monthlyPayment),monthsRemaining,cardId,startDate:f.startDate});});
+  const lockHint=completedLocked?t('completed'):undefined;
+  return h('form',{onSubmit:submit.onSubmit,noValidate:true},h(Field,{label:t('description'),error:validation.errors.name},h(Inp,{name:'name',type:'text',placeholder:'e.g. MacBook Pro',value:f.name,onChange:e=>set('name',e.target.value),autoFocus:true})),h(Field,{label:t('card'),hint:lockHint,error:validation.errors.cardId},h(Sel,{name:'cardId',disabled:completedLocked,value:String(f.cardId),onChange:e=>set('cardId',Number(e.target.value)),options:cards.map(c=>({value:String(c.id),label:`${c.name} ••••${c.lastFour}`}))})),h('div',{className:'frow'},h(Field,{label:t('totalAmount'),hint:lockHint,error:validation.errors.totalAmount},h(Inp,{name:'totalAmount',type:'number',placeholder:'0.00',min:'0.01',inputMode:'decimal',disabled:completedLocked,value:f.totalAmount,onChange:e=>set('totalAmount',e.target.value)})),h(Field,{label:t('monthlyPayment'),hint:lockHint,error:validation.errors.monthlyPayment},h(Inp,{name:'monthlyPayment',type:'number',placeholder:'0.00',min:'0.01',inputMode:'decimal',disabled:completedLocked,value:f.monthlyPayment,onChange:e=>set('monthlyPayment',e.target.value)}))),h('div',{className:'frow'},h(Field,{label:t('monthsLeftForm'),hint:t('installmentTermCalculated'),error:validation.errors.monthsRemaining},h(Inp,{name:'monthsRemaining',type:'number',placeholder:'12',min:'1',step:'1',inputMode:'numeric',value:Number(f.totalAmount)>0&&Number(f.monthlyPayment)>0?Math.ceil(Number(f.totalAmount)/Number(f.monthlyPayment)):f.monthsRemaining,readOnly:true})),h(Field,{label:t('startDate'),hint:lockHint,error:validation.errors.startDate},h(Inp,{name:'startDate',type:'date',disabled:completedLocked,value:f.startDate,onChange:e=>set('startDate',e.target.value)}))),h('button',{className:'btn bpri',type:'submit',disabled:submit.busy,'aria-busy':submit.busy},initial?t('saveChanges'):t('addInstallmentBtn')));
 }
 
 // ══ DASHBOARD ══
@@ -3103,19 +2577,19 @@ function Dashboard({ sym, currentMonth, payday }) {
         db.savings.toArray(), db.budgets.toArray(), db.settings.get('totalSavings'), db.settings.get('savingsAnchor'),
         db.expenses.where('date').below(isoLocal(endExclusiveAfterISO(todayStr()))).toArray()
       ]);
-      const cardCharges = await loadOutstandingCardExpenses(allCards,new Date());
+      const cardCharges = await loadOutstandingCardExpenses(allCards,thailandTodayDate());
       const exps = await db.expenses.where('date').between(cr.startISO, cr.endISO, true, false).toArray();
       const totalInc = moneySum(allInc.map(inc => incomeAmountInRange(inc, cr.start, cr.end)));
       const recurringLedger=allRec.flatMap(record=>recurringOccurrences(record,cr.start,cr.end).map(row=>({...row,id:`rec-${record.id}-${row.date}`,kind:'recurring'})));
       const installmentLedger=allInst.flatMap(record=>installmentOccurrences(record,cr.start,cr.end).map((row,index)=>({...row,id:`inst-${record.id}-${row.date}-${index}`,kind:'installment',category:'installments'})));
       const variableLedger=exps.map(row=>({...row,kind:'variable'}));
       const expenseLedger=[...variableLedger,...recurringLedger,...installmentLedger];
-      const catMap = {};
+      const catMap = new Map();
       const fixed=moneySum(recurringLedger.map(row=>row.amount));
       const varExp=moneySum(variableLedger.map(row=>row.amount));
       const instExp=moneySum(installmentLedger.map(row=>row.amount));
-      for(const row of expenseLedger){const category=row.category||'other';catMap[category]=moneySum([catMap[category]||0,row.amount||0]);}
-      const cats = Object.entries(catMap).filter(([,amt]) => amt > 0).map(([id, amt]) => ({ ...getCat(id), id, amt })).sort((a,b) => b.amt-a.amt);
+      for(const row of expenseLedger){const category=row.category||'other';catMap.set(category,moneySum([catMap.get(category)||0,row.amount||0]));}
+      const cats = [...catMap.entries()].filter(([,amt]) => amt > 0).map(([id, amt]) => ({ ...getCat(id), id, amt })).sort((a,b) => b.amt-a.amt);
       const monthRanges = Array.from({length:6},(_,idx)=>{ const md=addMonths(currentMonth,-(5-idx)); return {md,mcr:cycleRange(md,payday)}; });
       const monthExps = await Promise.all(monthRanges.map(({mcr}) => db.expenses.where('date').between(mcr.startISO,mcr.endISO,true,false).toArray()));
       const monthly = monthRanges.map(({md,mcr},idx)=>({
@@ -3127,13 +2601,14 @@ function Dashboard({ sym, currentMonth, payday }) {
       const prevRows=await db.expenses.where('date').between(pcr.startISO,pcr.endISO,true,false).toArray();
       const prevTotal=moneySum([moneySum(prevRows.map(x=>x.amount)),moneySum(allRec.map(x=>recurringAmountInRange(x,pcr.start,pcr.end))),moneySum(allInst.map(x=>installmentAmountInRange(x,pcr.start,pcr.end)))]);
       const accumulated=realizedCashflowThrough({incomes:allInc,recurring:allRec,installments:allInst,expenses:realizedExps});
-      const anchor=savingsAnchorState(savingsAnchorSetting,Number(savingsSetting?.value??moneySum(allSav.map(g=>g.currentAmount||0))),accumulated.net),manualSavings=anchor.amount,{cashflowSinceAnchor,totalSavings}=savingsTotalFromAnchor(anchor,accumulated.net);
+      const anchor=savingsAnchorState(savingsAnchorSetting,Number(savingsSetting?.value??moneySum(allSav.map(g=>g.currentAmount||0))),accumulated.net),manualSavings=anchor.amount,{cashflowSinceAnchor,totalSavings}=savingsTotalFromAnchor(anchor,{incomes:allInc,recurring:allRec,installments:allInst,expenses:realizedExps});
       const realizedEnd=endExclusiveAfterISO(todayStr())<cr.end?endExclusiveAfterISO(todayStr()):cr.end;
       const realizedCycleIncome=cr.start<realizedEnd?moneySum(allInc.map(inc=>incomeAmountInRange(inc,cr.start,realizedEnd))):0;
-      const realizedCycleExpenses=moneySum(expenseLedger.filter(row=>row.date<=todayStr()).map(row=>row.amount));
+      const realizedExpenseLedger=expenseLedger.filter(row=>row.date<=todayStr());
+      const realizedCycleExpenses=moneySum(realizedExpenseLedger.map(row=>row.amount));
       const realizedCycleNet=moneyDifference(realizedCycleIncome,realizedCycleExpenses);
       if (!isLatest()) return;
-      setD({cr,totalInc,fixed,varExp,instExp,cats,allCards,allInst,allRec,allSav,manualSavings,savingsAnchorDate:anchor.date,cashflowSinceAnchor,accumulatedCashflow:accumulated.net,totalSavings,realizedCycleNet,monthly,recent:[...expenseLedger].sort((a,b)=>b.date.localeCompare(a.date)||String(b.id).localeCompare(String(a.id))).slice(0,6),expenseLedger,cardCharges,allBudgets,catMap,exps,prevTotal});
+      setD({cr,totalInc,fixed,varExp,instExp,cats,allCards,allInst,allRec,allSav,manualSavings,savingsAnchorDate:anchor.date,cashflowSinceAnchor,accumulatedCashflow:accumulated.net,totalSavings,realizedCycleNet,monthly,recent:[...realizedExpenseLedger].sort((a,b)=>b.date.localeCompare(a.date)||String(b.id).localeCompare(String(a.id))).slice(0,6),expenseLedger,cardCharges,allBudgets,catMap,exps,prevTotal});
     } catch (err) {
       console.error('Dashboard load failed:',err);
       if (isLatest()) setLoadError(err);
@@ -3146,21 +2621,23 @@ function Dashboard({ sym, currentMonth, payday }) {
   const totalExp=moneySum([fixed,varExp,instExp]),net=moneyDifference(totalInc,totalExp);
   const totSaved=roundMoney(Number(totalSavings||0));
   const hasSavingsData=Number(manualSavings)!==0||Number(cashflowSinceAnchor)!==0||Number(accumulatedCashflow)!==0;
-  const isCurrentCycle=mkKey(currentMonth)===mkKey(cycleAnchor(new Date(),payday,CYCLE_LABEL));
+  const isCurrentCycle=mkKey(currentMonth)===mkKey(cycleAnchor(thailandTodayDate(),payday,CYCLE_LABEL));
   const budgeted=allBudgets.filter(b=>Number(b.amount)>0);
-  const now=new Date(), selectedPast=cr.end<=now, selectedFuture=cr.start>now;
-  const cycleLen=Math.max(1,Math.ceil((cr.end-cr.start)/DAY));
+  const now=thailandTodayDate(), selectedPast=cr.end<=now, selectedFuture=cr.start>now;
+  const cycleLen=Math.max(1,calendarDayDiff(cr.startISO,cr.endISO));
   const incurredVar=moneySum(exps.filter(e=>e.date<=todayStr()).map(e=>e.amount));
-  const elapsed=Math.max(1,Math.min(cycleLen,Math.ceil((Math.min(now,cr.end)-cr.start)/DAY)));
+  const elapsedEndISO=selectedPast?cr.endISO:selectedFuture?cr.startISO:(todayStr()<cr.endISO?addISODays(todayStr(),1):cr.endISO);
+  const elapsed=Math.max(1,Math.min(cycleLen,calendarDayDiff(cr.startISO,elapsedEndISO)));
   const projectedVar=selectedPast?varExp:selectedFuture?0:roundMoney(incurredVar/elapsed*cycleLen);
   const projectedTotal=selectedPast?totalExp:moneySum([fixed,instExp,projectedVar]);
   const projectionLabel=selectedPast?t('actualSpend'):selectedFuture?t('scheduledSpend'):t('currentProjection');
-  const biggest=expenseLedger.length?expenseLedger.reduce((a,b)=>Number(a.amount)>Number(b.amount)?a:b):null;
+  const realizedForInsights=expenseLedger.filter(row=>row.date<=todayStr());
+  const biggest=realizedForInsights.length?realizedForInsights.reduce((a,b)=>Number(a.amount)>Number(b.amount)?a:b):null;
   const momChange=prevTotal>0?(totalExp-prevTotal)/prevTotal*100:0;
   const saveBudgets=async()=>{
     try{
       const entries=Object.entries(budgetDrafts).filter(([,v])=>Number(v)>0).map(([category,amount])=>({category,amount:roundMoney(amount)}));
-      await db.transaction('rw',db.budgets,async()=>{await db.budgets.clear();if(entries.length)await db.budgets.bulkPut(entries);});
+      await db.transaction('rw',db.budgets,async()=>{await db.budgets.clear();if(entries.length)await bulkPutCanonicalRecords('budgets',entries);});
       setBudgetModal(false);showBToast(t('budgetsSaved'));await load();
     }catch(err){console.error(err);showBToast(t('errorOccurred'));}
   };
@@ -3177,10 +2654,10 @@ function Dashboard({ sym, currentMonth, payday }) {
         h('div',{className:'sc premium-stat home-stat',title:cycleRangeLabel(currentMonth,payday)},h('div',{className:'slbl'},t('expensesLabel')),h('div',{className:'samt neg',style:moneyFontStyle(totalExp,sym,'stat')},fmt(totalExp,sym)),h('div',{className:'ssub'},`${fmt(fixed,sym)} ${t('fixed')}`),h('div',{className:'stat-badge'},h(Icon,{name:'trend',size:24}))),
         hasSavingsData&&h('div',{className:'sc full home-savings-card'},h('div',{className:'home-savings-row'},h('div',{className:'home-savings-primary'},h('div',{className:'slbl'},t('totalSavings')),h('div',{className:`samt ${totSaved>=0?'neu':'neg'}`,style:moneyFontStyle(totSaved,sym,'card')},totSaved<0?'−':'',fmt(totSaved,sym)),h('div',{className:'ssub'},isCurrentCycle?t('manualPlusAccumulated'):t('currentSavingsReference'))),isCurrentCycle&&h('div',{className:'home-savings-combined',style:{...moneyFontStyle(moneySum([totSaved,net,-realizedCycleNet]),sym,'card'),fontWeight:800,color:'var(--p)'}},moneySum([totSaved,net,-realizedCycleNet])<0?'−':'',fmt(moneySum([totSaved,net,-realizedCycleNet]),sym)))))),
     cats.length>0&&h('section',{className:'sec'},h('div',{className:'card cp'},h('div',{className:'chart-head mb10'},h('h2',{className:'ctitle'},t('spendingByCategory')),h('div',{className:'chart-menu','aria-hidden':true},'•••')),h(DonutChart,{data:cats.map(c=>c.amt),labels:cats.map(c=>getCatLabel(c.id)),colors:cats.map((c,i)=>chartToneFor(c.id,i)),sym}),h('div',{className:'chart-list'},cats.map((c,i)=>{const cat=getCat(c.id),tone=chartToneFor(c.id,i);return h('div',{key:c.id,className:'chart-row'},h('div',{className:'chart-meta'},h('span',{className:'summary-swatch',style:{background:chartToneCss(tone),color:tone.base},'aria-hidden':true}),h('span',{className:'chart-icon-chip',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('span',{className:'chart-label'},getCatLabel(c.id))),h('span',{className:'chart-amount'},fmt(c.amt,sym)));})))),
-    h('section',{className:'sec'},h('div',{className:'card cp'},h('div',{className:'fbet mb10'},h('h2',{className:'ctitle'},t('budgetProgress')),h('button',{className:'btn bsm budget-theme-btn',onClick:()=>{const x={};allBudgets.forEach(b=>x[b.category]=b.amount);setBudgetDrafts(x);setBudgetModal(true);}},h(Icon,{name:'settings',size:14}),t('setBudgets'))),budgeted.length===0?h('div',{className:'empty',style:{padding:'20px 10px'}},h('div',{className:'etxt'},t('noBudgets')),h('div',{className:'esub'},t('noBudgetsSub'))):budgeted.map(b=>{const cat=getCat(b.category),spent=catMap[b.category]||0,over=spent>b.amount,warn=!over&&spent/b.amount>=.75,color=over?'var(--danger)':warn?'#a15c00':'var(--success)';return h('div',{key:b.category,style:{marginBottom:12}},h('div',{className:'fbet',style:{marginBottom:4}},h('div',{className:'fb g8'},h(Icon,{name:iconName(cat),size:17}),h('span',{style:{fontSize:13,fontWeight:600}},getCatLabel(b.category))),h('span',{style:{fontSize:12,fontWeight:700,color}},fmt(spent,sym),' ',t('budgetOf'),' ',fmt(b.amount,sym))),h(PBar,{value:spent,max:b.amount,color}),h('div',{style:{fontSize:11,color:over?'var(--danger)':'var(--t3)',marginTop:3,textAlign:'right'}},over?`${fmt(spent-b.amount,sym)} ${t('budgetOver')}`:`${fmt(b.amount-spent,sym)} ${t('budgetRemaining')}`));}))),
+    h('section',{className:'sec'},h('div',{className:'card cp'},h('div',{className:'fbet mb10'},h('h2',{className:'ctitle'},t('budgetProgress')),h('button',{className:'btn bsm budget-theme-btn',onClick:()=>{const x={};allBudgets.forEach(b=>x[b.category]=b.amount);setBudgetDrafts(x);setBudgetModal(true);}},h(Icon,{name:'settings',size:14}),t('setBudgets'))),budgeted.length===0?h('div',{className:'empty',style:{padding:'20px 10px'}},h('div',{className:'etxt'},t('noBudgets')),h('div',{className:'esub'},t('noBudgetsSub'))):budgeted.map(b=>{const cat=getCat(b.category),spent=catMap.get(b.category)||0,over=spent>b.amount,warn=!over&&spent/b.amount>=.75,color=over?'var(--danger)':warn?'#a15c00':'var(--success)';return h('div',{key:b.category,style:{marginBottom:12}},h('div',{className:'fbet',style:{marginBottom:4}},h('div',{className:'fb g8'},h(Icon,{name:iconName(cat),size:17}),h('span',{style:{fontSize:13,fontWeight:600}},getCatLabel(b.category))),h('span',{style:{fontSize:12,fontWeight:700,color}},fmt(spent,sym),' ',t('budgetOf'),' ',fmt(b.amount,sym))),h(PBar,{value:spent,max:b.amount,color}),h('div',{style:{fontSize:11,color:over?'var(--danger)':'var(--t3)',marginTop:3,textAlign:'right'}},over?`${fmt(spent-b.amount,sym)} ${t('budgetOver')}`:`${fmt(b.amount-spent,sym)} ${t('budgetRemaining')}`));}))),
     monthly.some(m=>m.inc||m.exp)&&h('section',{className:'sec'},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('incomeVsExpenses')),h(BarChart,{sym,labels:monthly.map(m=>m.label),datasets:[{label:t('incomeChart'),data:monthly.map(m=>m.inc),gradient:{light:'#E0ECE2',base:'#78957E',dark:'#4f7058'},borderRadius:5},{label:t('expensesChart'),data:monthly.map(m=>m.exp),gradient:{light:'#F0E1DC',base:'#9F7D74',dark:'#744f48'},borderRadius:5}]}))),
     h('section',{className:'sec'},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('insights')),h('div',{style:{marginBottom:12,padding:'10px 12px',background:'var(--bg)',borderRadius:'var(--rmd)'}},h('div',{style:{fontSize:12,color:'var(--t3)',fontWeight:600}},projectionLabel),h('div',{style:{fontSize:18,fontWeight:800,color:'var(--danger)'}},fmt(projectedTotal,sym)),!selectedFuture&&h('div',{style:{fontSize:12,color:totalInc-projectedTotal>=0?'var(--success)':'var(--danger)'}},t('projectedRemaining'),': ',fmt(totalInc-projectedTotal,sym))),h('div',{style:{marginBottom:12,padding:'10px 12px',background:'var(--bg)',borderRadius:'var(--rmd)'}},h('div',{style:{fontSize:12,color:'var(--t3)',fontWeight:600}},t('biggestExpense')),biggest?h('div',{className:'fbet'},h('span',null,biggest.name,' · ',biggest.date),h('strong',null,fmt(biggest.amount,sym))):h('span',null,t('noExpensesYet'))),prevTotal>0&&h('div',{style:{padding:'10px 12px',background:'var(--bg)',borderRadius:'var(--rmd)'}},h('div',{style:{fontSize:12,color:'var(--t3)',fontWeight:600}},t('vsLastMonth')),h('div',{style:{fontSize:16,fontWeight:800,color:momChange>0?'var(--danger)':'var(--success)'}},Math.abs(momChange).toFixed(1),'% ',momChange>0?t('moreSpending'):t('lessSpending'))))),
-    allCards.length>0&&h('section',{className:'sec'},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('creditCards')),allCards.map(card=>{const colors=CCOLORS[Number(card.colorIdx)]||CCOLORS[0],bal=calculateCardBalance(card,d.cardCharges,allRec,allInst,new Date()),avail=moneyDifference(card.creditLimit,bal);return h('div',{key:card.id,className:'li'},h('span',{style:{width:10,height:10,borderRadius:'50%',background:`linear-gradient(135deg,${colors[0]},${colors[1]})`},'aria-hidden':true}),h('span',{className:'linf'},h('span',{className:'lname'},card.name,' ••••',card.lastFour)),h('span',{style:{textAlign:'right'}},h('span',{style:{display:'block',fontWeight:700,color:'var(--danger)'}},fmt(bal,sym)),h('span',{style:{fontSize:11,color:avail<0?'var(--danger)':'var(--t3)'}},avail<0?`${t('overLimitBy')} ${fmt(-avail,sym)}`:`${fmt(avail,sym)} ${t('avail')}`)));}))),
+    allCards.length>0&&h('section',{className:'sec'},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('creditCards')),allCards.map(card=>{const colors=CCOLORS[Number(card.colorIdx)]||CCOLORS[0],bal=calculateCardBalance(card,d.cardCharges,allRec,allInst,thailandTodayDate()),avail=moneyDifference(card.creditLimit,bal);return h('div',{key:card.id,className:'li'},h('span',{style:{width:10,height:10,borderRadius:'50%',background:`linear-gradient(135deg,${colors[0]},${colors[1]})`},'aria-hidden':true}),h('span',{className:'linf'},h('span',{className:'lname'},card.name,' ••••',card.lastFour)),h('span',{style:{textAlign:'right'}},h('span',{style:{display:'block',fontWeight:700,color:'var(--danger)'}},fmt(bal,sym)),h('span',{style:{fontSize:11,color:avail<0?'var(--danger)':'var(--t3)'}},avail<0?`${t('overLimitBy')} ${fmt(-avail,sym)}`:`${fmt(avail,sym)} ${t('avail')}`)));}))),
     recent.length>0&&h('section',{className:'sec',style:{paddingBottom:14}},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('recentTransactions')),recent.map(exp=>{const cat=getCat(exp.category||'other'),adjustment=Number(exp.amount)<0;return h('div',{key:exp.id,className:'li spend-row'},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('div',{className:'linf spend-copy'},h('div',{className:'lname spend-name'},exp.name),h('div',{className:'spend-meta'},h('span',{className:'spend-date'},exp.date),adjustment&&h('span',{className:'spend-note'},'Reversal'))),h('div',{className:`lamt ${adjustment?'inc':'exp'} spend-actions`},adjustment?'+':'−',fmt(exp.amount,sym)));}))),
     budgetModal&&h(Modal,{title:t('setBudgets'),onClose:()=>setBudgetModal(false)},expenseCats().filter(c=>c.id!=='installments').map(c=>h(Field,{key:c.id,label:getCatLabel(c.id)},h(Inp,{type:'number',placeholder:'0.00',step:'0.01',inputMode:'decimal',value:budgetDrafts[c.id]||'',onChange:e=>setBudgetDrafts(x=>({...x,[c.id]:e.target.value}))}))),h('button',{className:'btn bpri',onClick:saveBudgets},t('saveBudgets')))
   );
@@ -3196,7 +2673,7 @@ function ExpensesTab({ sym, currentMonth, payday }) {
   const [summaryExps,setSummaryExps]=useState([]),[loadError,setLoadError]=useState(null);
   const [toast,showToast]=useToast();
   const latest=useLatestRequest(), latestSummary=useLatestRequest();
-  const cr=cycleRange(currentMonth,payday), todayKey=mkKey(new Date());
+  const cr=cycleRange(currentMonth,payday), todayKey=mkKey(thailandTodayDate());
   const load=useCallback(async()=>{
     const isLatest=latest();setLoadError(null);
     try{
@@ -3213,17 +2690,17 @@ function ExpensesTab({ sym, currentMonth, payday }) {
   useEffect(()=>{load();},[load]);
   useEffect(()=>{loadSummary();},[loadSummary]);
   const afterWrite=async(message)=>{await Promise.all([load(),loadSummary()]);showToast(message);};
-  const saveVar=async f=>{try{if(f.id)await db.expenses.update(f.id,f);else await db.expenses.add(f);setModal(null);await afterWrite(f.id?t('updated'):t('expenseAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
-  const saveRec=async f=>{try{let next;if(f.id){const existing=await db.recurring.get(f.id),frozen=freezeRecurringThrough(existing,todayStr()),scheduleChanged=['amount','dueDay','category','cardId'].some(key=>String(existing?.[key]??'')!==String(f?.[key]??'')),postedThisMonth=normalizeRecurringPostings(frozen).some(row=>row.date.slice(0,7)===todayStr().slice(0,7)),effectiveDate=scheduleChanged?(postedThisMonth?firstDayOfNextMonthISO(todayStr()):todayStr()):(frozen.scheduleEffectiveDate||'');next={...frozen,...f,activeDatePeriods:recurringActivityPeriodsFor(frozen),postedOccurrences:frozen.postedOccurrences,postedThrough:frozen.postedThrough,scheduleEffectiveDate:effectiveDate,isDeleted:false,deletedAt:''};await db.recurring.put(next);}else{const base={...f,activeDatePeriods:recurringActivityPeriodsFor(f),postedOccurrences:[],postedThrough:'',scheduleEffectiveDate:f.scheduleEffectiveDate||'',isDeleted:false,deletedAt:''};next=freezeRecurringThrough(base,todayStr());await db.recurring.add(next);}setModal(null);await afterWrite(f.id?t('updated'):t('fixedCostAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
-  const saveInst=async f=>{try{let next;if(f.id){const existing=await db.installments.get(f.id),frozen=freezeInstallmentThrough(existing,todayStr()),paid=installmentPostedTotal(frozen);if(Number(f.totalAmount)+.001<paid)throw new Error('Total cannot be less than posted payments');const candidateStart=f.startDate>todayStr()?f.startDate:nextInstallmentDateAfter(f.startDate,todayStr());next={...frozen,...f,postedPayments:frozen.postedPayments,postedThrough:frozen.postedThrough,nextPaymentDate:candidateStart,isDeleted:false,deletedAt:'',monthsRemaining:0};const projected=projectedInstallmentSchedule(next);next.nextPaymentDate=projected[0]?.date||candidateStart;next.monthsRemaining=projected.length;await db.installments.put(next);}else{const base={...f,postedPayments:[],postedThrough:'',nextPaymentDate:f.startDate,isDeleted:false,deletedAt:''};next=freezeInstallmentThrough(base,todayStr());await db.installments.add(next);}setModal(null);await afterWrite(f.id?t('updated'):t('installmentAdded'));}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);throw err;}};
+  const saveVar=async f=>{try{if(f.id)await putCanonicalRecord('expenses',f);else await addCanonicalRecord('expenses',f);setModal(null);await afterWrite(f.id?t('updated'):t('expenseAdded'));}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);throw err;}};
+  const saveRec=async f=>{try{let next;if(f.id){const existing=await db.recurring.get(f.id),frozen=freezeRecurringThrough(existing,todayStr()),scheduleChanged=['amount','dueDay','category','cardId'].some(key=>String(existing?.[key]??'')!==String(f?.[key]??'')),postedThisMonth=normalizeRecurringPostings(frozen).some(row=>row.date.slice(0,7)===todayStr().slice(0,7)),effectiveDate=scheduleChanged?(postedThisMonth?firstDayOfNextMonthISO(todayStr()):todayStr()):(frozen.scheduleEffectiveDate||'');next=refreshEditableMoneyFields('recurring',{...frozen,...f,activeDatePeriods:recurringActivityPeriodsFor(frozen),postedOccurrences:frozen.postedOccurrences,postedThrough:frozen.postedThrough,scheduleEffectiveDate:effectiveDate,isDeleted:false,deletedAt:''});await putCanonicalRecord('recurring',next);}else{const base={...f,activeDatePeriods:recurringActivityPeriodsFor(f),postedOccurrences:[],postedThrough:'',scheduleEffectiveDate:f.scheduleEffectiveDate||'',isDeleted:false,deletedAt:''};next=freezeRecurringThrough(base,todayStr());await addCanonicalRecord('recurring',next);}setModal(null);await afterWrite(f.id?t('updated'):t('fixedCostAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
+  const saveInst=async f=>{try{await persistInstallmentForm(f);setModal(null);await afterWrite(f.id?t('updated'):t('installmentAdded'));}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);throw err;}};
   const confirmedDelete=(kind,row,tableName)=>setConfirmState({kind,row,tableName});
-  const runConfirmedDelete=async()=>{if(!confirmState||confirmBusy)return;setConfirmBusy(true);try{if(confirmState.kind==='recurring'){const frozen=freezeRecurringThrough(confirmState.row,todayStr());await db.recurring.put({...frozen,isDeleted:true,deletedAt:todayStr(),isActive:false});}else if(confirmState.kind==='installment'){await db.installments.put(archiveInstallmentRecord(confirmState.row,todayStr()));}else await db[confirmState.tableName].delete(confirmState.row.id);setConfirmState(null);await afterWrite(t('deleted'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
-  const toggleRec=async r=>{try{const current=recurringActiveOnDate(r,todayStr()),frozen=freezeRecurringThrough(r,todayStr());await db.recurring.put({...frozen,...withRecurringActivityAtDate(frozen,!current,todayStr())});await load();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
-  const completeInst=async inst=>{try{await db.installments.put(completeInstallmentRecord(inst,todayStr()));await load();showToast(t('paidOff'));}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);}};
-  const reopenInst=async inst=>{try{await db.installments.put(reopenInstallmentRecord(inst,todayStr()));await load();showToast(t('updated'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const runConfirmedDelete=async()=>{if(!confirmState||confirmBusy)return;setConfirmBusy(true);try{if(confirmState.kind==='recurring'){const frozen=freezeRecurringThrough(confirmState.row,todayStr());await putCanonicalRecord('recurring',{...frozen,isDeleted:true,deletedAt:todayStr(),isActive:false});}else if(confirmState.kind==='installment'){await putCanonicalRecord('installments',archiveInstallmentRecord(confirmState.row,todayStr()));}else await db[confirmState.tableName].delete(confirmState.row.id);setConfirmState(null);await afterWrite(t('deleted'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
+  const toggleRec=async r=>{try{const current=recurringActiveOnDate(r,todayStr()),frozen=freezeRecurringThrough(r,todayStr());await putCanonicalRecord('recurring',{...frozen,...withRecurringActivityAtDate(frozen,!current,todayStr())});await load();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const completeInst=async inst=>{try{await putCanonicalRecord('installments',completeInstallmentRecord(inst,todayStr()));await load();showToast(t('paidOff'));}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);}};
+  const reopenInst=async inst=>{try{await putCanonicalRecord('installments',reopenInstallmentRecord(inst,todayStr()));await load();showToast(t('updated'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const saveCustomCategory=async()=>{const label=customCat.label.trim();if(!label)return;try{if(customCat.id)CUSTOM_CATS=CUSTOM_CATS.map(c=>c.id===customCat.id?{...c,label,icon:iconName(customCat)}:c);else CUSTOM_CATS=[...CUSTOM_CATS,{id:`custom-${Date.now()}`,label,icon:iconName(customCat),bg:'#eeecff',tc:'#5148d8'}];await db.settings.put({key:'customCategories',value:CUSTOM_CATS});setCustomCat({label:'',icon:'tag'});setCategoryModal('manage');setCatVersion(v=>v+1);showToast(t('expenseTypeUpdated'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const askDeleteCategory=async cat=>{try{const [a,b]=await Promise.all([db.expenses.where('category').equals(cat.id).count(),db.recurring.where('category').equals(cat.id).count()]);setReplacementCat('other');setCategoryModal({type:'delete',cat,count:a+b});}catch(err){showToast(t('errorOccurred'));}};
-  const deleteCustomCategory=async cat=>{try{const next=CUSTOM_CATS.map(c=>c.id===cat.id?{...c,archived:true}:c);await db.transaction('rw',[db.expenses,db.recurring,db.budgets,db.settings],async()=>{await db.expenses.where('category').equals(cat.id).modify({category:replacementCat});const affectedRecurring=await db.recurring.where('category').equals(cat.id).toArray();for(const record of affectedRecurring){const frozen=freezeRecurringThrough(record,todayStr());await db.recurring.put({...frozen,category:replacementCat});}const old=await db.budgets.get(cat.id);if(old){const target=await db.budgets.get(replacementCat);await db.budgets.put({category:replacementCat,amount:moneySum([target?.amount||0,old.amount||0])});await db.budgets.delete(cat.id);}await db.settings.put({key:'customCategories',value:next});});CUSTOM_CATS=next;if(catFilter===cat.id)setCatFilter('');setCategoryModal('manage');setCatVersion(v=>v+1);await load();showToast(t('expenseTypeRemoved'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const deleteCustomCategory=async cat=>{try{const next=CUSTOM_CATS.map(c=>c.id===cat.id?{...c,archived:true}:c);await db.transaction('rw',[db.expenses,db.recurring,db.budgets,db.settings],async()=>{await db.expenses.where('category').equals(cat.id).modify({category:replacementCat});const affectedRecurring=await db.recurring.where('category').equals(cat.id).toArray();for(const record of affectedRecurring){const frozen=freezeRecurringThrough(record,todayStr());await putCanonicalRecord('recurring',{...frozen,category:replacementCat});}const old=await db.budgets.get(cat.id);if(old){const target=await db.budgets.get(replacementCat);await putCanonicalRecord('budgets',{category:replacementCat,amount:moneySum([target?.amount||0,old.amount||0])});await db.budgets.delete(cat.id);}await db.settings.put({key:'customCategories',value:next});});CUSTOM_CATS=next;if(catFilter===cat.id)setCatFilter('');setCategoryModal('manage');setCatVersion(v=>v+1);await load();showToast(t('expenseTypeRemoved'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const variableTotal=moneySum(varExps.map(e=>e.amount));
   const visibleRecs=recs.filter(r=>!r.isDeleted),visibleInsts=allInsts.filter(i=>!i.isDeleted);
   const recurringActiveInCycle=r=>recurringOccurrences(r,cr.start,cr.end).length>0;
@@ -3232,19 +2709,19 @@ function ExpensesTab({ sym, currentMonth, payday }) {
   const cycleInsts=allInsts.filter(i=>installmentOccurrences(i,cr.start,cr.end).some(row=>Number(row.amount)!==0)), completedInsts=visibleInsts.filter(i=>(i.isComplete||i.completedDate)&&!cycleInsts.some(c=>c.id===i.id));
   const instTotal=moneySum(allInsts.map(i=>installmentAmountInRange(i,cr.start,cr.end)));
   const parsedSummaryDay=parseISODate(day);
-  const summaryRange=summaryMode==='weekly'?mondayWeekRange(day):parsedSummaryDay?{start:parsedSummaryDay,end:new Date(parsedSummaryDay.getTime()+DAY)}:null;
-  const summaryMap={};
-  for(const e of summaryExps)summaryMap[e.category]=moneySum([summaryMap[e.category]||0,e.amount||0]);
-  if(summaryRange){for(const r of recs)for(const o of recurringOccurrences(r,summaryRange.start,summaryRange.end)){const category=o.category||r.category;summaryMap[category]=moneySum([summaryMap[category]||0,o.amount??r.amount??0]);}
-  for(const inst of allInsts)for(const o of installmentOccurrences(inst,summaryRange.start,summaryRange.end))summaryMap.installments=moneySum([summaryMap.installments||0,o.amount||0]);}
-  const summaryRows=Object.entries(summaryMap).filter(([,amount])=>amount!==0).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]));
+  const summaryRange=summaryMode==='weekly'?mondayWeekRange(day):parsedSummaryDay?{start:parsedSummaryDay,end:addCalendarDays(parsedSummaryDay,1)}:null;
+  const summaryMap=new Map();
+  for(const e of summaryExps)summaryMap.set(e.category,moneySum([summaryMap.get(e.category)||0,e.amount||0]));
+  if(summaryRange){for(const r of recs)for(const o of recurringOccurrences(r,summaryRange.start,summaryRange.end)){const category=o.category||r.category;summaryMap.set(category,moneySum([summaryMap.get(category)||0,o.amount??r.amount??0]));}
+  for(const inst of allInsts)for(const o of installmentOccurrences(inst,summaryRange.start,summaryRange.end))summaryMap.set('installments',moneySum([summaryMap.get('installments')||0,o.amount||0]));}
+  const summaryRows=[...summaryMap.entries()].filter(([,amount])=>amount!==0).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]));
   const summaryTotal=moneySum(summaryRows.map(([,amount])=>amount));
   const filtered=varExps.filter(e=>(!search||`${e.name} ${e.notes||''}`.toLowerCase().includes(search.toLowerCase()))&&(!catFilter||e.category===catFilter));
   const tab=(id,label,value)=>h('button',{role:'tab','aria-selected':sub===id,className:`expense-type-btn${sub===id?' active':''}`,onClick:()=>setSub(id)},h('span',{className:'expense-type-label'},label),h('span',{className:'expense-type-value'},value<0?'+':'',fmt(value,sym)));
   const iconButton=(label,onClick,icon,klass='')=>h('button',{type:'button','aria-label':label,title:label,className:klass,onClick},h(Icon,{name:icon,size:16}));
   const expenseRow=e=>{const cat=getCat(e.category);return h('div',{key:e.id,className:'li spend-row'},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('button',{type:'button',className:'linf row-action spend-copy','aria-label':`${t('editItem')} ${e.name}`,onClick:()=>setModal({type:'editVar',data:e})},h('span',{className:'lname spend-name'},e.name),h('span',{className:'spend-meta'},h('span',{className:'spend-date'},e.date),e.notes&&h('span',{className:'spend-note'},e.notes))),h('div',{className:'fb g8 spend-actions'},h('span',{className:'lamt exp'},'−',fmt(e.amount,sym)),iconButton(`${t('deleteItem')} ${e.name}`,()=>confirmedDelete('expense',e,'expenses'),'trash','btn bsm bdanger')));};
   const recurringRow=r=>{const cat=getCat(r.category),selectedActive=recurringActiveInCycle(r),currentActive=recurringActiveOnDate(r,todayStr()),amount=recurringAmountInRange(r,cr.start,cr.end),card=cards.find(c=>Number(c.id)===Number(r.cardId));return h('div',{key:r.id,className:'li',style:{opacity:selectedActive?1:.62}},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${r.name}`,onClick:()=>setModal({type:'editFixed',data:r})},h('span',{className:'lname'},r.name),h('span',{className:'lsub'},`${t('dueDay')} ${r.dueDay}${card?` · ${card.name}`:''}`)),h('div',{className:'fb g8'},h('span',{className:'lamt exp'},amount?'−'+fmt(amount,sym):fmt(0,sym)),h(Toggle,{checked:currentActive,label:`${currentActive?t('deactivate'):t('activate')} ${r.name}`,onChange:()=>toggleRec(r)}),iconButton(`${t('deleteItem')} ${r.name}`,()=>confirmedDelete('recurring',r,'recurring'),'trash','btn bsm bdanger')));};
-  const installmentRow=inst=>{const amount=installmentAmountInRange(inst,cr.start,cr.end),left=instMonthsLeft(inst,new Date()),completed=!!(inst.isComplete||inst.completedDate);return h('div',{key:inst.id,className:'li'},h('div',{className:'lico'},h(Icon,{name:'card',size:20})),h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${inst.name}`,onClick:()=>setModal({type:'editInst',data:inst})},h('span',{className:'lname'},inst.name),h('span',{className:'lsub'},completed?`${t('completedOn')} ${inst.completedDate||''}`:`${left} ${t('monthsLeft')} · ${fmt(inst.totalAmount,sym)}`)),h('div',{className:'fb g8'},amount!==0&&h('span',{className:`lamt ${amount<0?'inc':'exp'}`},amount<0?'+':'−',fmt(amount,sym)),completed?h('button',{className:'btn bsm bghost',onClick:()=>reopenInst(inst)},t('reopen')):h('button',{className:'btn bsm',onClick:()=>completeInst(inst),'aria-label':`${t('completeInstallment')} ${inst.name}`},t('done')),iconButton(`${t('deleteItem')} ${inst.name}`,()=>confirmedDelete('installment',inst,'installments'),'trash','btn bsm bdanger')));};
+  const installmentRow=inst=>{const amount=installmentAmountInRange(inst,cr.start,cr.end),left=instMonthsLeft(inst,thailandTodayDate()),completed=!!(inst.isComplete||inst.completedDate);return h('div',{key:inst.id,className:'li'},h('div',{className:'lico'},h(Icon,{name:'card',size:20})),h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${inst.name}`,onClick:()=>setModal({type:'editInst',data:inst})},h('span',{className:'lname'},inst.name),h('span',{className:'lsub'},completed?`${t('completedOn')} ${inst.completedDate||''}`:`${left} ${t('monthsLeft')} · ${fmt(inst.totalAmount,sym)}`)),h('div',{className:'fb g8'},amount!==0&&h('span',{className:`lamt ${amount<0?'inc':'exp'}`},amount<0?'+':'−',fmt(amount,sym)),completed?h('button',{className:'btn bsm bghost','aria-label':`${t('reopen')} ${inst.name}`,onClick:()=>reopenInst(inst)},t('reopen')):h('button',{className:'btn bsm',onClick:()=>completeInst(inst),'aria-label':`${t('completeInstallment')} ${inst.name}`},t('done')),iconButton(`${t('deleteItem')} ${inst.name}`,()=>confirmedDelete('installment',inst,'installments'),'trash','btn bsm bdanger')));};
   if(loadError)return h('div',{className:'empty',role:'alert'},h('div',{className:'etxt'},t('loadFailed')),h('button',{className:'btn bpri',onClick:load},t('retry')));
   return h('div',null,h(Toast,{msg:toast}),
     h('section',{className:'sec'},h('div',{className:'seg expense-type-seg',role:'tablist','aria-label':t('expensesLabel')},tab('variable',t('variable'),variableTotal),tab('fixed',t('fixed'),fixedTotal),tab('installments',t('installments'),instTotal))),
@@ -3258,7 +2735,7 @@ function ExpensesTab({ sym, currentMonth, payday }) {
     (modal==='addVar'||modal?.type==='editVar')&&h(Modal,{title:modal?.type?t('editExpense'):t('addExpense'),onClose:()=>setModal(null)},h(ExpenseForm,{onSave:saveVar,cards,onManageCategories:()=>setCategoryModal('manage'),initial:modal?.data,catVersion})),
     (modal==='addFixed'||modal?.type==='editFixed')&&h(Modal,{title:modal?.type?t('editFixedCost'):t('addFixedCost'),onClose:()=>setModal(null)},h(RecurringForm,{onSave:saveRec,cards,initial:modal?.data,catVersion})),
     (modal==='addInst'||modal?.type==='editInst')&&(cards.length?h(Modal,{title:modal?.type?t('editInstallment'):t('addInstallment'),onClose:()=>setModal(null)},h(InstallForm,{onSave:saveInst,cards,initial:modal?.data})):h(Modal,{title:t('addInstallment'),onClose:()=>setModal(null)},h('p',{className:'fhint'},t('addInstFromCards')))),
-    categoryModal==='manage'&&h(Modal,{title:t('manageExpenseTypes'),onClose:()=>setCategoryModal(null)},h('button',{className:'btn bpri',onClick:()=>{setCustomCat({label:'',icon:'tag'});setCategoryModal('add');}},t('addExpenseType')),CUSTOM_CATS.some(cat=>!cat.archived)?CUSTOM_CATS.filter(cat=>!cat.archived).map(cat=>h('div',{key:cat.id,className:'li'},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('div',{className:'linf'},h('div',{className:'lname'},cat.label)),h('button',{className:'btn bsm bghost',onClick:()=>{setCustomCat({...cat});setCategoryModal('edit');}},t('editBtn')),h('button',{className:'btn bsm bdanger',onClick:()=>askDeleteCategory(cat)},t('removeBtn')))):h('div',{className:'empty'},t('noCustomExpenseTypes'))),
+    categoryModal==='manage'&&h(Modal,{title:t('manageExpenseTypes'),onClose:()=>setCategoryModal(null)},h('button',{className:'btn bpri',onClick:()=>{setCustomCat({label:'',icon:'tag'});setCategoryModal('add');}},t('addExpenseType')),CUSTOM_CATS.some(cat=>!cat.archived)?CUSTOM_CATS.filter(cat=>!cat.archived).map(cat=>h('div',{key:cat.id,className:'li'},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('div',{className:'linf'},h('div',{className:'lname'},cat.label)),h('button',{className:'btn bsm bghost','aria-label':`${t('editItem')} ${cat.label}`,onClick:()=>{setCustomCat({...cat});setCategoryModal('edit');}},t('editBtn')),h('button',{className:'btn bsm bdanger','aria-label':`${t('removeBtn')} ${cat.label}`,onClick:()=>askDeleteCategory(cat)},t('removeBtn')))):h('div',{className:'empty'},t('noCustomExpenseTypes'))),
     (categoryModal==='add'||categoryModal==='edit')&&h(Modal,{title:categoryModal==='edit'?t('editExpenseTypeTitle'):t('addExpenseTypeTitle'),onClose:()=>setCategoryModal('manage')},h(Field,{label:t('typeName')},h(Inp,{type:'text',maxLength:80,value:customCat.label,onChange:e=>setCustomCat(x=>({...x,label:e.target.value})),autoFocus:true})),h(Field,{label:t('chooseIcon')},h('div',{className:'catg',role:'radiogroup'},CUSTOM_ICON_OPTIONS.map(name=>h('button',{key:name,type:'button',role:'radio','aria-checked':customCat.icon===name,className:`copt${customCat.icon===name?' sel':''}`,'aria-label':name,onClick:()=>setCustomCat(x=>({...x,icon:name}))},h('span',{className:'cico'},h(Icon,{name,size:22})))))),h('button',{className:'btn bpri',onClick:saveCustomCategory},categoryModal==='edit'?t('saveChanges'):t('addExpenseTypeTitle'))),
     categoryModal?.type==='delete'&&h(Modal,{title:t('removeExpenseTypeTitle'),onClose:()=>setCategoryModal('manage')},h('p',null,categoryModal.count>0?`${categoryModal.count} ${t('catInUsePrefix')} "${categoryModal.cat.label}" ${t('catInUseSuffix')}`:`"${categoryModal.cat.label}" ${t('catNotUsedSuffix')}`),categoryModal.count>0&&h(Field,{label:t('moveExistingTo')},h(Sel,{value:replacementCat,onChange:e=>setReplacementCat(e.target.value),options:expenseCats().filter(c=>c.id!==categoryModal.cat.id).map(c=>({value:c.id,label:getCatLabel(c.id)}))})),h('button',{className:'btn bdanger',onClick:()=>deleteCustomCategory(categoryModal.cat)},categoryModal.count>0?t('moveAndRemove'):t('removeExpenseType'))),
     confirmState&&h(ConfirmModal,{title:t('confirmDelete'),message:`${t('deleteItem')}: ${confirmState.row.name}?`,details:t('deleteItemMessage'),confirmLabel:t('deleteAction'),danger:true,busy:confirmBusy,onClose:()=>!confirmBusy&&setConfirmState(null),onConfirm:runConfirmedDelete})
@@ -3269,23 +2746,23 @@ function ExpensesTab({ sym, currentMonth, payday }) {
 function IncomeTab({ sym, currentMonth, payday }) {
   const [incs,setIncs]=useState([]),[modal,setModal]=useState(null),[loadError,setLoadError]=useState(null),[confirmIncome,setConfirmIncome]=useState(null),[confirmBusy,setConfirmBusy]=useState(false);
   const [toast,showToast]=useToast();const latest=useLatestRequest();
-  const cr=cycleRange(currentMonth,payday),selectedKey=mkKey(currentMonth),todayKey=mkKey(new Date());
+  const cr=cycleRange(currentMonth,payday),selectedKey=mkKey(currentMonth),todayKey=mkKey(thailandTodayDate());
   const load=useCallback(async()=>{const isLatest=latest();setLoadError(null);try{const rows=await db.income.toArray();if(isLatest())setIncs(rows);}catch(err){console.error(err);if(isLatest())setLoadError(err);}},[latest]);
   useEffect(()=>{load();},[load]);
-  const save=async f=>{try{if(f.id){const existing=incs.find(i=>i.id===f.id)||await db.income.get(f.id);const next=applyIncomeEdit(existing,f);await db.income.put(next);}else{const recurring=f.frequency!=='one-time';const first=f.startDate||f.date;const record={...f,incomePeriods:recurring?[{startDate:first,endDate:null,amount:roundMoney(f.amount),frequency:f.frequency,anchorDate:first}]:[],isActive:true};await db.income.add(record);}setModal(null);await load();showToast(f.id?t('updated'):t('incomeAdded'));}catch(err){console.error(err);showToast(err?.userSafe?err.message:t('errorOccurred'));throw err;}};
+  const save=async f=>{try{if(f.id){const existing=incs.find(i=>i.id===f.id)||await db.income.get(f.id);const next=refreshEditableMoneyFields('income',applyIncomeEdit(existing,f));await putCanonicalRecord('income',next);}else{const recurring=f.frequency!=='one-time';const first=f.startDate||f.date;const record={...f,incomePeriods:recurring?[{startDate:first,endDate:null,amount:roundMoney(f.amount),frequency:f.frequency,anchorDate:first}]:[],isActive:true};await addCanonicalRecord('income',record);}setModal(null);await load();showToast(f.id?t('updated'):t('incomeAdded'));}catch(err){console.error(err);showToast(err?.userSafe?err.message:t('errorOccurred'));throw err;}};
   const del=inc=>setConfirmIncome(inc);
   const runDelete=async()=>{if(!confirmIncome||confirmBusy)return;setConfirmBusy(true);try{
-    const deletedAt=todayStr(),historyEnd=new Date(parseISODate(deletedAt).getTime()+DAY),historyStart=new Date(1900,0,1,12);
+    const deletedAt=todayStr(),historyEnd=addCalendarDays(parseISODate(deletedAt),1),historyStart=new Date(1900,0,1,12);
     const hasPaidIncome=incomeOccurrences(confirmIncome,historyStart,historyEnd).length>0;
     if(!hasPaidIncome){
       await db.income.delete(confirmIncome.id);
     }else{
       const stopped=confirmIncome.frequency==='one-time'?{isActive:false}:setIncomeActive(confirmIncome,false,deletedAt);
-      await db.income.update(confirmIncome.id,{...stopped,isDeleted:true,deletedAt});
+      await updateCanonicalRecord('income',confirmIncome.id,{...stopped,isDeleted:true,deletedAt});
     }
     setConfirmIncome(null);await load();showToast(t('deleted'));
   }catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
-  const toggle=async inc=>{try{const current=incomeHasOpenPeriod(inc);await db.income.update(inc.id,setIncomeActive(inc,!current));await load();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const toggle=async inc=>{try{const current=incomeHasOpenPeriod(inc);await updateCanonicalRecord('income',inc.id,setIncomeActive(inc,!current));await load();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const visibleIncs=incs.filter(inc=>inc.isDeleted!==true);
   const total=moneySum(incs.map(inc=>incomeAmountInRange(inc,cr.start,cr.end)));
   const oneTime=moneySum(incs.filter(i=>i.frequency==='one-time').map(i=>incomeAmountInRange(i,cr.start,cr.end)));
@@ -3301,7 +2778,7 @@ function SavingsTab({ sym, currentMonth, payday }) {
   const [toast,showToast]=useToast();
   const latest=useLatestRequest();
   const cr=cycleRange(currentMonth,payday);
-  const isCurrentCycle=mkKey(currentMonth)===mkKey(cycleAnchor(new Date(),payday,CYCLE_LABEL));
+  const isCurrentCycle=mkKey(currentMonth)===mkKey(cycleAnchor(thailandTodayDate(),payday,CYCLE_LABEL));
   const load=useCallback(async()=>{
     const isLatest=latest();setLoadError(null);
     try{
@@ -3318,7 +2795,7 @@ function SavingsTab({ sym, currentMonth, payday }) {
       const expenses=moneySum([variable,fixed,installments]);
       const fallback=moneySum(legacyGoals.map(g=>g.currentAmount||0));
       const accumulated=realizedCashflowThrough({incomes:incs,recurring:recs,installments:insts,expenses:realizedExps});
-      const anchor=savingsAnchorState(savingsAnchorSetting,Number(savingsSetting?.value??fallback),accumulated.net),manualSavings=anchor.amount,{cashflowSinceAnchor,totalSavings}=savingsTotalFromAnchor(anchor,accumulated.net);
+      const anchor=savingsAnchorState(savingsAnchorSetting,Number(savingsSetting?.value??fallback),accumulated.net),manualSavings=anchor.amount,{cashflowSinceAnchor,totalSavings}=savingsTotalFromAnchor(anchor,{incomes:incs,recurring:recs,installments:insts,expenses:realizedExps});
       const realizedEnd=endExclusiveAfterISO(todayStr())<cr.end?endExclusiveAfterISO(todayStr()):cr.end;
       const realizedIncome=cr.start<realizedEnd?moneySum(incs.map(i=>incomeAmountInRange(i,cr.start,realizedEnd))):0;
       const realizedVariable=moneySum(exps.filter(e=>e.date<=todayStr()).map(e=>e.amount));
@@ -3335,11 +2812,11 @@ function SavingsTab({ sym, currentMonth, payday }) {
     event?.preventDefault();
     if(saving)return;
     const value=Number(amount);
-    if(!Number.isFinite(value)||value<0||value>1e12){setError(t('errSavingsAmount'));return;}
+    if(!Number.isFinite(value)||value<0||value>1e12){setError(t('errSavingsAmount'));requestAnimationFrame(()=>document.querySelector('[name="manualSavings"]')?.focus?.());return;}
     setSaving(true);setError('');
     try{
       const anchor={amount:roundMoney(value),date:todayStr(),accumulatedAtAnchor:roundMoney(data?.accumulatedCashflow||0)};
-      await db.transaction('rw',db.settings,async()=>{await db.settings.put({key:'totalSavings',value:roundMoney(value)});await db.settings.put({key:'savingsAnchor',value:anchor});});
+      await db.transaction('rw',db.settings,async()=>{await putCanonicalRecord('settings',{key:'totalSavings',value:roundMoney(value)});await putCanonicalRecord('settings',{key:'savingsAnchor',value:anchor});});
       setEditOpen(false);await load();showToast(t('savingsUpdated'));
     }catch(err){console.error(err);setError(t('errorOccurred'));}
     finally{setSaving(false);}
@@ -3372,7 +2849,7 @@ function SavingsTab({ sym, currentMonth, payday }) {
       h('p',{className:'savings-explainer'},t(isCurrentCycle?'combinedFormulaAccumulated':'historicalSavingsFormula')))),
     editOpen&&h(Modal,{title:t('updateManualSavings'),onClose:()=>!saving&&setEditOpen(false),busy:saving},
       h('form',{onSubmit:saveTotal,noValidate:true},
-        h(Field,{label:t('manualSavings'),hint:t('manualSavingsHint'),error},h(Inp,{type:'number',min:'0',step:'0.01',inputMode:'decimal',value:amount,onChange:e=>setAmount(e.target.value),autoFocus:true,disabled:saving})),
+        h(Field,{label:t('manualSavings'),hint:t('manualSavingsHint'),error},h(Inp,{name:'manualSavings',type:'number',min:'0',step:'0.01',inputMode:'decimal',value:amount,onChange:e=>{setAmount(e.target.value);if(error)setError('');},autoFocus:true,disabled:saving})),
         h('button',{type:'submit',className:'btn bpri',disabled:saving,'aria-busy':saving},t('updateManualSavings'))))
   );
 }
@@ -3392,24 +2869,24 @@ function CardsTab({ sym, currentMonth, payday }) {
         db.expenses.where('date').between(cr.startISO,cr.endISO,true,false).toArray(),
         db.recurring.toArray()
       ]);
-      const ce=await loadOutstandingCardExpenses(c,new Date());
+      const ce=await loadOutstandingCardExpenses(c,thailandTodayDate());
       if(!isLatest())return;
       setCards(c);setInsts(i);setExps(e);setRecs(r);setCardExps(ce);
     }catch(err){console.error(err);if(isLatest())setLoadError(err);}
   },[currentMonth,payday,latest]);
   useEffect(()=>{load();},[load]);
   useEffect(()=>{if(actionMenu===null)return;const close=()=>setActionMenu(null),escape=event=>{if(event.key==='Escape')setActionMenu(null);};document.addEventListener('click',close);document.addEventListener('keydown',escape);return()=>{document.removeEventListener('click',close);document.removeEventListener('keydown',escape);};},[actionMenu]);
-  const saveCard=async f=>{try{if(f.id)await db.cards.update(f.id,f);else await db.cards.add(f);setModal(null);await load();showToast(f.id?t('updated'):t('cardAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
+  const saveCard=async f=>{try{if(f.id)await putCanonicalRecord('cards',f);else await addCanonicalRecord('cards',f);setModal(null);await load();showToast(f.id?t('updated'):t('cardAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
   const delCard=card=>setConfirmCard(card);
-  const runDeleteCard=async()=>{if(!confirmCard||confirmBusy)return;setConfirmBusy(true);try{const card=confirmCard;await db.transaction('rw',[db.cards,db.installments,db.expenses,db.recurring],async()=>{const cardLabel=`${card.name} ••••${card.lastFour}`;const affectedInst=await db.installments.filter(i=>Number(i.cardId)===Number(card.id)).toArray();for(const inst of affectedInst){const archived=archiveInstallmentRecord(inst,todayStr()),postedPayments=(archived.postedPayments||[]).map(row=>Number(row.cardId)===Number(card.id)?{...row,cardId:'',cardLabel}:row);await db.installments.put({...archived,cardId:'',postedPayments});}await db.expenses.filter(e=>Number(e.cardId)===Number(card.id)).modify({cardId:''});const affectedRec=await db.recurring.filter(r=>Number(r.cardId)===Number(card.id)).toArray();for(const rec of affectedRec){const frozen=freezeRecurringThrough(rec,todayStr()),postedOccurrences=(frozen.postedOccurrences||[]).map(row=>Number(row.cardId)===Number(card.id)?{...row,cardId:'',cardLabel}:row);await db.recurring.put({...frozen,cardId:'',postedOccurrences});}await db.cards.delete(card.id);});setConfirmCard(null);setExpanded(null);await load();showToast(t('cardRemoved'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
-  const saveInst=async f=>{try{let next;if(f.id){const existing=await db.installments.get(f.id),frozen=freezeInstallmentThrough(existing,todayStr()),paid=installmentPostedTotal(frozen);if(Number(f.totalAmount)+.001<paid)throw new Error('Total cannot be less than posted payments');const candidateStart=f.startDate>todayStr()?f.startDate:nextInstallmentDateAfter(f.startDate,todayStr());next={...frozen,...f,postedPayments:frozen.postedPayments,postedThrough:frozen.postedThrough,nextPaymentDate:candidateStart,isDeleted:false,deletedAt:''};const projected=projectedInstallmentSchedule(next);next.nextPaymentDate=projected[0]?.date||candidateStart;next.monthsRemaining=projected.length;await db.installments.put(next);}else{next=freezeInstallmentThrough({...f,postedPayments:[],postedThrough:'',nextPaymentDate:f.startDate,isDeleted:false,deletedAt:''},todayStr());await db.installments.add(next);}setInstModal(null);await load();showToast(f.id?t('updated'):t('installmentAdded'));}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);throw err;}};
+  const runDeleteCard=async()=>{if(!confirmCard||confirmBusy)return;setConfirmBusy(true);try{const card=confirmCard;await db.transaction('rw',[db.cards,db.installments,db.expenses,db.recurring],async()=>{const cardLabel=`${card.name} ••••${card.lastFour}`;const affectedInst=await db.installments.filter(i=>Number(i.cardId)===Number(card.id)).toArray();for(const inst of affectedInst){const archived=archiveInstallmentRecord(inst,todayStr()),postedPayments=(archived.postedPayments||[]).map(row=>Number(row.cardId)===Number(card.id)?{...row,cardId:'',cardLabel}:row);await putCanonicalRecord('installments',{...archived,cardId:'',postedPayments});}await db.expenses.filter(e=>Number(e.cardId)===Number(card.id)).modify({cardId:''});const affectedRec=await db.recurring.filter(r=>Number(r.cardId)===Number(card.id)).toArray();for(const rec of affectedRec){const frozen=freezeRecurringThrough(rec,todayStr()),postedOccurrences=(frozen.postedOccurrences||[]).map(row=>Number(row.cardId)===Number(card.id)?{...row,cardId:'',cardLabel}:row);await putCanonicalRecord('recurring',{...frozen,cardId:'',postedOccurrences});}await db.cards.delete(card.id);});setConfirmCard(null);setExpanded(null);await load();showToast(t('cardRemoved'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
+  const saveInst=async f=>{try{await persistInstallmentForm(f);setInstModal(null);await load();showToast(f.id?t('updated'):t('installmentAdded'));}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);throw err;}};
   const delInst=inst=>setConfirmInst(inst);
-  const runDeleteInst=async()=>{if(!confirmInst||confirmBusy)return;setConfirmBusy(true);try{await db.installments.put(archiveInstallmentRecord(confirmInst,todayStr()));setConfirmInst(null);await load();showToast(t('removed'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
-  const complete=async inst=>{try{await db.installments.put(completeInstallmentRecord(inst,todayStr()));await load();showToast(t('paidOff'));}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);}};
-  const reopen=async inst=>{try{await db.installments.put(reopenInstallmentRecord(inst,todayStr()));await load();showToast(t('updated'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const runDeleteInst=async()=>{if(!confirmInst||confirmBusy)return;setConfirmBusy(true);try{await putCanonicalRecord('installments',archiveInstallmentRecord(confirmInst,todayStr()));setConfirmInst(null);await load();showToast(t('removed'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
+  const complete=async inst=>{try{await putCanonicalRecord('installments',completeInstallmentRecord(inst,todayStr()));await load();showToast(t('paidOff'));}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);}};
+  const reopen=async inst=>{try{await putCanonicalRecord('installments',reopenInstallmentRecord(inst,todayStr()));await load();showToast(t('updated'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const cardView=card=>{
     const colors=CCOLORS[Number(card.colorIdx)]||CCOLORS[0];
-    const bal=calculateCardBalance(card,cardExps,recs,insts,new Date());
+    const bal=calculateCardBalance(card,cardExps,recs,insts,thailandTodayDate());
     const limit=Number(card.creditLimit),available=moneyDifference(limit,bal),usedPct=limit>0?bal/limit*100:0,isExp=expanded===card.id;
     const cardVar=exps.filter(e=>Number(e.cardId)===Number(card.id));
     const recurringRows=recs.flatMap(r=>recurringOccurrences(r,cr.start,cr.end).filter(o=>Number(o.cardId)===Number(card.id)).map(o=>({...o,name:o.name||r.name,category:o.category||r.category,id:`r-${r.id}-${o.date}`})));
@@ -3428,8 +2905,8 @@ function CardsTab({ sym, currentMonth, payday }) {
       h('div',{className:'ccard-menu-wrap',onClick:event=>event.stopPropagation()},
         h('button',{type:'button',className:'ccard-menu-trigger','aria-label':`${t('moreActions')} ${card.name}`,'aria-haspopup':'menu','aria-expanded':actionMenu===card.id,onClick:event=>{event.stopPropagation();setActionMenu(actionMenu===card.id?null:card.id);}},h('span',{'aria-hidden':true},'•••')),
         actionMenu===card.id&&h('div',{className:'ccard-menu',role:'menu'},
-          h('button',{type:'button',role:'menuitem',className:'ccard-menu-item',onClick:event=>{event.stopPropagation();setActionMenu(null);setModal(card);}},h(Icon,{name:'edit',size:16}),t('editItem')),
-          h('button',{type:'button',role:'menuitem',className:'ccard-menu-item danger',onClick:event=>{event.stopPropagation();setActionMenu(null);delCard(card);}},h(Icon,{name:'trash',size:15}),t('deleteItem')))));
+          h('button',{type:'button',role:'menuitem',className:'ccard-menu-item','aria-label':`${t('editItem')} ${card.name}`,onClick:event=>{event.stopPropagation();setActionMenu(null);setModal(card);}},h(Icon,{name:'edit',size:16}),t('editItem')),
+          h('button',{type:'button',role:'menuitem',className:'ccard-menu-item danger','aria-label':`${t('deleteItem')} ${card.name}`,onClick:event=>{event.stopPropagation();setActionMenu(null);delCard(card);}},h(Icon,{name:'trash',size:15}),t('deleteItem')))));
     if(!isExp)return h('article',{key:card.id,style:{marginBottom:14}},face);
     const details=[];
     details.push(h('h2',{key:'title',className:'ctitle'},t('currentOutstanding')));
@@ -3438,12 +2915,12 @@ function CardsTab({ sym, currentMonth, payday }) {
     details.push(h('div',{key:'inst-head',className:'fbet mb10'},h('h3',{className:'ctitle'},t('installmentsLabel')),h('button',{className:'btn bsm','aria-label':`${t('addInstallment')} ${card.name}`,onClick:()=>setInstModal({cardId:card.id})},t('addItem'))));
     if(activeInst.length){
       for(const inst of activeInst)details.push(h('div',{key:`active-${inst.id}`,className:'li'},
-        h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${inst.name}`,onClick:()=>setInstModal({cardId:card.id,data:inst})},h('span',{className:'lname'},inst.name),h('span',{className:'lsub'},`${instMonthsLeft(inst,new Date())} ${t('monthsLeft')} · ${fmt(instRemaining(inst,new Date()),sym)} ${t('remaining')}`)),
+        h('button',{type:'button',className:'linf row-action','aria-label':`${t('editItem')} ${inst.name}`,onClick:()=>setInstModal({cardId:card.id,data:inst})},h('span',{className:'lname'},inst.name),h('span',{className:'lsub'},`${instMonthsLeft(inst,thailandTodayDate())} ${t('monthsLeft')} · ${fmt(instRemaining(inst,thailandTodayDate()),sym)} ${t('remaining')}`)),
         h('div',{className:'fb g8'},h('button',{className:'btn bsm',onClick:()=>complete(inst),'aria-label':`${t('completeInstallment')} ${inst.name}`},t('done')),h('button',{className:'btn bsm bdanger','aria-label':`${t('deleteItem')} ${inst.name}`,onClick:()=>delInst(inst)},h(Icon,{name:'trash',size:15})))));
     }else details.push(h('p',{key:'no-inst',className:'fhint'},t('noActiveInst')));
     if(completedInst.length){
       details.push(h('h3',{key:'completed-title',className:'ctitle mt12'},t('completed')));
-      for(const inst of completedInst)details.push(h('div',{key:`completed-${inst.id}`,className:'li'},h('div',{className:'linf'},h('div',{className:'lname'},inst.name),h('div',{className:'lsub'},`${t('completedOn')} ${inst.completedDate||''}`)),h('button',{className:'btn bsm bghost',onClick:()=>reopen(inst)},t('reopen')),h('button',{className:'btn bsm bdanger','aria-label':`${t('deleteItem')} ${inst.name}`,onClick:()=>delInst(inst)},h(Icon,{name:'trash',size:15}))));
+      for(const inst of completedInst)details.push(h('div',{key:`completed-${inst.id}`,className:'li'},h('div',{className:'linf'},h('div',{className:'lname'},inst.name),h('div',{className:'lsub'},`${t('completedOn')} ${inst.completedDate||''}`)),h('button',{className:'btn bsm bghost','aria-label':`${t('reopen')} ${inst.name}`,onClick:()=>reopen(inst)},t('reopen')),h('button',{className:'btn bsm bdanger','aria-label':`${t('deleteItem')} ${inst.name}`,onClick:()=>delInst(inst)},h(Icon,{name:'trash',size:15}))));
     }
     if(cardVar.length||recurringRows.length||installmentRows.length){
       details.push(h('h3',{key:'charges-title',className:'ctitle mt12 mb10'},t('selectedCycleCharges')));
@@ -3470,15 +2947,19 @@ const announceDataChange=()=>{
     try{localStorage.setItem(DATA_CHANGE_KEY,stamp);}catch(_){ }
   },80);
 };
+let MIGRATION_MODE=false;
 for(const tableName of ['expenses','recurring','income','savings','savingsContributions','cards','installments','settings','budgets']){
   const table=db[tableName];
   if(!table)continue;
-  table.hook('creating',(_primaryKey,obj)=>{Object.assign(obj,synchronizeMoneyRecord(tableName,obj));announceDataChange();});
-  table.hook('updating',(mods,_primaryKey,obj)=>{const normalized=synchronizeMoneyRecord(tableName,{...obj,...mods}),extra={};for(const [key,value] of Object.entries(normalized)){if(key==='id')continue;if(JSON.stringify(value)!==JSON.stringify(obj[key]))extra[key]=value;}announceDataChange();return extra;});
+  table.hook('creating',(_primaryKey,obj)=>{Object.assign(obj,synchronizeMoneyRecord(tableName,obj,MIGRATION_MODE?{rejectMismatch:false,prefer:'display'}:{}));announceDataChange();});
+  table.hook('updating',(mods,_primaryKey,obj)=>{const normalized=MIGRATION_MODE?synchronizeMoneyRecord(tableName,{...obj,...mods},{rejectMismatch:false,prefer:'display'}):synchronizeMoneyUpdate(tableName,mods,obj),extra={};for(const [key,value] of Object.entries(normalized)){if(key==='id')continue;if(JSON.stringify(value)!==JSON.stringify(obj[key]))extra[key]=value;}announceDataChange();return extra;});
   table.hook('deleting',()=>announceDataChange());
 }
 async function migrateLegacyData(){
-  const currentMonthKey=mkKey(new Date());
+  const currentMonthKey=mkKey(thailandTodayDate());
+  MIGRATION_MODE=true;
+  try{
+  const [doneV9,doneV10]=await Promise.all([db.settings.get('migration-v9'),db.settings.get('migration-v10')]);
   await db.transaction('rw',[db.expenses,db.recurring,db.income,db.installments,db.savings,db.savingsContributions,db.cards,db.budgets,db.settings],async()=>{
     const [recurring,income,installments,savings,cards,doneV3,doneV4,doneV5,doneV6,doneV7,doneV8,totalSavingsSetting,savingsAnchorSetting]=await Promise.all([
       db.recurring.toArray(),db.income.toArray(),db.installments.toArray(),db.savings.toArray(),db.cards.toArray(),
@@ -3544,10 +3025,10 @@ async function migrateLegacyData(){
       const tables=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets'];
       for(const tableName of tables){
         const rows=await db[tableName].toArray();
-        const normalized=rows.map(row=>synchronizeMoneyRecord(tableName,tableName==='expenses'?{...row,cardId:canonicalCardId(row.cardId)}:row));
+        const normalized=rows.map(row=>synchronizeMoneyRecord(tableName,tableName==='expenses'?{...row,cardId:canonicalCardId(row.cardId)}:row,{rejectMismatch:false,prefer:'display'}));
         if(normalized.length)await db[tableName].bulkPut(normalized);
       }
-      const savingsSetting=await db.settings.get('totalSavings');if(savingsSetting)await db.settings.put(synchronizeMoneyRecord('settings',savingsSetting));
+      const savingsSetting=await db.settings.get('totalSavings');if(savingsSetting)await db.settings.put(synchronizeMoneyRecord('settings',savingsSetting,{rejectMismatch:false,prefer:'display'}));
       await db.settings.put({key:'migration-v7',value:{completed:todayStr(),build:window.CASHFLOW_BUILD.version}});
     }
     if(!doneV8?.value){
@@ -3562,6 +3043,43 @@ async function migrateLegacyData(){
       await db.settings.put({key:'migration-v8',value:{completed:todayStr(),build:window.CASHFLOW_BUILD.version}});
     }
   });
+  if(!doneV9?.value){
+    await db.transaction('rw',[db.expenses,db.recurring,db.installments,db.savingsContributions,db.cards,db.savings,db.budgets,db.settings],async()=>{
+      const [cards,goals,customSetting,expenses,recurring,installments,contributions,budgets]=await Promise.all([db.cards.toArray(),db.savings.toArray(),db.settings.get('customCategories'),db.expenses.toArray(),db.recurring.toArray(),db.installments.toArray(),db.savingsContributions.toArray(),db.budgets.toArray()]);
+      const cardIds=new Set(cards.map(card=>Number(card.id)).filter(isSafeId)),goalIds=new Set(goals.map(goal=>Number(goal.id)).filter(isSafeId));
+      const validCard=value=>{const id=Number(value);return isSafeId(id)&&cardIds.has(id)?id:'';};
+      const used=new Set(BUILTIN_EXPENSE_CATEGORY_IDS),categoryMap=new Map();
+      const custom=(Array.isArray(customSetting?.value)?customSetting.value:[]).map((category,index)=>{
+        let id=String(category?.id||'').trim();
+        if(!isSafeCategoryId(id)||used.has(id)){let n=0;const base=`custom-repaired-${index+1}`;do{id=`${base}-${++n}`;}while(used.has(id));categoryMap.set(String(category?.id||''),id);}
+        used.add(id);return {...category,id};
+      });
+      const remapCategory=id=>categoryMap.get(id)||id;
+      if(expenses.length)await bulkPutCanonicalRecords('expenses',expenses.map(row=>({...row,category:remapCategory(row.category),cardId:validCard(row.cardId)})));
+      if(recurring.length)await bulkPutCanonicalRecords('recurring',recurring.map(row=>({...row,category:remapCategory(row.category),cardId:validCard(row.cardId),postedOccurrences:(row.postedOccurrences||[]).map(post=>({...post,category:remapCategory(post.category),cardId:validCard(post.cardId)}))})));
+      if(installments.length)await bulkPutCanonicalRecords('installments',installments.map(row=>{const cardId=validCard(row.cardId),postedPayments=(row.postedPayments||[]).map(post=>({...post,cardId:validCard(post.cardId)}));return cardId||row.isDeleted?{...row,cardId,postedPayments}:{...archiveInstallmentRecord(row,todayStr()),cardId:'',postedPayments};}));
+      const validContributions=contributions.filter(row=>goalIds.has(Number(row.goalId))).map(row=>({...row,goalId:Number(row.goalId)}));
+      await db.savingsContributions.clear();if(validContributions.length)await bulkPutCanonicalRecords('savingsContributions',validContributions);
+      if(categoryMap.size){await db.budgets.clear();const combined=new Map();for(const row of budgets){const category=remapCategory(row.category);combined.set(category,moneySum([combined.get(category)||0,row.amount||0]));}if(combined.size)await bulkPutCanonicalRecords('budgets',[...combined].map(([category,amount])=>({category,amount})));await db.settings.put({key:'customCategories',value:custom});}
+      await db.settings.put({key:'migration-v9',value:{completed:todayStr(),build:window.CASHFLOW_BUILD.version}});
+    });
+  }
+  if(!doneV10?.value){
+    await db.transaction('rw',[db.expenses,db.recurring,db.income,db.installments,db.savings,db.savingsContributions,db.cards,db.budgets,db.settings],async()=>{
+      let repaired=0;
+      const countMismatch=(table,row)=>{
+        for(const field of MONEY_FIELDS_BY_TABLE[table]||[])if(row[field]!==undefined&&Number.isSafeInteger(row[`${field}Cents`])&&parseMoneyCents(row[field])!==row[`${field}Cents`])repaired++;
+        if(table==='recurring')for(const item of row.postedOccurrences||[])if(Number.isSafeInteger(item.amountCents)&&parseMoneyCents(item.amount)!==item.amountCents)repaired++;
+        if(table==='income')for(const item of row.incomePeriods||[])if(Number.isSafeInteger(item.amountCents)&&parseMoneyCents(item.amount)!==item.amountCents)repaired++;
+        if(table==='installments')for(const item of row.postedPayments||[])if(Number.isSafeInteger(item.amountCents)&&parseMoneyCents(item.amount)!==item.amountCents)repaired++;
+      };
+      for(const tableName of ['expenses','recurring','income','installments','savings','savingsContributions','cards','budgets']){const rows=await db[tableName].toArray();rows.forEach(row=>countMismatch(tableName,row));if(rows.length)await bulkPutCanonicalRecords(tableName,rows.map(row=>synchronizeMoneyRecord(tableName,row,{rejectMismatch:false,prefer:'display'})));}
+      for(const key of ['totalSavings','savingsAnchor']){const row=await db.settings.get(key);if(row){if(key==='totalSavings'&&Number.isSafeInteger(row.valueCents)&&parseMoneyCents(row.value)!==row.valueCents)repaired++;if(key==='savingsAnchor'&&isPlainObj(row.value)){for(const field of ['amount','accumulatedAtAnchor'])if(Number.isSafeInteger(row.value[`${field}Cents`])&&parseMoneyCents(row.value[field])!==row.value[`${field}Cents`])repaired++;}await db.settings.put(synchronizeMoneyRecord('settings',row,{rejectMismatch:false,prefer:'display'}));}}
+      await db.settings.put({key:'moneyRepairLog',value:{count:repaired,completed:todayStr(),policy:'visible-display-value-recomputed-to-cents'}});
+      await db.settings.put({key:'migration-v10',value:{completed:todayStr(),build:window.CASHFLOW_BUILD.version}});
+    });
+  }
+  }finally{MIGRATION_MODE=false;}
 }
 
 // ══ SETTINGS MODAL ══
@@ -3574,9 +3092,39 @@ function SettingsModal({ currCode,onCurrChange,onClose,showToast,lang,onLangChan
   const verifyInTemporaryDatabase=async data=>{const name=`cashflow_import_check_${Date.now()}_${Math.random().toString(36).slice(2)}`,temp=new Dexie(name);temp.version(6).stores({expenses:'++id,date,category,cardId,[cardId+date]',recurring:'++id,category,isActive',income:'++id,isActive',savings:'++id',savingsContributions:'++id,goalId,date',cards:'++id',installments:'++id,cardId,isComplete',settings:'key',budgets:'category'});try{await temp.open();const keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];await temp.transaction('rw',keys.map(key=>temp[key]),async()=>{for(const key of keys)if(data[key].length)await temp[key].bulkPut(data[key]);});}finally{temp.close();await Dexie.delete(name);}};
   const doExportJSON=()=>run('json',async()=>{const data=await makeBackupData();downloadBackup(data,`cashflow-backup-${todayStr()}.json`);showToast(t('jsonExported'));});
   const csvSafe=value=>{let text=String(value??'');if(/^[\s]*[=+\-@]/.test(text))text="'"+text;return `"${text.replace(/"/g,'""')}"`;};
-  const doExportCSV=()=>run('csv',async()=>{const [e,r,inc,inst,sav,contrib,totalSetting,anchorSetting]=await Promise.all([db.expenses.toArray(),db.recurring.toArray(),db.income.toArray(),db.installments.toArray(),db.savings.toArray(),db.savingsContributions.toArray(),db.settings.get('totalSavings'),db.settings.get('savingsAnchor')]);const accumulated=realizedCashflowThrough({incomes:inc,recurring:r,installments:inst,expenses:e}),anchor=savingsAnchorState(anchorSetting,Number(totalSetting?.value||0),accumulated.net),manualSavings=anchor.amount,{cashflowSinceAnchor,totalSavings:calculatedTotal}=savingsTotalFromAnchor(anchor,accumulated.net);const rows=[['Type','Name','Amount','Date / Frequency','Category','Notes','CardId'],...e.map(x=>['variable_expense',x.name,x.amount,x.date,x.category,x.notes||'',x.cardId||'']),...r.flatMap(x=>normalizeRecurringPostings(x).map(row=>['fixed_expense_posted',row.name,row.amount,row.date,row.category,'',row.cardId||''])),...r.filter(x=>!x.isDeleted).map(x=>['fixed_expense_schedule',x.name,x.amount,`monthly-day${x.dueDay}`,x.category,'future schedule',x.cardId||'']),...inc.map(x=>['income',x.name,x.amount,x.frequency,x.category,'','']),...inst.flatMap(x=>normalizeInstallmentPostings(x).map(row=>['installment_posting',row.name,row.amount,row.date,'installments',row.type,row.cardId||''])),...inst.filter(x=>!x.isDeleted).map(x=>['installment_schedule',x.name,x.monthlyPayment,x.nextPaymentDate||x.startDate,'installments',x.completedDate?`completed ${x.completedDate}`:'future schedule',x.cardId||'']),['confirmed_savings',t('manualSavings'),manualSavings,anchor.date,'savings','confirmed balance',''],['cashflow_since_confirmation',t('cashflowSinceSavingsUpdate'),cashflowSinceAnchor,`after ${anchor.date}`,'savings','',''],['accumulated_cashflow',t('accumulatedCashflow'),accumulated.net,`through ${accumulated.cutoffISO}`,'savings','all-time reference',''],['savings_total',t('totalSavings'),calculatedTotal,'current','savings','',''],...sav.map(x=>['legacy_savings_goal',x.name,x.currentAmount,`target ${x.targetAmount}`,'savings','','']),...contrib.map(x=>['legacy_savings_contribution',`goal ${x.goalId}`,x.amount,x.date,'savings','',''])];download(new Blob(['\uFEFF'+rows.map(row=>row.map(csvSafe).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),`cashflow-${todayStr()}.csv`);showToast(t('csvExported'));});
+  const doExportCSV=()=>run('csv',async()=>{
+    const [e,r,inc,inst,sav,contrib,totalSetting,anchorSetting]=await Promise.all([
+      db.expenses.toArray(),db.recurring.toArray(),db.income.toArray(),db.installments.toArray(),
+      db.savings.toArray(),db.savingsContributions.toArray(),db.settings.get('totalSavings'),db.settings.get('savingsAnchor')
+    ]);
+    const accumulated=realizedCashflowThrough({incomes:inc,recurring:r,installments:inst,expenses:e});
+    const anchor=savingsAnchorState(anchorSetting,Number(totalSetting?.value||0),accumulated.net),manualSavings=anchor.amount;
+    const {cashflowSinceAnchor,totalSavings:calculatedTotal}=savingsTotalFromAnchor(anchor,{incomes:inc,recurring:r,installments:inst,expenses:e});
+    const rows=[
+      ['Type','SourceId','Name','Amount','Date / Frequency','Category','Notes','CardId'],
+      ...e.map(x=>['variable_expense',x.id,x.name,x.amount,x.date,x.category,x.notes||'',x.cardId||'']),
+      ...r.flatMap(x=>normalizeRecurringPostings(x).map(row=>['fixed_expense_posted',x.id,row.name,row.amount,row.date,row.category,'',row.cardId||''])),
+      ...r.filter(x=>!x.isDeleted).map(x=>['fixed_expense_schedule',x.id,x.name,x.amount,`monthly-day${x.dueDay}`,x.category,'future schedule',x.cardId||'']),
+      ...inc.flatMap(x=>x.frequency==='one-time'
+        ?(isValidISODate(x.date)&&x.date<=todayStr()?[['income_received',x.id,x.name,x.amount,x.date,x.category,'one-time','']]:[])
+        :incomeOccurrences(x,CASHFLOW_HISTORY_START,endExclusiveAfterISO(todayStr())).map(row=>['income_received',x.id,x.name,row.amount,row.date,x.category,x.frequency,''])),
+      ...inc.filter(x=>x.frequency!=='one-time').flatMap(x=>normalizeIncomePeriods(x).map(period=>['income_schedule_period',x.id,x.name,period.amount,`${period.startDate}..${period.endDate||'open'}`,x.category,`${period.frequency}; anchor ${period.anchorDate}`,''])),
+      ...inc.filter(x=>x.frequency==='one-time').map(x=>['income_schedule_one_time',x.id,x.name,x.amount,x.date,x.category,x.date<=todayStr()?'received':'future schedule','']),
+      ...inc.flatMap(x=>(Array.isArray(x.editHistory)?x.editHistory:[]).map(entry=>['income_edit_history',x.id,x.name,entry.previous?.amount??'',entry.editedAt||'',entry.previous?.category||x.category,`previous frequency ${entry.previous?.frequency||''}; date ${entry.previous?.date||entry.previous?.startDate||''}`,''])),
+      ...inst.flatMap(x=>normalizeInstallmentPostings(x).map(row=>['installment_posting',x.id,row.name,row.amount,row.date,'installments',row.type,row.cardId||''])),
+      ...inst.filter(x=>!x.isDeleted).map(x=>['installment_schedule',x.id,x.name,x.monthlyPayment,x.nextPaymentDate||x.startDate,'installments',x.completedDate?`completed ${x.completedDate}`:'future schedule',x.cardId||'']),
+      ['confirmed_savings','',t('manualSavings'),manualSavings,anchor.date,'savings','confirmed balance',''],
+      ['cashflow_since_confirmation','',t('cashflowSinceSavingsUpdate'),cashflowSinceAnchor,`after ${anchor.date}`,'savings','',''],
+      ['accumulated_cashflow','',t('accumulatedCashflow'),accumulated.net,`through ${accumulated.cutoffISO}`,'savings','all-time reference',''],
+      ['savings_total','',t('totalSavings'),calculatedTotal,'current','savings','',''],
+      ...sav.map(x=>['legacy_savings_goal',x.id,x.name,x.currentAmount,`target ${x.targetAmount}`,'savings','','']),
+      ...contrib.map(x=>['legacy_savings_contribution',x.id,`goal ${x.goalId}`,x.amount,x.date,'savings','',''])
+    ];
+    download(new Blob(['\uFEFF'+rows.map(row=>row.map(csvSafe).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),`cashflow-${todayStr()}.csv`);
+    showToast(t('csvExported'));
+  });
   const doImport=()=>{if(busy)return;const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>MAX_BACKUP_BYTES){showToast(`${t('invalidBackup')}: ${t('importTooLarge')}`);return;}setBusy('import-read');try{const parsed=JSON.parse(await file.text()),check=validateBackup(parsed);if(!check.ok)throw new Error(check.reason);const data=check.data;await verifyInTemporaryDatabase(data);const keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];const counts=keys.map(k=>`${k}: ${data[k].length}`).join('\n');setPendingImport({data,counts,date:data.exported?.split('T')[0]||'unknown'});}catch(err){console.error(err);showToast(`${t('invalidBackup')}: ${err.message||err}`);}finally{setBusy('');}};input.click();};
-  const applyImport=()=>run('import',async()=>{if(!pendingImport)return;const data=pendingImport.data,keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];const recovery=await makeBackupData();downloadBackup(recovery,`cashflow-pre-restore-${todayStr()}-${Date.now()}.json`);await db.transaction('rw',[db.expenses,db.recurring,db.income,db.savings,db.savingsContributions,db.cards,db.installments,db.budgets,db.settings],async()=>{for(const key of keys)await db[key].clear();for(const key of keys)if(data[key].length)await db[key].bulkPut(data[key]);await db.settings.delete('migration-v3');await db.settings.delete('migration-v4');await db.settings.delete('migration-v5');await db.settings.delete('migration-v6');await db.settings.delete('migration-v7');await db.settings.delete('migration-v8');});setPendingImport(null);showToast(t('dataRestored'));onClose();setTimeout(()=>location.reload(),250);});
+  const applyImport=()=>run('import',async()=>{if(!pendingImport)return;const data=pendingImport.data,keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];const recovery=await makeBackupData();downloadBackup(recovery,`cashflow-pre-restore-${todayStr()}-${Date.now()}.json`);await db.transaction('rw',[db.expenses,db.recurring,db.income,db.savings,db.savingsContributions,db.cards,db.installments,db.budgets,db.settings],async()=>{for(const key of keys)await db[key].clear();for(const key of keys)if(data[key].length)await db[key].bulkPut(data[key]);await db.settings.delete('migration-v3');await db.settings.delete('migration-v4');await db.settings.delete('migration-v5');await db.settings.delete('migration-v6');await db.settings.delete('migration-v7');await db.settings.delete('migration-v8');await db.settings.delete('migration-v9');await db.settings.delete('migration-v10');});setPendingImport(null);showToast(t('dataRestored'));onClose();setTimeout(()=>location.reload(),250);});
   const applyClear=()=>run('clear',async()=>{await db.transaction('rw',[db.expenses,db.recurring,db.income,db.savings,db.savingsContributions,db.cards,db.installments,db.budgets,db.settings],async()=>{for(const key of ['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'])await db[key].clear();});setConfirmClear(false);showToast(t('dataCleared'));onClose();setTimeout(()=>location.reload(),250);});
   return h(React.Fragment,null,
     h(Modal,{title:t('settingsTitle'),onClose,busy:!!busy},
@@ -3635,7 +3183,7 @@ class ErrorBoundary extends React.Component {
 function App() {
   const parseRoute=()=>{const q=new URLSearchParams(location.hash.replace(/^#/,'')),tab=q.get('tab'),month=q.get('month');return {tab:['dashboard','expenses','income','savings','cards'].includes(tab)?tab:'dashboard',month:isValidMonthKey(month)?parseMonthKey(month):null};};
   const initial=parseRoute();
-  const [tab,setTab]=useState(initial.tab),[month,setMonth]=useState(initial.month||new Date()),[settings,setSettings]=useState({currency:'USD',sym:'$'}),[showSettings,setShowSettings]=useState(false),[ready,setReady]=useState(false),[readyError,setReadyError]=useState(null),[lang,setLang]=useState('en'),[theme,setTheme]=useState('default'),[payday,setPayday]=useState(PAYDAY),[cycleLabel,setCycleLabel]=useState(CYCLE_LABEL),[syncVersion,setSyncVersion]=useState(0);
+  const [tab,setTab]=useState(initial.tab),[month,setMonth]=useState(initial.month||thailandTodayDate()),[settings,setSettings]=useState({currency:'USD',sym:'$'}),[showSettings,setShowSettings]=useState(false),[ready,setReady]=useState(false),[readyError,setReadyError]=useState(null),[lang,setLang]=useState('en'),[theme,setTheme]=useState('default'),[payday,setPayday]=useState(PAYDAY),[cycleLabel,setCycleLabel]=useState(CYCLE_LABEL),[syncVersion,setSyncVersion]=useState(0);
   const [toast,showToast]=useToast();
   const loadApp=useCallback(async()=>{
     setReady(false);setReadyError(null);
@@ -3648,7 +3196,7 @@ function App() {
       const nextPay=Number.isInteger(Number(paySetting?.value))&&Number(paySetting.value)>=1&&Number(paySetting.value)<=31?Number(paySetting.value):28;PAYDAY=nextPay;setPayday(nextPay);
       const nextLabel=['start','end'].includes(labelSetting?.value)?labelSetting.value:'end';CYCLE_LABEL=nextLabel;setCycleLabel(nextLabel);
       if(Array.isArray(custom?.value))CUSTOM_CATS=custom.value.filter(c=>c&&typeof c.id==='string'&&typeof c.label==='string').map(c=>({...c,icon:iconName(c)}));
-      const route=parseRoute();setTab(route.tab);setMonth(route.month||cycleAnchor(new Date(),nextPay,nextLabel));setReady(true);
+      const route=parseRoute();setTab(route.tab);setMonth(route.month||cycleAnchor(thailandTodayDate(),nextPay,nextLabel));setReady(true);
     }catch(err){console.error('App initialization failed:',err);setReadyError(err);}
   },[]);
   useEffect(()=>{loadApp();},[loadApp]);
@@ -3659,12 +3207,12 @@ function App() {
   useEffect(()=>{if(!ready)return;const hash=`tab=${tab}&month=${mkKey(month)}`;if(location.hash.slice(1)!==hash)history.replaceState({tab,month:mkKey(month)},'',`#${hash}`);},[ready,tab,month]);
   const navigate=(nextTab=tab,nextMonth=month)=>{const hash=`tab=${nextTab}&month=${mkKey(nextMonth)}`;history.pushState({tab:nextTab,month:mkKey(nextMonth)},'',`#${hash}`);setTab(nextTab);setMonth(nextMonth);};
   const safeSetting=async(action)=>{try{await action();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
-  const updatePayday=v=>safeSetting(async()=>{const n=Math.min(31,Math.max(1,Number(v)||28));PAYDAY=n;await db.settings.put({key:'payday',value:n});setPayday(n);navigate(tab,cycleAnchor(new Date(),n,CYCLE_LABEL));});
-  const updateCycleLabel=v=>safeSetting(async()=>{const next=['start','end'].includes(v)?v:'end';CYCLE_LABEL=next;await db.settings.put({key:'cycleLabel',value:next});setCycleLabel(next);navigate(tab,cycleAnchor(new Date(),PAYDAY,next));});
+  const updatePayday=v=>safeSetting(async()=>{const n=Math.min(31,Math.max(1,Number(v)||28));PAYDAY=n;await db.settings.put({key:'payday',value:n});setPayday(n);navigate(tab,cycleAnchor(thailandTodayDate(),n,CYCLE_LABEL));});
+  const updateCycleLabel=v=>safeSetting(async()=>{const next=['start','end'].includes(v)?v:'end';CYCLE_LABEL=next;await db.settings.put({key:'cycleLabel',value:next});setCycleLabel(next);navigate(tab,cycleAnchor(thailandTodayDate(),PAYDAY,next));});
   const updateLang=l=>safeSetting(async()=>{const next=['en','th'].includes(l)?l:'en';await db.settings.put({key:'language',value:next});currentLang=next;document.documentElement.lang=next;setLang(next);});
   const updateTheme=id=>safeSetting(async()=>{const applied=applyTheme(id);await db.transaction('rw',db.settings,async()=>{await db.settings.put({key:'theme',value:applied});await db.settings.put({key:'darkMode',value:getTheme(applied).dark});});setTheme(applied);});
   const updateCurr=c=>safeSetting(async()=>{await db.settings.put({key:'currency',value:c});setSettings({currency:c.code,sym:c.sym});});
-  const currentAnchor=cycleAnchor(new Date(),payday,cycleLabel),isCur=mkKey(month)===mkKey(currentAnchor);
+  const currentAnchor=cycleAnchor(thailandTodayDate(),payday,cycleLabel),isCur=mkKey(month)===mkKey(currentAnchor);
   const tabs=[{id:'dashboard',label:t('home'),icon:'dashboard'},{id:'expenses',label:t('spend'),icon:'receipt'},{id:'income',label:t('income'),icon:'trend'},{id:'savings',label:t('savingsTab'),icon:'coins'},{id:'cards',label:t('cards'),icon:'card'}];
   if(readyError)return h('div',{className:'empty',role:'alert',style:{minHeight:'100%',display:'grid',placeContent:'center'}},h('div',{className:'eico'},h(Icon,{name:'alert',size:28})),h('div',{className:'etxt'},t('loadFailed')),h('div',{className:'esub'},String(readyError.message||readyError)),h('button',{className:'btn bpri',onClick:loadApp},t('retry')));
   if(!ready)return h('div',{className:'loading',style:{height:'100%'}},t('loading'));
