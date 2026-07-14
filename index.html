@@ -544,7 +544,7 @@ html:not(.theme-rose) .premium-stat .samt,html.theme-rose .premium-stat .samt{ma
 <script>
 // Release metadata. Mandatory runtimes are cached by the companion service worker
 // after the first successful hosted load; Chart.js is loaded only when a chart is shown.
-window.CASHFLOW_BUILD = Object.freeze({ version: '3.9.2', schema: 6, built: '2026-07-14', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'canonical-integer-cents-with-mismatch-rejection', cardQueries: 'compound-card-date-index', savings: 'confirmed-balance-plus-date-filtered-post-anchor-cashflow', timezone: 'Asia/Bangkok', offline: 'service-worker-runtime-cache-after-first-hosted-load', slipScanner: 'offline-qr-layout-glyph-teach-mode-batch-queue-hardened-templates' });
+window.CASHFLOW_BUILD = Object.freeze({ version: '3.9.3', schema: 6, built: '2026-07-14', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'canonical-integer-cents-with-mismatch-rejection', cardQueries: 'compound-card-date-index', savings: 'confirmed-balance-plus-date-filtered-post-anchor-cashflow', timezone: 'Asia/Bangkok', offline: 'service-worker-runtime-cache-after-first-hosted-load', slipScanner: 'offline-qr-layout-glyph-teach-mode-batch-queue-hardened-templates-duplicate-messaging' });
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./cashflow-sw.js').catch(error => console.warn('Offline cache registration failed', error)));
 }
@@ -1679,7 +1679,7 @@ Object.assign(LANGS.en,{
   expenseType:'Expense',incomeType:'Income',rememberMyName:'Remember my name from this slip to identify expense vs income next time',chooseAnother:'Choose Another',
   saveTransaction:'Save Transaction',saving:'Saving…',scannedSlip:'Scanned bank slip',walletPayment:'Wallet payment',bankTransferIncome:'Bank transfer received',bankTransferExpense:'Bank transfer',
   scanSlipAria:'Scan a bank slip',slipCountLabel:'Slip {i} of {n}',slipsSkippedNote:'{n} skipped',slipsSaved:'{n} slips saved',slipNoneReadable:'None of the selected slips could be read.',
-  skipSlip:'Skip',saveAndNext:'Save & Next'
+  slipAllDuplicate:'All selected slips have already been added.',skipSlip:'Skip',saveAndNext:'Save & Next'
 });
 Object.assign(LANGS.th,{
   scanBankSlip:'สแกนสลิปธนาคาร',chooseSlipImage:'เลือกรูปสลิปจากธนาคาร',selectImage:'เลือกรูปภาพ',readingSlip:'กำลังอ่านสลิป…',
@@ -1689,7 +1689,7 @@ Object.assign(LANGS.th,{
   expenseType:'รายจ่าย',incomeType:'รายรับ',rememberMyName:'จำชื่อของฉันจากสลิปนี้ เพื่อแยกรายจ่ายกับรายรับอัตโนมัติในครั้งถัดไป',chooseAnother:'เลือกรูปใหม่',
   saveTransaction:'บันทึกรายการ',saving:'กำลังบันทึก…',scannedSlip:'สแกนจากสลิปธนาคาร',walletPayment:'ชำระผ่านกระเป๋าเงิน',bankTransferIncome:'รับเงินโอน',bankTransferExpense:'โอนเงิน',
   scanSlipAria:'สแกนสลิปธนาคาร',slipCountLabel:'สลิป {i} จาก {n}',slipsSkippedNote:'ข้าม {n} รายการ',slipsSaved:'บันทึกสลิปแล้ว {n} รายการ',slipNoneReadable:'อ่านสลิปที่เลือกไม่ได้เลย',
-  skipSlip:'ข้าม',saveAndNext:'บันทึกและถัดไป'
+  slipAllDuplicate:'สลิปที่เลือกทั้งหมดถูกเพิ่มไว้แล้ว',skipSlip:'ข้าม',saveAndNext:'บันทึกและถัดไป'
 });
 
 const t = key => (LANGS[currentLang] || LANGS.en)[key] || LANGS.en[key] || key;
@@ -2715,14 +2715,14 @@ function SlipScannerModal({onClose,onSaved,showToast}){
     const files=Array.from(event.target.files||[]);event.target.value='';if(!files.length)return;
     setBusy(true);setError('');setPhase('reading');
     stateRef.current=await loadSlipRecognizerState();
-    const seen=new Set(),oks=[];let skips=0;
+    const seen=new Set(),oks=[];let dup=0,unreadable=0;
     for(const file of files){
-      try{const next=await analyzeSlipFile(file);if(seen.has(next.slipId)||await findExistingSlip(next.slipId)){skips++;continue;}seen.add(next.slipId);oks.push(next);}
-      catch(err){console.error(err);skips++;}
+      try{const next=await analyzeSlipFile(file);if(seen.has(next.slipId)||await findExistingSlip(next.slipId)){dup++;continue;}seen.add(next.slipId);oks.push(next);}
+      catch(err){console.error(err);unreadable++;}
     }
     setBusy(false);
-    if(!oks.length){setError(files.length>1?t('slipNoneReadable'):t('slipUnsupported'));setPhase('pick');return;}
-    setQueue(oks);setSkipped(skips);setCursor(0);setSavedCount(0);setPhase('review');
+    if(!oks.length){setError(dup&&!unreadable?(files.length===1?t('slipDuplicate'):t('slipAllDuplicate')):files.length>1?t('slipNoneReadable'):t('slipUnsupported'));setPhase('pick');return;}
+    setQueue(oks);setSkipped(dup+unreadable);setCursor(0);setSavedCount(0);setPhase('review');
   };
   const finish=saved=>{if(saved>0)onSaved?.();if(saved===1)showToast?.(lastSavedDir.current==='expense'?t('expenseAdded'):t('incomeAdded'));else if(saved>1)showToast?.(t('slipsSaved').replace('{n}',String(saved)));onClose();};
   const advance=saved=>{if(cursor+1<queue.length)setCursor(cursor+1);else finish(saved);};
