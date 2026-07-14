@@ -554,7 +554,7 @@ html,body,#root{touch-action:pan-y}
 <script>
 // Release metadata. Mandatory runtimes are cached by the companion service worker
 // after the first successful hosted load; Chart.js is loaded only when a chart is shown.
-window.CASHFLOW_BUILD = Object.freeze({ version: '3.10.2', schema: 6, built: '2026-07-15', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'canonical-integer-cents-with-mismatch-rejection', cardQueries: 'compound-card-date-index', savings: 'confirmed-balance-plus-date-filtered-post-anchor-cashflow', timezone: 'Asia/Bangkok', offline: 'service-worker-runtime-cache-after-first-hosted-load', slipScanner: 'offline-permanent-bank-templates-with-provisional-scb7-ktb8-qr-and-visual-layout-batch-review' });
+window.CASHFLOW_BUILD = Object.freeze({ version: '3.10.3', schema: 6, built: '2026-07-15', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'canonical-integer-cents-with-mismatch-rejection', cardQueries: 'compound-card-date-index', savings: 'starting-balance-plus-all-time-accumulated-cashflow', timezone: 'Asia/Bangkok', offline: 'service-worker-runtime-cache-after-first-hosted-load', slipScanner: 'offline-permanent-bank-templates-with-provisional-scb7-ktb8-qr-and-visual-layout-batch-review' });
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./cashflow-sw.js').catch(error => console.warn('Offline cache registration failed', error)));
 }
@@ -1664,20 +1664,20 @@ Object.assign(LANGS.en,{
   historicalSavingsFormula:'This is the selected salary-cycle balance only. Your current savings is shown separately and is not added to past or future cycles.',
   receivedOneTimeLocked:'This one-time income has already been received. Its amount and date are locked so past balances cannot be rewritten.',
   incomeFrequencyLocked:'An existing income cannot be changed between one-time and recurring.',
-  manualSavings:'Confirmed Savings',updateManualSavings:'Update Total Savings',manualSavingsHint:'Enter your actual total savings today. Only cashflow after this confirmation will change it automatically.',
+  manualSavings:'Starting Balance',updateManualSavings:'Update Starting Balance',manualSavingsHint:'Enter the savings you already had before using the app. Every income and expense you log is then added on top automatically.',
   accumulatedCashflow:'Accumulated Cashflow',accumulatedCashflowHint:'Net cashflow from all income and expenses dated today or earlier.',
-  manualPlusAccumulated:'Confirmed savings + cashflow since confirmation',cashflowSinceSavingsUpdate:'Cashflow since confirmation',allTimeAccumulatedCashflow:'All-time accumulated cashflow',confirmedOn:'Confirmed on',completedCycleSavings:'Cashflow through today',
-  combinedFormulaAccumulated:'Combined Balance is Total Savings plus the part of this salary cycle that is not already included in Accumulated Cashflow.'
+  manualPlusAccumulated:'Starting balance + all logged cashflow',cashflowSinceSavingsUpdate:'Cashflow since confirmation',allTimeAccumulatedCashflow:'All-time accumulated cashflow',confirmedOn:'Confirmed on',completedCycleSavings:'Cashflow through today',
+  combinedFormulaAccumulated:'Combined Balance is your Total Savings plus the part of this salary cycle that has not happened yet.'
 });
 Object.assign(LANGS.th,{
   currentSavingsReference:'แสดงเงินออมปัจจุบันเพื่ออ้างอิงเท่านั้น และจะนำไปรวมเฉพาะกับรอบเงินเดือนปัจจุบัน',
   historicalSavingsFormula:'ยอดนี้เป็นยอดคงเหลือของรอบเงินเดือนที่เลือกเท่านั้น เงินออมปัจจุบันจะแสดงแยกและไม่นำไปรวมกับรอบอดีตหรืออนาคต',
   receivedOneTimeLocked:'รายรับครั้งเดียวนี้ได้รับแล้ว จึงล็อกจำนวนเงินและวันที่เพื่อไม่ให้ยอดในอดีตถูกเขียนทับ',
   incomeFrequencyLocked:'ไม่สามารถเปลี่ยนรายรับเดิมระหว่างแบบครั้งเดียวและแบบประจำได้',
-  manualSavings:'เงินออมที่ยืนยันแล้ว',updateManualSavings:'อัปเดตเงินออมทั้งหมด',manualSavingsHint:'ใส่ยอดเงินออมจริง ณ วันนี้ แอปจะเพิ่มหรือลดเฉพาะกระแสเงินสดหลังจากการยืนยันครั้งนี้',
+  manualSavings:'เงินออมตั้งต้น',updateManualSavings:'อัปเดตเงินออมตั้งต้น',manualSavingsHint:'ใส่ยอดเงินออมที่คุณมีอยู่ก่อนเริ่มใช้แอป ทุกครั้งที่บันทึกรายรับหรือรายจ่าย ระบบจะบวกเพิ่มให้อัตโนมัติ',
   accumulatedCashflow:'กระแสเงินสดสะสม',accumulatedCashflowHint:'กระแสเงินสดสุทธิจากรายรับและรายจ่ายทั้งหมดที่มีวันที่เป็นวันนี้หรือก่อนหน้า',
-  manualPlusAccumulated:'เงินออมที่ยืนยันแล้ว + กระแสเงินสดหลังการยืนยัน',cashflowSinceSavingsUpdate:'กระแสเงินสดหลังการยืนยัน',allTimeAccumulatedCashflow:'กระแสเงินสดสะสมทั้งหมด',confirmedOn:'ยืนยันเมื่อ',completedCycleSavings:'กระแสเงินสดจนถึงวันนี้',
-  combinedFormulaAccumulated:'ยอดรวมทั้งหมดคือเงินออมทั้งหมด บวกเฉพาะส่วนของรอบเงินเดือนนี้ที่ยังไม่ถูกรวมในกระแสเงินสดสะสม'
+  manualPlusAccumulated:'เงินออมตั้งต้น + กระแสเงินสดที่บันทึกทั้งหมด',cashflowSinceSavingsUpdate:'กระแสเงินสดหลังการยืนยัน',allTimeAccumulatedCashflow:'กระแสเงินสดสะสมทั้งหมด',confirmedOn:'ยืนยันเมื่อ',completedCycleSavings:'กระแสเงินสดจนถึงวันนี้',
+  combinedFormulaAccumulated:'ยอดรวมทั้งหมดคือเงินออมทั้งหมด บวกกับส่วนของรอบเงินเดือนนี้ที่ยังไม่เกิดขึ้น'
 });
 
 
@@ -1951,8 +1951,11 @@ const realizedCashflowAfter = (ledger, anchorISO, throughISO = todayStr()) => {
   return {income,expenses,net:moneyDifference(income,expenses),cutoffISO:throughISO};
 };
 const savingsTotalFromAnchor = (anchor, ledger, throughISO = todayStr()) => {
-  const since=realizedCashflowAfter(ledger,anchor?.date||todayStr(),throughISO).net;
-  return {cashflowSinceAnchor:since,totalSavings:moneySum([anchor?.amount||0,since])};
+  // Starting-balance model: the anchor amount is money the user held before the app
+  // (independent of any logged entry). Total Savings adds the all-time net of every
+  // logged income and expense on top, so it always reflects current total cash.
+  const accumulated=realizedCashflowThrough(ledger,throughISO).net;
+  return {cashflowSinceAnchor:accumulated,totalSavings:moneySum([anchor?.amount||0,accumulated])};
 };
 
 // Dated activity intervals preserve every pause/resume period instead of overwriting history.
@@ -3136,7 +3139,7 @@ function SavingsTab({ sym, currentMonth, payday }) {
     }catch(err){console.error(err);if(isLatest())setLoadError(err);}
   },[currentMonth,payday,latest]);
   useEffect(()=>{load();},[load]);
-  const openEditor=()=>{setAmount(String(data?.totalSavings??0));setError('');setEditOpen(true);};
+  const openEditor=()=>{setAmount(String(data?.manualSavings??0));setError('');setEditOpen(true);};
   const saveTotal=async event=>{
     event?.preventDefault();
     if(saving)return;
@@ -3170,8 +3173,7 @@ function SavingsTab({ sym, currentMonth, payday }) {
         h('div',{className:'savings-line'},h('span',null,t('incomeLabel')),h('strong',null,fmt(income,sym))),
         h('div',{className:'savings-line'},h('span',null,t('expensesLabel')),h('strong',{style:{color:'var(--danger)'}},'−',fmt(expenses,sym))),
         h('div',{className:'savings-line'},h('span',null,t('currentBalance')),h('strong',{style:{color:currentBalance>=0?'var(--success)':'var(--danger)'}},signed(currentBalance))),
-        h('div',{className:'savings-line savings-divider'},h('span',null,`${t('manualSavings')} · ${t('confirmedOn')} ${savingsAnchorDate}`),h('strong',null,fmt(manualSavings,sym))),
-        h('div',{className:'savings-line'},h('span',null,t('cashflowSinceSavingsUpdate')),h('strong',{style:{color:cashflowSinceAnchor>=0?'var(--success)':'var(--danger)'}},signed(cashflowSinceAnchor))),
+        h('div',{className:'savings-line savings-divider'},h('span',null,t('manualSavings')),h('strong',null,fmt(manualSavings,sym))),
         h('div',{className:'savings-line'},h('span',null,t('allTimeAccumulatedCashflow')),h('strong',{style:{color:accumulatedCashflow>=0?'var(--success)':'var(--danger)'}},signed(accumulatedCashflow))),
         h('div',{className:'savings-line'},h('span',null,t('totalSavings')),h('strong',null,signed(totalSavings))),
         h('div',{className:'savings-line total'},h('span',null,t(isCurrentCycle?'combinedBalance':'selectedCycleBalance')),h('strong',null,signed(combined)))),
@@ -3442,10 +3444,9 @@ function SettingsModal({ currCode,onCurrChange,onClose,showToast,lang,onLangChan
       ...inc.flatMap(x=>(Array.isArray(x.editHistory)?x.editHistory:[]).map(entry=>['income_edit_history',x.id,x.name,entry.previous?.amount??'',entry.editedAt||'',entry.previous?.category||x.category,`previous frequency ${entry.previous?.frequency||''}; date ${entry.previous?.date||entry.previous?.startDate||''}`,''])),
       ...inst.flatMap(x=>normalizeInstallmentPostings(x).map(row=>['installment_posting',x.id,row.name,row.amount,row.date,'installments',row.type,row.cardId||''])),
       ...inst.filter(x=>!x.isDeleted).map(x=>['installment_schedule',x.id,x.name,x.monthlyPayment,x.nextPaymentDate||x.startDate,'installments',x.completedDate?`completed ${x.completedDate}`:'future schedule',x.cardId||'']),
-      ['confirmed_savings','',t('manualSavings'),manualSavings,anchor.date,'savings','confirmed balance',''],
-      ['cashflow_since_confirmation','',t('cashflowSinceSavingsUpdate'),cashflowSinceAnchor,`after ${anchor.date}`,'savings','',''],
-      ['accumulated_cashflow','',t('accumulatedCashflow'),accumulated.net,`through ${accumulated.cutoffISO}`,'savings','all-time reference',''],
-      ['savings_total','',t('totalSavings'),calculatedTotal,'current','savings','',''],
+      ['starting_balance','',t('manualSavings'),manualSavings,anchor.date,'savings','money held before the app',''],
+      ['accumulated_cashflow','',t('accumulatedCashflow'),accumulated.net,`through ${accumulated.cutoffISO}`,'savings','all logged income minus expenses',''],
+      ['savings_total','',t('totalSavings'),calculatedTotal,'current','savings','starting balance + accumulated cashflow',''],
       ...sav.map(x=>['legacy_savings_goal',x.id,x.name,x.currentAmount,`target ${x.targetAmount}`,'savings','','']),
       ...contrib.map(x=>['legacy_savings_contribution',x.id,`goal ${x.goalId}`,x.amount,x.date,'savings','',''])
     ];
