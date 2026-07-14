@@ -464,7 +464,7 @@ html.theme-rose .confirm-icon.danger{background:#fbe9ec;color:#db7288}
 .savings-stat .samt{display:block;width:100%;max-width:100%;white-space:nowrap;text-align:left;font-variant-numeric:tabular-nums;line-height:1.08;letter-spacing:-.05em}
 .savings-stat .ssub{max-width:calc(100% - 54px)}
 
-html.keyboard-open .bnav,html.keyboard-open .fab{display:none!important}
+html.keyboard-open .bnav,html.keyboard-open .fab,html.viewport-shifted .bnav,html.viewport-shifted .fab{display:none!important}
 html.keyboard-open .main{padding-bottom:max(12px,env(safe-area-inset-bottom,0px))}
 
 /* iOS zoom lock. Safari automatically zooms focused controls whose computed
@@ -487,7 +487,7 @@ html,body,#root{touch-action:pan-y}
 // Single-file release metadata. This build stores records locally in IndexedDB,
 // but it intentionally does not register a service worker or advertise offline/PWA
 // installation because the runtime libraries below are delivered by CDN.
-window.CASHFLOW_BUILD = Object.freeze({ version: '3.2.9', schema: 4, built: '2026-07-14', viewport: 'body-portal-locked-dock' });
+window.CASHFLOW_BUILD = Object.freeze({ version: '3.2.10', schema: 4, built: '2026-07-14', viewport: 'body-portal-locked-dock-vv-guard' });
 </script>
 <script>
 // ── DEPENDENCY GUARD (must run before anything else) ──
@@ -3127,7 +3127,20 @@ function App() {
     const onFocus=event=>{clearTimeout(blurTimer);if(isTextEntry(event.target))doc.classList.add('keyboard-open');};
     const onBlur=()=>{clearTimeout(blurTimer);blurTimer=setTimeout(()=>{if(!isTextEntry(document.activeElement))doc.classList.remove('keyboard-open');},120);};
     window.addEventListener('focusin',onFocus);window.addEventListener('focusout',onBlur);
-    return()=>{clearTimeout(blurTimer);window.removeEventListener('focusin',onFocus);window.removeEventListener('focusout',onBlur);doc.classList.remove('keyboard-open');};
+    // Fixed elements anchor to the layout viewport; the on-screen keyboard and
+    // pinch-zoom move the visual viewport instead, so the dock would float
+    // mid-screen. Hide it whenever the two viewports disagree.
+    const vv=window.visualViewport;
+    let showTimer=0;
+    const syncViewport=()=>{
+      if(!vv)return;
+      const detached=vv.scale>1.02||window.innerHeight-vv.height>60||vv.offsetTop>2;
+      clearTimeout(showTimer);
+      if(detached)doc.classList.add('viewport-shifted');
+      else showTimer=setTimeout(()=>doc.classList.remove('viewport-shifted'),120);
+    };
+    if(vv){vv.addEventListener('resize',syncViewport);vv.addEventListener('scroll',syncViewport);syncViewport();}
+    return()=>{clearTimeout(blurTimer);clearTimeout(showTimer);window.removeEventListener('focusin',onFocus);window.removeEventListener('focusout',onBlur);if(vv){vv.removeEventListener('resize',syncViewport);vv.removeEventListener('scroll',syncViewport);}doc.classList.remove('keyboard-open');doc.classList.remove('viewport-shifted');};
   },[]);
   useEffect(()=>{if(!ready)return;const hash=`tab=${tab}&month=${mkKey(month)}`;if(location.hash.slice(1)!==hash)history.replaceState({tab,month:mkKey(month)},'',`#${hash}`);},[ready,tab,month]);
   const navigate=(nextTab=tab,nextMonth=month)=>{const hash=`tab=${nextTab}&month=${mkKey(nextMonth)}`;history.pushState({tab:nextTab,month:mkKey(nextMonth)},'',`#${hash}`);setTab(nextTab);setMonth(nextMonth);};
