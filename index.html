@@ -518,6 +518,8 @@ html:not(.theme-rose) .premium-stat .samt,html.theme-rose .premium-stat .samt{ma
 .slip-picker-copy{max-width:330px;font-size:13px;line-height:1.55;color:var(--t2)}
 .slip-error{width:100%;padding:10px 12px;border-radius:12px;background:var(--dl);color:var(--danger);font-size:13px;font-weight:700}
 .slip-review{display:flex;flex-direction:column;gap:14px}
+.slip-progress{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:800;color:var(--t2)}
+.slip-progress .slip-skipped{padding:3px 9px;border-radius:999px;background:var(--dl);color:var(--danger)}
 .slip-preview{display:block;width:100%;max-height:220px;object-fit:contain;border-radius:16px;border:1px solid var(--border);background:var(--bg)}
 .slip-meta{display:flex;flex-wrap:wrap;align-items:center;gap:7px 10px;padding:11px 12px;border:1px solid var(--border);border-radius:14px;background:var(--bg);font-size:12px;color:var(--t2);overflow-wrap:anywhere}
 .slip-meta strong{font-size:14px;color:var(--t1)}
@@ -542,7 +544,7 @@ html:not(.theme-rose) .premium-stat .samt,html.theme-rose .premium-stat .samt{ma
 <script>
 // Release metadata. Mandatory runtimes are cached by the companion service worker
 // after the first successful hosted load; Chart.js is loaded only when a chart is shown.
-window.CASHFLOW_BUILD = Object.freeze({ version: '3.9.0', schema: 6, built: '2026-07-14', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'canonical-integer-cents-with-mismatch-rejection', cardQueries: 'compound-card-date-index', savings: 'confirmed-balance-plus-date-filtered-post-anchor-cashflow', timezone: 'Asia/Bangkok', offline: 'service-worker-runtime-cache-after-first-hosted-load', slipScanner: 'offline-qr-layout-glyph-teach-mode' });
+window.CASHFLOW_BUILD = Object.freeze({ version: '3.9.1', schema: 6, built: '2026-07-14', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'canonical-integer-cents-with-mismatch-rejection', cardQueries: 'compound-card-date-index', savings: 'confirmed-balance-plus-date-filtered-post-anchor-cashflow', timezone: 'Asia/Bangkok', offline: 'service-worker-runtime-cache-after-first-hosted-load', slipScanner: 'offline-qr-layout-glyph-teach-mode-batch-queue' });
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./cashflow-sw.js').catch(error => console.warn('Offline cache registration failed', error)));
 }
@@ -1670,22 +1672,24 @@ Object.assign(LANGS.th,{
 
 
 Object.assign(LANGS.en,{
-  scanBankSlip:'Scan Bank Slip',chooseSlipImage:'Choose a bank-slip screenshot',selectImage:'Select Image',readingSlip:'Reading slip…',
-  slipScannerHint:'Screenshots stay on this device. The scanner reads the QR reference, recognizes the amount from the known bank layout, and asks you to confirm before saving.',
+  scanBankSlip:'Scan Bank Slip',chooseSlipImage:'Choose bank-slip screenshots',selectImage:'Select Images',readingSlip:'Reading slips…',
+  slipScannerHint:'Pick one or several bank-slip screenshots — they stay on this device. The scanner reads each QR reference, recognizes the amount from the known bank layout, and asks you to confirm each one before saving.',
   slipImageLoadFailed:'The image could not be opened.',slipUnsupported:'This slip layout is not supported yet.',slipDuplicate:'This slip has already been added.',
   slipPreview:'Bank-slip preview',recognitionConfidence:'Recognition confidence',amountNeedsConfirmation:'Amount needs confirmation',transactionType:'Transaction type',
   expenseType:'Expense',incomeType:'Income',rememberMyName:'Remember my name from this slip to identify expense vs income next time',chooseAnother:'Choose Another',
   saveTransaction:'Save Transaction',saving:'Saving…',scannedSlip:'Scanned bank slip',walletPayment:'Wallet payment',bankTransferIncome:'Bank transfer received',bankTransferExpense:'Bank transfer',
-  scanSlipAria:'Scan a bank slip'
+  scanSlipAria:'Scan a bank slip',slipCountLabel:'Slip {i} of {n}',slipsSkippedNote:'{n} skipped',slipsSaved:'{n} slips saved',slipNoneReadable:'None of the selected slips could be read.',
+  skipSlip:'Skip',saveAndNext:'Save & Next'
 });
 Object.assign(LANGS.th,{
   scanBankSlip:'สแกนสลิปธนาคาร',chooseSlipImage:'เลือกรูปสลิปจากธนาคาร',selectImage:'เลือกรูปภาพ',readingSlip:'กำลังอ่านสลิป…',
-  slipScannerHint:'รูปสลิปจะประมวลผลอยู่ในเครื่องนี้ แอปอ่านเลขอ้างอิงจาก QR ตรวจจำนวนเงินตามรูปแบบของธนาคาร และให้คุณยืนยันก่อนบันทึก',
+  slipScannerHint:'เลือกรูปสลิปได้ทีละหลายรูป โดยประมวลผลอยู่ในเครื่องนี้ แอปอ่านเลขอ้างอิงจาก QR ของแต่ละรูป ตรวจจำนวนเงินตามรูปแบบของธนาคาร และให้คุณยืนยันทีละรายการก่อนบันทึก',
   slipImageLoadFailed:'ไม่สามารถเปิดรูปภาพได้',slipUnsupported:'ยังไม่รองรับรูปแบบสลิปนี้',slipDuplicate:'สลิปนี้ถูกเพิ่มไว้แล้ว',
   slipPreview:'ตัวอย่างสลิป',recognitionConfidence:'ความมั่นใจในการอ่าน',amountNeedsConfirmation:'กรุณายืนยันจำนวนเงิน',transactionType:'ประเภทรายการ',
   expenseType:'รายจ่าย',incomeType:'รายรับ',rememberMyName:'จำชื่อของฉันจากสลิปนี้ เพื่อแยกรายจ่ายกับรายรับอัตโนมัติในครั้งถัดไป',chooseAnother:'เลือกรูปใหม่',
   saveTransaction:'บันทึกรายการ',saving:'กำลังบันทึก…',scannedSlip:'สแกนจากสลิปธนาคาร',walletPayment:'ชำระผ่านกระเป๋าเงิน',bankTransferIncome:'รับเงินโอน',bankTransferExpense:'โอนเงิน',
-  scanSlipAria:'สแกนสลิปธนาคาร'
+  scanSlipAria:'สแกนสลิปธนาคาร',slipCountLabel:'สลิป {i} จาก {n}',slipsSkippedNote:'ข้าม {n} รายการ',slipsSaved:'บันทึกสลิปแล้ว {n} รายการ',slipNoneReadable:'อ่านสลิปที่เลือกไม่ได้เลย',
+  skipSlip:'ข้าม',saveAndNext:'บันทึกและถัดไป'
 });
 
 const t = key => (LANGS[currentLang] || LANGS.en)[key] || LANGS.en[key] || key;
@@ -2686,12 +2690,63 @@ const detectSlipDirection=(analysis,state)=>{const owner=state.owners?.[analysis
 const analyzeSlipFile=async file=>{const [image,fileHash,state]=await Promise.all([loadSlipImage(file),hashSlipFile(file),loadSlipRecognizerState()]),qr=decodeSlipQr(image),parsed=parseThaiSlipQr(qr?.data||''),bank=parsed?SLIP_BANKS[parsed.bankCode]:null,ratio=image.height/image.width,bankId=bank?.id||(!parsed&&ratio>=1.9&&ratio<=2.1?'wallet':'unknown');if(bankId==='unknown')throw new Error(t('slipUnsupported'));const layout=SLIP_LAYOUTS[bankId],amountCrop=cropSlipImage(image,layout.amountRect(image,qr)),glyphs=segmentSlipAmount(amountCrop,layout),recognition=classifySlipGlyphs(bankId,glyphs,state.templates),recognizedAmount=parseSlipAmountText(recognition.text),amount=recognition.confidence>=.64?recognizedAmount:null,senderCrop=cropSlipImage(image,layout.senderRect(image,qr)),receiverCrop=cropSlipImage(image,layout.receiverRect(image,qr)),analysis={file,image,qr,parsed,bankId,bankLabel:layout.label,reference:parsed?.reference||'',slipId:parsed?`${parsed.bankCode}:${parsed.reference}`:`image:${fileHash}`,date:slipDateFromReference(bankId,parsed?.reference||''),amount,rawAmountText:recognition.text,confidence:recognition.confidence,glyphs,amountCrop,senderSignature:slipSignatureFromCrop(senderCrop),receiverSignature:slipSignatureFromCrop(receiverCrop),previewUrl:image.canvas.toDataURL('image/jpeg',.78)};analysis.direction=detectSlipDirection(analysis,state);analysis.state=state;return analysis;};
 const findExistingSlip=async slipId=>{const [expense,income]=await Promise.all([db.expenses.filter(row=>row.slipId===slipId).first(),db.income.filter(row=>row.slipId===slipId).first()]);return expense||income||null;};
 const teachSlipAmount=async(analysis,amount,state)=>{const formatted=formatSlipAmountForTeaching(amount,analysis.glyphs.length);if(!formatted)return false;state.templates=state.templates||{};state.templates[analysis.bankId]=state.templates[analysis.bankId]||{};formatted.split('').forEach((char,index)=>{const value=packSlipBits(normalizeSlipGlyph(analysis.glyphs[index])),list=state.templates[analysis.bankId][char]||[];if(!list.includes(value))list.push(value);state.templates[analysis.bankId][char]=list.slice(-12);});return true;};
+// Multi-slip review is a queue: every selected screenshot is analyzed up front,
+// unreadable/duplicate ones are counted aside, and the user confirms each usable
+// slip in turn. A single recognizer state is shared across the batch so amount
+// and owner learning from one slip carries into the next.
 function SlipScannerModal({onClose,onSaved,showToast}){
-  const fileRef=useRef(null),[phase,setPhase]=useState('pick'),[analysis,setAnalysis]=useState(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[direction,setDirection]=useState('expense'),[amount,setAmount]=useState(''),[date,setDate]=useState(todayStr()),[name,setName]=useState(''),[expenseCategory,setExpenseCategory]=useState('other'),[incomeCategory,setIncomeCategory]=useState('other'),[rememberOwner,setRememberOwner]=useState(true);
-  const chooseFile=()=>fileRef.current?.click();
-  const processFile=async event=>{const file=event.target.files?.[0];event.target.value='';if(!file)return;setBusy(true);setError('');setPhase('reading');try{const next=await analyzeSlipFile(file),duplicate=await findExistingSlip(next.slipId);if(duplicate)throw new Error(t('slipDuplicate'));setAnalysis(next);setDirection(next.direction||'expense');setAmount(next.amount??'');setDate(next.date||todayStr());setName(next.bankId==='wallet'?t('walletPayment'):next.direction==='income'?t('bankTransferIncome'):t('bankTransferExpense'));setRememberOwner(!next.state.owners?.[next.bankId]);setPhase('review');}catch(err){console.error(err);setError(err.message||String(err));setPhase('pick');}finally{setBusy(false);}};
-  const save=async()=>{const numeric=Number(amount);if(!validMoney(numeric)){setError(t('errAmount'));return;}if(!isValidISODate(date)){setError(t('errDate'));return;}if(!name.trim()){setError(t('errName'));return;}setBusy(true);setError('');try{const state=analysis.state||{templates:{},owners:{}};await teachSlipAmount(analysis,numeric,state);if(rememberOwner){state.owners=state.owners||{};const signature=direction==='expense'?analysis.senderSignature:analysis.receiverSignature;if(signature)state.owners[analysis.bankId]=signature;}await db.transaction('rw',[db.expenses,db.income,db.settings],async()=>{if(direction==='expense')await addCanonicalRecord('expenses',{name:name.trim(),amount:roundMoney(numeric),date,category:expenseCategory,notes:`${t('scannedSlip')} · ${analysis.bankLabel}${analysis.reference?` · ${analysis.reference}`:''}`,cardId:'',slipId:analysis.slipId,slipBank:analysis.bankId,slipReference:analysis.reference});else await addCanonicalRecord('income',{name:name.trim(),amount:roundMoney(numeric),frequency:'one-time',category:incomeCategory,date,isActive:true,slipId:analysis.slipId,slipBank:analysis.bankId,slipReference:analysis.reference});await saveSlipRecognizerState(state);});announceDataChange();showToast?.(direction==='expense'?t('expenseAdded'):t('incomeAdded'));onSaved?.();onClose();}catch(err){console.error(err);setError(err.message||String(err));}finally{setBusy(false);}};
-  return h(Modal,{title:t('scanBankSlip'),onClose,busy},h('input',{ref:fileRef,type:'file',accept:'image/*',className:'sr-only',onChange:processFile}),phase!=='review'?h('div',{className:'slip-picker'},h('div',{className:'slip-picker-icon'},h(Icon,{name:'receipt',size:32})),h('div',{className:'slip-picker-title'},phase==='reading'?t('readingSlip'):t('chooseSlipImage')),h('div',{className:'slip-picker-copy'},t('slipScannerHint')),error&&h('div',{className:'slip-error',role:'alert'},error),h('button',{type:'button',className:'btn bpri',disabled:busy,onClick:chooseFile},busy?t('readingSlip'):t('selectImage'))):h('div',{className:'slip-review'},h('img',{className:'slip-preview',src:analysis.previewUrl,alt:t('slipPreview')}),h('div',{className:'slip-meta'},h('strong',null,analysis.bankLabel),analysis.reference&&h('span',null,analysis.reference),h('span',{className:analysis.amount!==null&&analysis.confidence>=.64?'slip-confidence good':'slip-confidence warn'},analysis.amount!==null?`${t('recognitionConfidence')}: ${Math.round(analysis.confidence*100)}%`:t('amountNeedsConfirmation'))),error&&h('div',{className:'slip-error',role:'alert'},error),h(Field,{label:t('transactionType')},h('div',{className:'seg slip-direction'},h('button',{type:'button',className:`sbtn${direction==='expense'?' active':''}`,onClick:()=>setDirection('expense')},t('expenseType')),h('button',{type:'button',className:`sbtn${direction==='income'?' active':''}`,onClick:()=>setDirection('income')},t('incomeType')))),h(Field,{label:t('name')},h(Inp,{type:'text',value:name,onChange:event=>setName(event.target.value)})),h('div',{className:'frow'},h(Field,{label:t('amount')},h(Inp,{type:'number',step:'0.01',min:'0.01',inputMode:'decimal',value:amount,onChange:event=>setAmount(event.target.value)})),h(Field,{label:t('date')},h(Inp,{type:'date',value:date,onChange:event=>setDate(event.target.value)}))),direction==='expense'?h(Field,{label:t('category')},h(CatPicker,{value:expenseCategory,onChange:setExpenseCategory,labelFn:getCatLabel})):h(Field,{label:t('category')},h(CatPicker,{value:incomeCategory,onChange:setIncomeCategory,cats:ICATS,labelFn:getICatLabel})),h('label',{className:'slip-remember'},h('input',{type:'checkbox',checked:rememberOwner,onChange:event=>setRememberOwner(event.target.checked)}),h('span',null,t('rememberMyName'))),h('div',{className:'slip-actions'},h('button',{type:'button',className:'btn bghost',disabled:busy,onClick:chooseFile},t('chooseAnother')),h('button',{type:'button',className:'btn bpri',disabled:busy,onClick:save},busy?t('saving'):t('saveTransaction')))));
+  const fileRef=useRef(null),stateRef=useRef({templates:{},owners:{}}),lastSavedDir=useRef('expense');
+  const [phase,setPhase]=useState('pick'),[queue,setQueue]=useState([]),[skipped,setSkipped]=useState(0),[cursor,setCursor]=useState(0),[savedCount,setSavedCount]=useState(0);
+  const [busy,setBusy]=useState(false),[error,setError]=useState(''),[formError,setFormError]=useState('');
+  const [direction,setDirection]=useState('expense'),[amount,setAmount]=useState(''),[date,setDate]=useState(todayStr()),[name,setName]=useState('');
+  const [expenseCategory,setExpenseCategory]=useState('other'),[incomeCategory,setIncomeCategory]=useState('other'),[rememberOwner,setRememberOwner]=useState(true);
+  const analysis=queue[cursor]||null;
+  const chooseFiles=()=>fileRef.current?.click();
+  // Re-seed the editable fields whenever the reviewed slip changes. Direction is
+  // re-detected against the shared state so owners learned earlier in the batch apply.
+  useEffect(()=>{
+    if(phase!=='review'||!analysis)return;
+    const dir=detectSlipDirection(analysis,stateRef.current)||analysis.direction||'expense';
+    setDirection(dir);setAmount(analysis.amount??'');setDate(analysis.date||todayStr());
+    setName(analysis.bankId==='wallet'?t('walletPayment'):dir==='income'?t('bankTransferIncome'):t('bankTransferExpense'));
+    setExpenseCategory('other');setIncomeCategory('other');setRememberOwner(!stateRef.current.owners?.[analysis.bankId]);setFormError('');
+  },[phase,cursor,analysis]);
+  const processFiles=async event=>{
+    const files=Array.from(event.target.files||[]);event.target.value='';if(!files.length)return;
+    setBusy(true);setError('');setPhase('reading');
+    stateRef.current=await loadSlipRecognizerState();
+    const seen=new Set(),oks=[];let skips=0;
+    for(const file of files){
+      try{const next=await analyzeSlipFile(file);if(seen.has(next.slipId)||await findExistingSlip(next.slipId)){skips++;continue;}seen.add(next.slipId);oks.push(next);}
+      catch(err){console.error(err);skips++;}
+    }
+    setBusy(false);
+    if(!oks.length){setError(files.length>1?t('slipNoneReadable'):t('slipUnsupported'));setPhase('pick');return;}
+    setQueue(oks);setSkipped(skips);setCursor(0);setSavedCount(0);setPhase('review');
+  };
+  const finish=saved=>{if(saved>0)onSaved?.();if(saved===1)showToast?.(lastSavedDir.current==='expense'?t('expenseAdded'):t('incomeAdded'));else if(saved>1)showToast?.(t('slipsSaved').replace('{n}',String(saved)));onClose();};
+  const advance=saved=>{if(cursor+1<queue.length)setCursor(cursor+1);else finish(saved);};
+  const skipCurrent=()=>{if(busy)return;setFormError('');advance(savedCount);};
+  const saveCurrent=async()=>{
+    const numeric=Number(amount);
+    if(!validMoney(numeric)){setFormError(t('errAmount'));return;}
+    if(!isValidISODate(date)){setFormError(t('errDate'));return;}
+    if(!name.trim()){setFormError(t('errName'));return;}
+    setBusy(true);setFormError('');
+    try{
+      const state=stateRef.current;
+      await teachSlipAmount(analysis,numeric,state);
+      if(rememberOwner){state.owners=state.owners||{};const signature=direction==='expense'?analysis.senderSignature:analysis.receiverSignature;if(signature)state.owners[analysis.bankId]=signature;}
+      await db.transaction('rw',[db.expenses,db.income,db.settings],async()=>{
+        if(direction==='expense')await addCanonicalRecord('expenses',{name:name.trim(),amount:roundMoney(numeric),date,category:expenseCategory,notes:`${t('scannedSlip')} · ${analysis.bankLabel}${analysis.reference?` · ${analysis.reference}`:''}`,cardId:'',slipId:analysis.slipId,slipBank:analysis.bankId,slipReference:analysis.reference});
+        else await addCanonicalRecord('income',{name:name.trim(),amount:roundMoney(numeric),frequency:'one-time',category:incomeCategory,date,isActive:true,slipId:analysis.slipId,slipBank:analysis.bankId,slipReference:analysis.reference});
+        await saveSlipRecognizerState(state);
+      });
+      announceDataChange();
+      lastSavedDir.current=direction;const saved=savedCount+1;setSavedCount(saved);setBusy(false);advance(saved);
+    }catch(err){console.error(err);setFormError(err.message||String(err));setBusy(false);}
+  };
+  return h(Modal,{title:t('scanBankSlip'),onClose,busy},h('input',{ref:fileRef,type:'file',accept:'image/*',multiple:true,className:'sr-only',onChange:processFiles}),phase!=='review'?h('div',{className:'slip-picker'},h('div',{className:'slip-picker-icon'},h(Icon,{name:'receipt',size:32})),h('div',{className:'slip-picker-title'},phase==='reading'?t('readingSlip'):t('chooseSlipImage')),h('div',{className:'slip-picker-copy'},t('slipScannerHint')),error&&h('div',{className:'slip-error',role:'alert'},error),h('button',{type:'button',className:'btn bpri',disabled:busy,onClick:chooseFiles},busy?t('readingSlip'):t('selectImage'))):h('div',{className:'slip-review'},(queue.length>1||skipped>0)&&h('div',{className:'slip-progress'},h('span',null,t('slipCountLabel').replace('{i}',String(cursor+1)).replace('{n}',String(queue.length))),skipped>0&&h('span',{className:'slip-skipped'},t('slipsSkippedNote').replace('{n}',String(skipped)))),h('img',{className:'slip-preview',src:analysis.previewUrl,alt:t('slipPreview')}),h('div',{className:'slip-meta'},h('strong',null,analysis.bankLabel),analysis.reference&&h('span',null,analysis.reference),h('span',{className:analysis.amount!==null&&analysis.confidence>=.64?'slip-confidence good':'slip-confidence warn'},analysis.amount!==null?`${t('recognitionConfidence')}: ${Math.round(analysis.confidence*100)}%`:t('amountNeedsConfirmation'))),formError&&h('div',{className:'slip-error',role:'alert'},formError),h(Field,{label:t('transactionType')},h('div',{className:'seg slip-direction'},h('button',{type:'button',className:`sbtn${direction==='expense'?' active':''}`,onClick:()=>setDirection('expense')},t('expenseType')),h('button',{type:'button',className:`sbtn${direction==='income'?' active':''}`,onClick:()=>setDirection('income')},t('incomeType')))),h(Field,{label:t('name')},h(Inp,{type:'text',value:name,onChange:event=>setName(event.target.value)})),h('div',{className:'frow'},h(Field,{label:t('amount')},h(Inp,{type:'number',step:'0.01',min:'0.01',inputMode:'decimal',value:amount,onChange:event=>setAmount(event.target.value)})),h(Field,{label:t('date')},h(Inp,{type:'date',value:date,onChange:event=>setDate(event.target.value)}))),direction==='expense'?h(Field,{label:t('category')},h(CatPicker,{value:expenseCategory,onChange:setExpenseCategory,labelFn:getCatLabel})):h(Field,{label:t('category')},h(CatPicker,{value:incomeCategory,onChange:setIncomeCategory,cats:ICATS,labelFn:getICatLabel})),h('label',{className:'slip-remember'},h('input',{type:'checkbox',checked:rememberOwner,onChange:event=>setRememberOwner(event.target.checked)}),h('span',null,t('rememberMyName'))),h('div',{className:'slip-actions'},h('button',{type:'button',className:'btn bghost',disabled:busy,onClick:queue.length>1?skipCurrent:chooseFiles},queue.length>1?t('skipSlip'):t('chooseAnother')),h('button',{type:'button',className:'btn bpri',disabled:busy,onClick:saveCurrent},busy?t('saving'):cursor+1<queue.length?t('saveAndNext'):t('saveTransaction')))));
 }
 
 // ══ DASHBOARD ══
