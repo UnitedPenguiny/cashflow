@@ -1,0 +1,35 @@
+{
+  "buildVersion": "3.10.1",
+  "added": "2026-07-15",
+  "provisionalTemplates": [
+    {
+      "bank": "SCB",
+      "bankId": "scb",
+      "digit": "7",
+      "kind": "synthetic-provisional",
+      "source": "KTB real amount digit 7, style-adapted to SCB",
+      "replaceWithReal": true,
+      "templateCount": 3
+    },
+    {
+      "bank": "Krungthai / KTB",
+      "bankId": "ktb",
+      "digit": "8",
+      "kind": "synthetic-provisional",
+      "source": "SCB real amount digit 8, style-adapted to KTB",
+      "replaceWithReal": true,
+      "templateCount": 4
+    }
+  ],
+  "validation": {
+    "existingSlipRegression": {
+      "passed": 74,
+      "total": 74
+    },
+    "syntheticTemplateSelfAndShiftChecks": {
+      "passed": 21,
+      "total": 21
+    },
+    "note": "Synthetic checks are not a substitute for validation against a genuine SCB amount containing 7 or a genuine KTB amount containing 8."
+  }
+}
