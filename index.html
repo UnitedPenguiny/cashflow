@@ -509,8 +509,18 @@ html,body,#root{touch-action:pan-y}
 }
 
 
-/* Responsive monetary typography: accepted maximum values wrap instead of clipping. */
-html:not(.theme-rose) .premium-stat .samt,html.theme-rose .premium-stat .samt{max-width:100%;white-space:normal;overflow-wrap:anywhere;word-break:break-word;font-size:clamp(14px,4.8vw,26px);line-height:1.08}
+/* 3.10.2: rendered-width money fitting. Monetary values stay on one line;
+   JavaScript measures the real card width and reduces the font only as needed. */
+.hamt,.samt,.summary-total{
+  display:block;width:100%;min-width:0;max-width:100%;
+  white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;
+  overflow:hidden;text-overflow:clip;font-variant-numeric:tabular-nums
+}
+.home-savings-combined{
+  min-width:0;max-width:100%;white-space:nowrap!important;
+  overflow-wrap:normal!important;word-break:normal!important;overflow:hidden;text-overflow:clip
+}
+@media (max-width:420px){.home-savings-combined{display:block;width:100%}}
 /* Offline bank-slip scanner */
 .slip-picker{display:flex;flex-direction:column;align-items:center;text-align:center;padding:18px 4px 6px;gap:12px}
 .slip-picker-icon{width:72px;height:72px;border-radius:24px;display:flex;align-items:center;justify-content:center;color:var(--p);background:var(--pl);box-shadow:var(--s1)}
@@ -544,7 +554,7 @@ html:not(.theme-rose) .premium-stat .samt,html.theme-rose .premium-stat .samt{ma
 <script>
 // Release metadata. Mandatory runtimes are cached by the companion service worker
 // after the first successful hosted load; Chart.js is loaded only when a chart is shown.
-window.CASHFLOW_BUILD = Object.freeze({ version: '3.10.1', schema: 6, built: '2026-07-15', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'canonical-integer-cents-with-mismatch-rejection', cardQueries: 'compound-card-date-index', savings: 'confirmed-balance-plus-date-filtered-post-anchor-cashflow', timezone: 'Asia/Bangkok', offline: 'service-worker-runtime-cache-after-first-hosted-load', slipScanner: 'offline-permanent-bank-templates-with-provisional-scb7-ktb8-qr-and-visual-layout-batch-review' });
+window.CASHFLOW_BUILD = Object.freeze({ version: '3.10.2', schema: 6, built: '2026-07-15', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'canonical-integer-cents-with-mismatch-rejection', cardQueries: 'compound-card-date-index', savings: 'confirmed-balance-plus-date-filtered-post-anchor-cashflow', timezone: 'Asia/Bangkok', offline: 'service-worker-runtime-cache-after-first-hosted-load', slipScanner: 'offline-permanent-bank-templates-with-provisional-scb7-ktb8-qr-and-visual-layout-batch-review' });
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./cashflow-sw.js').catch(error => console.warn('Offline cache registration failed', error)));
 }
@@ -1729,7 +1739,119 @@ const moneyFontStyle = (value, sym = '$', kind = 'stat') => {
   };
   const size = (scales[kind] || scales.stat).find(([max])=>length<=max)[1];
   const spacing = length > 18 ? '-.06em' : length > 14 ? '-.05em' : '-.04em';
-  return {fontSize:`${size}px`,letterSpacing:spacing};
+  return {
+    fontSize:`${size}px`,
+    letterSpacing:spacing,
+    '--money-max-size':`${size}px`,
+    '--money-min-size':kind==='hero'?'13px':'11px'
+  };
+};
+
+const MONEY_FIT_SELECTOR = '.hamt,.samt,.summary-total,.home-savings-combined';
+const fitMoneyElement = element => {
+  if (!(element instanceof HTMLElement) || !element.isConnected) return;
+  const available = Math.floor(element.clientWidth);
+  if (available < 2) return;
+  const computed = getComputedStyle(element);
+  const maxSize = Number.parseFloat(computed.getPropertyValue('--money-max-size')) || Number.parseFloat(computed.fontSize) || 26;
+  const minSize = Math.min(maxSize, Number.parseFloat(computed.getPropertyValue('--money-min-size')) || 11);
+  const signature = [available,maxSize,minSize,element.textContent,computed.fontFamily,computed.fontWeight,computed.letterSpacing].join('|');
+  if (element.dataset.moneyFitSignature === signature) return;
+  element.style.whiteSpace = 'nowrap';
+  element.style.overflowWrap = 'normal';
+  element.style.wordBreak = 'normal';
+  const applySize = size => {
+    const next = `${Math.round(size * 100) / 100}px`;
+    if (element.style.fontSize !== next) element.style.fontSize = next;
+  };
+  const fits = () => element.scrollWidth <= available + 0.5;
+  applySize(maxSize);
+  if (fits()) {
+    element.dataset.moneyFitSize = String(maxSize);
+    element.dataset.moneyFitSignature = signature;
+    return;
+  }
+  let low = minSize;
+  let high = maxSize;
+  applySize(low);
+  if (!fits()) {
+    // Extremely long custom currencies/values still remain single-line.
+    low = Math.min(low, 8);
+    applySize(low);
+  }
+  let best = low;
+  for (let i = 0; i < 12; i += 1) {
+    const mid = (low + high) / 2;
+    applySize(mid);
+    if (fits()) {
+      best = mid;
+      low = mid;
+    } else {
+      high = mid;
+    }
+  }
+  applySize(best);
+  element.dataset.moneyFitSize = String(Math.round(best * 100) / 100);
+  element.dataset.moneyFitSignature = signature;
+};
+const installMoneyFitter = root => {
+  if (!root) return () => {};
+  const observed = new Set();
+  const pending = new Set();
+  let frame = 0;
+  const flush = () => {
+    frame = 0;
+    for (const element of pending) fitMoneyElement(element);
+    pending.clear();
+  };
+  const schedule = element => {
+    if (!(element instanceof HTMLElement)) return;
+    pending.add(element);
+    if (!frame) frame = requestAnimationFrame(flush);
+  };
+  const resizeObserver = typeof ResizeObserver === 'function'
+    ? new ResizeObserver(entries => entries.forEach(entry => schedule(entry.target)))
+    : null;
+  const observe = element => {
+    if (!(element instanceof HTMLElement) || observed.has(element)) return;
+    observed.add(element);
+    resizeObserver?.observe(element);
+    schedule(element);
+  };
+  const scan = node => {
+    if (!(node instanceof Element)) return;
+    if (node.matches(MONEY_FIT_SELECTOR)) observe(node);
+    node.querySelectorAll(MONEY_FIT_SELECTOR).forEach(observe);
+  };
+  scan(root);
+  const mutationObserver = new MutationObserver(records => {
+    records.forEach(record => {
+      if (record.type === 'characterData') {
+        const parent = record.target.parentElement;
+        if (parent?.matches(MONEY_FIT_SELECTOR)) schedule(parent);
+        return;
+      }
+      record.addedNodes.forEach(scan);
+    });
+  });
+  mutationObserver.observe(root,{subtree:true,childList:true,characterData:true});
+  const refitAll = () => observed.forEach(element => {
+    if (!element.isConnected) return;
+    delete element.dataset.moneyFitSignature;
+    schedule(element);
+  });
+  window.addEventListener('resize',refitAll,{passive:true});
+  window.addEventListener('orientationchange',refitAll,{passive:true});
+  document.fonts?.ready.then(refitAll).catch(()=>{});
+  return () => {
+    mutationObserver.disconnect();
+    resizeObserver?.disconnect();
+    window.removeEventListener('resize',refitAll);
+    window.removeEventListener('orientationchange',refitAll);
+    if (frame) cancelAnimationFrame(frame);
+    pending.clear();
+    observed.clear();
+  };
 };
 const addMonths = (d, n) => new Date(d.getFullYear(), d.getMonth() + n, 1);
 const mkKey = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -3411,6 +3533,7 @@ function App() {
   useEffect(()=>{const receive=()=>{setSyncVersion(v=>v+1);loadApp();};const onMessage=e=>{if(e.data?.type==='changed')receive();};const onStorage=e=>{if(e.key===DATA_CHANGE_KEY)receive();};dataChannel?.addEventListener('message',onMessage);window.addEventListener('storage',onStorage);return()=>{dataChannel?.removeEventListener('message',onMessage);window.removeEventListener('storage',onStorage);};},[loadApp]);
   useEffect(()=>{const onPop=()=>{const r=parseRoute();setTab(r.tab);if(r.month)setMonth(r.month);};window.addEventListener('popstate',onPop);return()=>window.removeEventListener('popstate',onPop);},[]);
   useEffect(()=>{if(!ready)return;const main=document.getElementById('main-content');if(main){main.scrollTop=0;main.scrollLeft=0;}},[ready,tab]);
+  useEffect(()=>{if(!ready)return;return installMoneyFitter(document.getElementById('root'));},[ready]);
   useEffect(()=>{if(!ready)return;const hash=`tab=${tab}&month=${mkKey(month)}`;if(location.hash.slice(1)!==hash)history.replaceState({tab,month:mkKey(month)},'',`#${hash}`);},[ready,tab,month]);
   const navigate=(nextTab=tab,nextMonth=month)=>{const hash=`tab=${nextTab}&month=${mkKey(nextMonth)}`;history.pushState({tab:nextTab,month:mkKey(nextMonth)},'',`#${hash}`);setTab(nextTab);setMonth(nextMonth);};
   const safeSetting=async(action)=>{try{await action();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
