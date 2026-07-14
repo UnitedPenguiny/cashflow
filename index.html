@@ -554,7 +554,7 @@ html,body,#root{touch-action:pan-y}
 <script>
 // Release metadata. Mandatory runtimes are cached by the companion service worker
 // after the first successful hosted load; Chart.js is loaded only when a chart is shown.
-window.CASHFLOW_BUILD = Object.freeze({ version: '3.10.3', schema: 6, built: '2026-07-15', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'canonical-integer-cents-with-mismatch-rejection', cardQueries: 'compound-card-date-index', savings: 'starting-balance-plus-all-time-accumulated-cashflow', timezone: 'Asia/Bangkok', offline: 'service-worker-runtime-cache-after-first-hosted-load', slipScanner: 'offline-permanent-bank-templates-with-provisional-scb7-ktb8-qr-and-visual-layout-batch-review' });
+window.CASHFLOW_BUILD = Object.freeze({ version: '3.10.4', schema: 6, built: '2026-07-15', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'date-exact-recurring-and-signed-installment-postings', money: 'canonical-integer-cents-with-mismatch-rejection', cardQueries: 'compound-card-date-index', savings: 'total-savings-hero-starting-balance-plus-all-time-accumulated-cashflow', timezone: 'Asia/Bangkok', offline: 'service-worker-runtime-cache-after-first-hosted-load', slipScanner: 'offline-permanent-bank-templates-with-provisional-scb7-ktb8-qr-and-visual-layout-batch-review' });
 if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
   window.addEventListener('load', () => navigator.serviceWorker.register('./cashflow-sw.js').catch(error => console.warn('Offline cache registration failed', error)));
 }
@@ -1667,7 +1667,8 @@ Object.assign(LANGS.en,{
   manualSavings:'Starting Balance',updateManualSavings:'Update Starting Balance',manualSavingsHint:'Enter the savings you already had before using the app. Every income and expense you log is then added on top automatically.',
   accumulatedCashflow:'Accumulated Cashflow',accumulatedCashflowHint:'Net cashflow from all income and expenses dated today or earlier.',
   manualPlusAccumulated:'Starting balance + all logged cashflow',cashflowSinceSavingsUpdate:'Cashflow since confirmation',allTimeAccumulatedCashflow:'All-time accumulated cashflow',confirmedOn:'Confirmed on',completedCycleSavings:'Cashflow through today',
-  combinedFormulaAccumulated:'Combined Balance is your Total Savings plus the part of this salary cycle that has not happened yet.'
+  combinedFormulaAccumulated:'Combined Balance is your Total Savings plus the part of this salary cycle that has not happened yet.',
+  totalSavingsFormula:'Total Savings is your Starting Balance plus all income and expenses you have logged.'
 });
 Object.assign(LANGS.th,{
   currentSavingsReference:'แสดงเงินออมปัจจุบันเพื่ออ้างอิงเท่านั้น และจะนำไปรวมเฉพาะกับรอบเงินเดือนปัจจุบัน',
@@ -1677,7 +1678,8 @@ Object.assign(LANGS.th,{
   manualSavings:'เงินออมตั้งต้น',updateManualSavings:'อัปเดตเงินออมตั้งต้น',manualSavingsHint:'ใส่ยอดเงินออมที่คุณมีอยู่ก่อนเริ่มใช้แอป ทุกครั้งที่บันทึกรายรับหรือรายจ่าย ระบบจะบวกเพิ่มให้อัตโนมัติ',
   accumulatedCashflow:'กระแสเงินสดสะสม',accumulatedCashflowHint:'กระแสเงินสดสุทธิจากรายรับและรายจ่ายทั้งหมดที่มีวันที่เป็นวันนี้หรือก่อนหน้า',
   manualPlusAccumulated:'เงินออมตั้งต้น + กระแสเงินสดที่บันทึกทั้งหมด',cashflowSinceSavingsUpdate:'กระแสเงินสดหลังการยืนยัน',allTimeAccumulatedCashflow:'กระแสเงินสดสะสมทั้งหมด',confirmedOn:'ยืนยันเมื่อ',completedCycleSavings:'กระแสเงินสดจนถึงวันนี้',
-  combinedFormulaAccumulated:'ยอดรวมทั้งหมดคือเงินออมทั้งหมด บวกกับส่วนของรอบเงินเดือนนี้ที่ยังไม่เกิดขึ้น'
+  combinedFormulaAccumulated:'ยอดรวมทั้งหมดคือเงินออมทั้งหมด บวกกับส่วนของรอบเงินเดือนนี้ที่ยังไม่เกิดขึ้น',
+  totalSavingsFormula:'เงินออมทั้งหมดคือเงินออมตั้งต้น บวกกับรายรับและรายจ่ายทั้งหมดที่คุณบันทึกไว้'
 });
 
 
@@ -2984,7 +2986,7 @@ function Dashboard({ sym, currentMonth, payday }) {
       h('div',{className:'sgrid home-stats-grid'},
         h('div',{className:'sc premium-stat home-stat',title:cycleRangeLabel(currentMonth,payday)},h('div',{className:'slbl'},t('incomeLabel')),h('div',{className:'samt pos',style:moneyFontStyle(totalInc,sym,'stat')},fmt(totalInc,sym)),h('div',{className:'ssub'},t('thisMonth')),h('div',{className:'stat-badge'},h(Icon,{name:'wallet',size:24}))),
         h('div',{className:'sc premium-stat home-stat',title:cycleRangeLabel(currentMonth,payday)},h('div',{className:'slbl'},t('expensesLabel')),h('div',{className:'samt neg',style:moneyFontStyle(totalExp,sym,'stat')},fmt(totalExp,sym)),h('div',{className:'ssub'},`${fmt(fixed,sym)} ${t('fixed')}`),h('div',{className:'stat-badge'},h(Icon,{name:'trend',size:24}))),
-        hasSavingsData&&h('div',{className:'sc full home-savings-card'},h('div',{className:'home-savings-row'},h('div',{className:'home-savings-primary'},h('div',{className:'slbl'},t('totalSavings')),h('div',{className:`samt ${totSaved>=0?'neu':'neg'}`,style:moneyFontStyle(totSaved,sym,'card')},totSaved<0?'−':'',fmt(totSaved,sym)),h('div',{className:'ssub'},isCurrentCycle?t('manualPlusAccumulated'):t('currentSavingsReference'))),isCurrentCycle&&h('div',{className:'home-savings-combined',style:{...moneyFontStyle(moneySum([totSaved,net,-realizedCycleNet]),sym,'card'),fontWeight:800,color:'var(--p)'}},moneySum([totSaved,net,-realizedCycleNet])<0?'−':'',fmt(moneySum([totSaved,net,-realizedCycleNet]),sym)))))),
+        hasSavingsData&&h('div',{className:'sc full home-savings-card'},h('div',{className:'home-savings-row'},h('div',{className:'home-savings-primary'},h('div',{className:'slbl'},t('totalSavings')),h('div',{className:`samt ${totSaved>=0?'neu':'neg'}`,style:moneyFontStyle(totSaved,sym,'card')},totSaved<0?'−':'',fmt(totSaved,sym)),h('div',{className:'ssub'},isCurrentCycle?t('manualPlusAccumulated'):t('currentSavingsReference'))))))),
     cats.length>0&&h('section',{className:'sec'},h('div',{className:'card cp'},h('div',{className:'chart-head mb10'},h('h2',{className:'ctitle'},t('spendingByCategory')),h('div',{className:'chart-menu','aria-hidden':true},'•••')),h(DonutChart,{data:cats.map(c=>c.amt),labels:cats.map(c=>getCatLabel(c.id)),colors:cats.map((c,i)=>chartToneFor(c.id,i)),sym}),h('div',{className:'chart-list'},cats.map((c,i)=>{const cat=getCat(c.id),tone=chartToneFor(c.id,i);return h('div',{key:c.id,className:'chart-row'},h('div',{className:'chart-meta'},h('span',{className:'summary-swatch',style:{background:chartToneCss(tone),color:tone.base},'aria-hidden':true}),h('span',{className:'chart-icon-chip',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('span',{className:'chart-label'},getCatLabel(c.id))),h('span',{className:'chart-amount'},fmt(c.amt,sym)));})))),
     h('section',{className:'sec'},h('div',{className:'card cp'},h('div',{className:'fbet mb10'},h('h2',{className:'ctitle'},t('budgetProgress')),h('button',{className:'btn bsm budget-theme-btn',onClick:()=>{const x={};allBudgets.forEach(b=>x[b.category]=b.amount);setBudgetDrafts(x);setBudgetModal(true);}},h(Icon,{name:'settings',size:14}),t('setBudgets'))),budgeted.length===0?h('div',{className:'empty',style:{padding:'20px 10px'}},h('div',{className:'etxt'},t('noBudgets')),h('div',{className:'esub'},t('noBudgetsSub'))):budgeted.map(b=>{const cat=getCat(b.category),spent=catMap.get(b.category)||0,over=spent>b.amount,warn=!over&&spent/b.amount>=.75,color=over?'var(--danger)':warn?'#a15c00':'var(--success)';return h('div',{key:b.category,style:{marginBottom:12}},h('div',{className:'fbet',style:{marginBottom:4}},h('div',{className:'fb g8'},h(Icon,{name:iconName(cat),size:17}),h('span',{style:{fontSize:13,fontWeight:600}},getCatLabel(b.category))),h('span',{style:{fontSize:12,fontWeight:700,color}},fmt(spent,sym),' ',t('budgetOf'),' ',fmt(b.amount,sym))),h(PBar,{value:spent,max:b.amount,color}),h('div',{style:{fontSize:11,color:over?'var(--danger)':'var(--t3)',marginTop:3,textAlign:'right'}},over?`${fmt(spent-b.amount,sym)} ${t('budgetOver')}`:`${fmt(b.amount-spent,sym)} ${t('budgetRemaining')}`));}))),
     monthly.some(m=>m.inc||m.exp)&&h('section',{className:'sec'},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('incomeVsExpenses')),h(BarChart,{sym,labels:monthly.map(m=>m.label),datasets:[{label:t('incomeChart'),data:monthly.map(m=>m.inc),gradient:{light:'#E0ECE2',base:'#78957E',dark:'#4f7058'},borderRadius:5},{label:t('expensesChart'),data:monthly.map(m=>m.exp),gradient:{light:'#F0E1DC',base:'#9F7D74',dark:'#744f48'},borderRadius:5}]}))),
@@ -3156,16 +3158,15 @@ function SavingsTab({ sym, currentMonth, payday }) {
   if(loadError)return h('div',{className:'empty',role:'alert'},h('div',{className:'etxt'},t('loadFailed')),h('button',{className:'btn bpri',onClick:load},t('retry')));
   if(!data)return h('div',{className:'loading'},t('loading'));
   const {income,expenses,currentBalance,manualSavings,savingsAnchorDate,cashflowSinceAnchor,accumulatedCashflow,totalSavings,realizedCycleNet}=data;
-  const combined=isCurrentCycle?moneySum([totalSavings,currentBalance,-realizedCycleNet]):roundMoney(currentBalance);
   const signed=value=>h(React.Fragment,null,value<0?'−':'',fmt(value,sym));
+  const heroAmount=isCurrentCycle?totalSavings:roundMoney(currentBalance);
   return h('div',null,
     h(Toast,{msg:toast}),
-    h('section',{className:'sec'},h('div',{className:`hero ${combined<0?'hero--danger':'hero--savings'}`},
-      h('div',{className:'hlbl'},t(isCurrentCycle?'combinedBalance':'selectedCycleBalance')),
-      h('div',{className:'hamt',style:moneyFontStyle(combined,sym,'hero')},signed(combined)),
-      h('div',{className:'hsub'},t(isCurrentCycle?'combinedFormulaAccumulated':'currentSavingsReference')))),
+    h('section',{className:'sec'},h('div',{className:`hero ${heroAmount<0?'hero--danger':'hero--savings'}`},
+      h('div',{className:'hlbl'},t(isCurrentCycle?'totalSavings':'selectedCycleBalance')),
+      h('div',{className:'hamt',style:moneyFontStyle(heroAmount,sym,'hero')},signed(heroAmount)),
+      h('div',{className:'hsub'},t(isCurrentCycle?'manualPlusAccumulated':'currentSavingsReference')))),
     h('section',{className:'sec'},h('div',{className:'sgrid savings-stats-grid'},
-      h('div',{className:'sc premium-stat savings-stat'},h('div',{className:'slbl'},t('totalSavings')),h('div',{className:`samt ${totalSavings>=0?'neu':'neg'} savings-amount`,style:moneyFontStyle(totalSavings,sym,'savings')},signed(totalSavings)),h('div',{className:'ssub'},t('manualPlusAccumulated')),h('div',{className:'stat-badge'},h(Icon,{name:'coins',size:24}))),
       h('div',{className:'sc premium-stat savings-stat'},h('div',{className:'slbl'},t('currentBalance')),h('div',{className:`samt ${currentBalance>=0?'pos':'neg'} savings-amount`,style:moneyFontStyle(currentBalance,sym,'savings')},signed(currentBalance)),h('div',{className:'ssub'},t('selectedCycleBalance')),h('div',{className:'stat-badge'},h(Icon,{name:'wallet',size:24}))))),
     h('section',{className:'sec',style:{paddingBottom:14}},h('div',{className:'card cp'},
       h('div',{className:'fbet mb10'},h('h2',{className:'ctitle'},t('savingsBreakdown')),h('button',{type:'button',className:'btn bsm savings-edit-btn',onClick:openEditor},h(Icon,{name:'edit',size:14}),t('updateManualSavings'))),
@@ -3175,9 +3176,8 @@ function SavingsTab({ sym, currentMonth, payday }) {
         h('div',{className:'savings-line'},h('span',null,t('currentBalance')),h('strong',{style:{color:currentBalance>=0?'var(--success)':'var(--danger)'}},signed(currentBalance))),
         h('div',{className:'savings-line savings-divider'},h('span',null,t('manualSavings')),h('strong',null,fmt(manualSavings,sym))),
         h('div',{className:'savings-line'},h('span',null,t('allTimeAccumulatedCashflow')),h('strong',{style:{color:accumulatedCashflow>=0?'var(--success)':'var(--danger)'}},signed(accumulatedCashflow))),
-        h('div',{className:'savings-line'},h('span',null,t('totalSavings')),h('strong',null,signed(totalSavings))),
-        h('div',{className:'savings-line total'},h('span',null,t(isCurrentCycle?'combinedBalance':'selectedCycleBalance')),h('strong',null,signed(combined)))),
-      h('p',{className:'savings-explainer'},t(isCurrentCycle?'combinedFormulaAccumulated':'historicalSavingsFormula')))),
+        h('div',{className:'savings-line total'},h('span',null,t('totalSavings')),h('strong',null,signed(totalSavings)))),
+      h('p',{className:'savings-explainer'},t(isCurrentCycle?'totalSavingsFormula':'historicalSavingsFormula')))),
     editOpen&&h(Modal,{title:t('updateManualSavings'),onClose:()=>!saving&&setEditOpen(false),busy:saving},
       h('form',{onSubmit:saveTotal,noValidate:true},
         h(Field,{label:t('manualSavings'),hint:t('manualSavingsHint'),error},h(Inp,{name:'manualSavings',type:'number',min:'0',step:'0.01',inputMode:'decimal',value:amount,onChange:e=>{setAmount(e.target.value);if(error)setError('');},autoFocus:true,disabled:saving})),
