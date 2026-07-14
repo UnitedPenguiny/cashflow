@@ -1,6 +1,6 @@
-/* Cashflow 3.10.5 offline runtime cache.
+/* Cashflow 3.10.6 offline runtime cache.
    The app becomes offline-capable after one successful load from HTTPS or localhost. */
-const CACHE_NAME = 'cashflow-3.10.5-runtime-v1';
+const CACHE_NAME = 'cashflow-3.10.6-runtime-v1';
 const APP_URLS = ['./', './index.html'];
 const RUNTIME_URLS = [
   'https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.4/dexie.min.js',
