@@ -1,11 +1,12 @@
-/* Cashflow 3.8.0 offline runtime cache.
+/* Cashflow 3.9.0 offline runtime cache.
    The app becomes offline-capable after one successful load from HTTPS or localhost. */
-const CACHE_NAME = 'cashflow-3.8.0-runtime-v1';
+const CACHE_NAME = 'cashflow-3.9.0-runtime-v1';
 const APP_URLS = ['./', './index.html'];
 const RUNTIME_URLS = [
   'https://cdnjs.cloudflare.com/ajax/libs/dexie/3.2.4/dexie.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js',
+  'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js'
 ];
 const ALL_KNOWN_URLS = new Set(RUNTIME_URLS);
