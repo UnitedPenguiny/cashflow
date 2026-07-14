@@ -484,7 +484,7 @@ html,body,#root{touch-action:pan-y}
 // Single-file release metadata. This build stores records locally in IndexedDB,
 // but it intentionally does not register a service worker or advertise offline/PWA
 // installation because the runtime libraries below are delivered by CDN.
-window.CASHFLOW_BUILD = Object.freeze({ version: '3.3.2', schema: 4, built: '2026-07-14', viewport: 'single-100vh-grid-no-runtime-dock-positioning' });
+window.CASHFLOW_BUILD = Object.freeze({ version: '3.4.0', schema: 5, built: '2026-07-14', viewport: 'single-100vh-grid-no-runtime-dock-positioning', ledger: 'immutable-recurring-and-installment-postings' });
 </script>
 <script>
 // ── DEPENDENCY GUARD (must run before anything else) ──
@@ -639,6 +639,17 @@ try {
     settings: 'key',
     budgets: 'category'
   });
+  db.version(5).stores({
+    expenses: '++id,date,category,cardId',
+    recurring: '++id,category,isActive',
+    income: '++id,isActive',
+    savings: '++id',
+    savingsContributions: '++id,goalId,date',
+    cards: '++id',
+    installments: '++id,cardId,isComplete',
+    settings: 'key',
+    budgets: 'category'
+  });
 } catch (e) {
   document.getElementById('root').innerHTML = '<div style="padding:24px;font-family:system-ui;color:#ef4444"><b>Database error:</b> ' + e + '</div>';
   throw e;
@@ -647,6 +658,9 @@ try {
 // ── Backup validation and versioned normalization ──
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const MONTH_KEY_RE = /^\d{4}-\d{2}$/;
+const MAX_BACKUP_BYTES = 50 * 1024 * 1024;
+const MAX_INSTALLMENT_PAYMENTS = 1200;
+const BUILTIN_EXPENSE_CATEGORY_IDS = new Set(['housing','food','transport','health','entertainment','shopping','bills','insurance','savings','other','installments']);
 const isFiniteNum = v => typeof v === 'number' && Number.isFinite(v);
 const isPlainObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const isSafeId = v => Number.isSafeInteger(v) && v > 0;
@@ -662,16 +676,18 @@ const isValidMonthKey = value => {
   const [y, m] = value.split('-').map(Number);
   return y >= 1900 && y <= 2200 && m >= 1 && m <= 12;
 };
-const validText = (value, max = 160) => typeof value === 'string' && value.trim().length > 0 && value.length <= max;
+const validText = (value, max = 1000) => typeof value === 'string' && value.trim().length > 0 && value.length <= max;
 const validOptionalText = (value, max = 2000) => value === undefined || value === null || (typeof value === 'string' && value.length <= max);
 const validMoney = (value, { allowZero = false } = {}) => isFiniteNum(value) && (allowZero ? value >= 0 : value > 0) && value <= 1e12;
+const validSignedMoney = value => isFiniteNum(value) && value !== 0 && Math.abs(value) <= 1e12;
 const validDay = value => Number.isInteger(value) && value >= 1 && value <= 31;
 const validFrequency = value => ['monthly', 'weekly', 'biweekly', 'yearly', 'one-time'].includes(value);
+const validRecurringFrequency = value => ['monthly', 'weekly', 'biweekly', 'yearly'].includes(value);
 const validPeriods = periods => Array.isArray(periods) && periods.length <= 200 && periods.every(p => isPlainObj(p) && isValidMonthKey(p.startMonth) && (p.endMonth === null || p.endMonth === '' || isValidMonthKey(p.endMonth)) && (!p.endMonth || p.endMonth >= p.startMonth));
 const validIncomePeriods = periods => {
   if (!Array.isArray(periods) || periods.length > 500) return false;
   const cleaned = periods.map(p => isPlainObj(p) ? p : null);
-  if (cleaned.some(p => !p || !isValidISODate(p.startDate) || (p.endDate && !isValidISODate(p.endDate)) || (p.endDate && p.endDate <= p.startDate) || !validMoney(Number(p.amount)) || !validFrequency(p.frequency) || !isValidISODate(p.anchorDate))) return false;
+  if (cleaned.some(p => !p || !isValidISODate(p.startDate) || (p.endDate && !isValidISODate(p.endDate)) || (p.endDate && p.endDate <= p.startDate) || !validMoney(Number(p.amount)) || !validRecurringFrequency(p.frequency) || !isValidISODate(p.anchorDate))) return false;
   const sorted = [...cleaned].sort((a,b)=>a.startDate.localeCompare(b.startDate));
   for (let i=1;i<sorted.length;i++) {
     const prev=sorted[i-1];
@@ -679,6 +695,8 @@ const validIncomePeriods = periods => {
   }
   return true;
 };
+const validRecurringPostings = rows => Array.isArray(rows) && rows.length <= 100000 && rows.every(row => isPlainObj(row) && isValidISODate(row.date) && validMoney(Number(row.amount)) && validText(row.name || 'Recurring charge') && validText(row.category,80) && (row.cardId === '' || row.cardId === null || row.cardId === undefined || isSafeId(Number(row.cardId))));
+const validInstallmentPostings = rows => Array.isArray(rows) && rows.length <= 100000 && rows.every(row => isPlainObj(row) && isValidISODate(row.date) && validSignedMoney(Number(row.amount)) && ['payment','payoff','reversal'].includes(row.type || 'payment') && validText(row.name || 'Installment payment') && (row.cardId === '' || row.cardId === null || row.cardId === undefined || isSafeId(Number(row.cardId))));
 const uniqueIds = (rows, name) => {
   const ids = new Set();
   for (const row of rows) {
@@ -689,9 +707,24 @@ const uniqueIds = (rows, name) => {
   }
   return null;
 };
+const canonicalCardId = value => value === undefined || value === null || value === '' ? '' : Number(value);
+const canonicalGoalId = value => Number(value);
+const normalizePostedRows = (rows, kind) => {
+  if (!Array.isArray(rows)) return [];
+  return rows.map(row => ({
+    ...row,
+    date: row.date,
+    amount: Math.round(Number(row.amount) * 100) / 100,
+    type: kind === 'installment' ? (row.type || 'payment') : undefined,
+    cardId: canonicalCardId(row.cardId),
+    name: String(row.name || (kind === 'installment' ? 'Installment payment' : 'Recurring charge')),
+    ...(kind === 'recurring' ? { category: String(row.category || 'other') } : {})
+  })).sort((a,b)=>a.date.localeCompare(b.date));
+};
 const normalizeBackup = input => {
   if (!isPlainObj(input)) throw new Error('Not a valid backup object');
-  if (!Number.isInteger(input.version) || input.version < 1 || input.version > 4) throw new Error('Unsupported or missing backup version');
+  if (!Number.isInteger(input.version) || input.version < 1 || input.version > 5) throw new Error('Unsupported or missing backup version');
+  const sourceVersion=input.version;
   const data = structuredClone(input);
   const required = ['expenses', 'recurring', 'income', 'savings', 'cards', 'installments', 'settings'];
   for (const key of required) if (!Array.isArray(data[key])) throw new Error(`${key} is missing or not an array`);
@@ -699,7 +732,27 @@ const normalizeBackup = input => {
   if (!Array.isArray(data.budgets)) throw new Error('budgets is missing or not an array');
   if (data.version < 3 && data.savingsContributions === undefined) data.savingsContributions = [];
   if (!Array.isArray(data.savingsContributions)) throw new Error('savingsContributions is missing or not an array');
-  data.version = 4;
+  data.expenses = data.expenses.map(row => ({...row, cardId: canonicalCardId(row.cardId)}));
+  data.recurring = data.recurring.map(row => ({...row, cardId: canonicalCardId(row.cardId), postedOccurrences: normalizePostedRows(row.postedOccurrences,'recurring')}));
+  data.savingsContributions = data.savingsContributions.map(row => ({...row, goalId: canonicalGoalId(row.goalId)}));
+  data.installments = data.installments.map(row => ({...row, cardId: canonicalCardId(row.cardId), postedPayments: normalizePostedRows(row.postedPayments,'installment')}));
+  if(sourceVersion<5){
+    data.recurring=data.recurring.map(row=>freezeRecurringThrough(row,todayStr()));
+    data.installments=data.installments.map(row=>{
+      if(row.completedDate&&isValidISODate(row.startDate)&&row.completedDate<row.startDate)throw new Error('completedDate precedes startDate');
+      const next=freezeInstallmentThrough(row,todayStr());
+      return {...next,monthsRemaining:projectedInstallmentSchedule(next).length};
+    });
+  }
+  data.income = data.income.map(row => {
+    const next = {...row};
+    if (next.isDeleted && isValidISODate(next.deletedAt) && Array.isArray(next.incomePeriods)) {
+      next.incomePeriods = next.incomePeriods.map(period => !period.endDate && period.startDate < next.deletedAt ? {...period,endDate:next.deletedAt} : period);
+      next.isActive = false;
+    }
+    return next;
+  });
+  data.version = 5;
   for (const key of [...required, 'budgets', 'savingsContributions']) {
     if (data[key].length > 100000) throw new Error(`${key} contains too many records`);
     const err = uniqueIds(data[key], key); if (err) throw new Error(err);
@@ -712,19 +765,43 @@ const validateBackup = input => {
     const cardIds = new Set(data.cards.map(r => r.id).filter(isSafeId));
     const goalIds = new Set(data.savings.map(r => r.id).filter(isSafeId));
     const settingKeys = new Set();
+    const customSetting = data.settings.find(row => row?.key === 'customCategories');
+    const customIds = new Set(Array.isArray(customSetting?.value) ? customSetting.value.map(c => c?.id).filter(id => typeof id === 'string') : []);
+    const validExpenseCategory = id => BUILTIN_EXPENSE_CATEGORY_IDS.has(id) || customIds.has(id);
     const checkRows = (rows, name, fn) => rows.forEach((row, i) => {
       if (!isPlainObj(row)) throw new Error(`${name}[${i}] is not a valid record`);
       const reason = fn(row); if (reason) throw new Error(`${name}[${i}]: ${reason}`);
     });
-    checkRows(data.expenses, 'expenses', r => !validText(r.name) ? 'invalid name' : !validMoney(r.amount) ? 'invalid amount' : !isValidISODate(r.date) ? 'invalid date' : !validText(r.category, 80) ? 'invalid category' : !validOptionalText(r.notes) ? 'invalid notes' : (r.cardId !== undefined && r.cardId !== '' && (!isSafeId(Number(r.cardId)) || !cardIds.has(Number(r.cardId)))) ? 'invalid cardId' : null);
-    checkRows(data.recurring, 'recurring', r => !validText(r.name) ? 'invalid name' : !validMoney(r.amount) ? 'invalid amount' : !validDay(Number(r.dueDay)) ? 'invalid dueDay' : !validText(r.category, 80) ? 'invalid category' : (r.cardId !== undefined && r.cardId !== '' && (!isSafeId(Number(r.cardId)) || !cardIds.has(Number(r.cardId)))) ? 'invalid cardId' : (r.isActive !== undefined && !isBool(r.isActive)) ? 'invalid isActive' : (r.startMonth && !isValidMonthKey(r.startMonth)) ? 'invalid startMonth' : (r.endMonth && !isValidMonthKey(r.endMonth)) ? 'invalid endMonth' : (r.startMonth && r.endMonth && r.endMonth < r.startMonth) ? 'endMonth precedes startMonth' : (r.activePeriods !== undefined && !validPeriods(r.activePeriods)) ? 'invalid activePeriods' : null);
-    checkRows(data.income, 'income', r => !validText(r.name) ? 'invalid name' : !validMoney(r.amount) ? 'invalid amount' : !validFrequency(r.frequency) ? 'invalid frequency' : !validText(r.category, 80) ? 'invalid category' : (r.frequency === 'one-time' && !isValidISODate(r.date)) ? 'invalid date' : (r.frequency !== 'one-time' && r.startDate && !isValidISODate(r.startDate)) ? 'invalid startDate' : (r.startMonth && !isValidMonthKey(r.startMonth)) ? 'invalid startMonth' : (r.endMonth && !isValidMonthKey(r.endMonth)) ? 'invalid endMonth' : (r.startMonth && r.endMonth && r.endMonth < r.startMonth) ? 'endMonth precedes startMonth' : (r.isActive !== undefined && !isBool(r.isActive)) ? 'invalid isActive' : (r.isDeleted !== undefined && !isBool(r.isDeleted)) ? 'invalid isDeleted' : (r.deletedAt && !isValidISODate(r.deletedAt)) ? 'invalid deletedAt' : (r.activePeriods !== undefined && !validPeriods(r.activePeriods)) ? 'invalid activePeriods' : (r.incomePeriods !== undefined && !validIncomePeriods(r.incomePeriods)) ? 'invalid incomePeriods' : null);
-    checkRows(data.savings, 'savings', r => !validText(r.name) ? 'invalid name' : !validMoney(r.targetAmount) ? 'invalid targetAmount' : !validMoney(Number(r.currentAmount || 0), { allowZero: true }) ? 'invalid currentAmount' : !validOptionalText(r.notes) ? 'invalid notes' : null);
-    checkRows(data.savingsContributions, 'savingsContributions', r => !isSafeId(Number(r.goalId)) || !goalIds.has(Number(r.goalId)) ? 'invalid goalId' : !validMoney(r.amount) ? 'invalid amount' : !isValidISODate(r.date) ? 'invalid date' : null);
-    checkRows(data.cards, 'cards', r => !validText(r.name) ? 'invalid name' : !/^\d{4}$/.test(String(r.lastFour || '')) ? 'invalid lastFour' : !validMoney(r.creditLimit) ? 'invalid creditLimit' : !validDay(Number(r.statementDate)) ? 'invalid statementDate' : !validDay(Number(r.dueDate)) ? 'invalid dueDate' : !Number.isInteger(Number(r.colorIdx)) || Number(r.colorIdx) < 0 || Number(r.colorIdx) >= 8 ? 'invalid colorIdx' : null);
-    checkRows(data.installments, 'installments', r => !validText(r.name) ? 'invalid name' : !validMoney(r.totalAmount) ? 'invalid totalAmount' : !validMoney(r.monthlyPayment) ? 'invalid monthlyPayment' : !Number.isInteger(Number(r.monthsRemaining)) || Number(r.monthsRemaining) < 1 || Number(r.monthsRemaining) > 1200 ? 'invalid monthsRemaining' : !isSafeId(Number(r.cardId)) || !cardIds.has(Number(r.cardId)) ? 'invalid cardId' : !isValidISODate(r.startDate) ? 'invalid startDate' : (r.isComplete !== undefined && !isBool(r.isComplete)) ? 'invalid isComplete' : (r.completedDate && !isValidISODate(r.completedDate)) ? 'invalid completedDate' : null);
+    checkRows(data.cards, 'cards', r => !validText(r.name) ? 'invalid name' : !/^\d{4}$/.test(String(r.lastFour || '')) ? 'invalid lastFour' : !validMoney(Number(r.creditLimit)) ? 'invalid creditLimit' : !validDay(Number(r.statementDate)) ? 'invalid statementDate' : !validDay(Number(r.dueDate)) ? 'invalid dueDate' : !Number.isInteger(Number(r.colorIdx)) || Number(r.colorIdx) < 0 || Number(r.colorIdx) >= 8 ? 'invalid colorIdx' : null);
+    checkRows(data.expenses, 'expenses', r => !validText(r.name) ? 'invalid name' : !validMoney(Number(r.amount)) ? 'invalid amount' : !isValidISODate(r.date) ? 'invalid date' : !validText(r.category, 80) || !validExpenseCategory(r.category) ? 'invalid category' : !validOptionalText(r.notes) ? 'invalid notes' : (r.cardId !== '' && (!isSafeId(r.cardId) || !cardIds.has(r.cardId))) ? 'invalid cardId' : null);
+    checkRows(data.recurring, 'recurring', r => !validText(r.name) ? 'invalid name' : !validMoney(Number(r.amount)) ? 'invalid amount' : !validDay(Number(r.dueDay)) ? 'invalid dueDay' : !validText(r.category, 80) || !validExpenseCategory(r.category) ? 'invalid category' : (r.cardId !== '' && (!isSafeId(r.cardId) || !cardIds.has(r.cardId))) ? 'invalid cardId' : (r.isActive !== undefined && !isBool(r.isActive)) ? 'invalid isActive' : (r.isDeleted !== undefined && !isBool(r.isDeleted)) ? 'invalid isDeleted' : (r.deletedAt && !isValidISODate(r.deletedAt)) ? 'invalid deletedAt' : (r.startMonth && !isValidMonthKey(r.startMonth)) ? 'invalid startMonth' : (r.endMonth && !isValidMonthKey(r.endMonth)) ? 'invalid endMonth' : (r.startMonth && r.endMonth && r.endMonth < r.startMonth) ? 'endMonth precedes startMonth' : (r.activePeriods !== undefined && !validPeriods(r.activePeriods)) ? 'invalid activePeriods' : (r.postedThrough && !isValidISODate(r.postedThrough)) ? 'invalid postedThrough' : !validRecurringPostings(r.postedOccurrences || []) ? 'invalid postedOccurrences' : (r.postedOccurrences || []).some(row => !validExpenseCategory(row.category) || (row.cardId !== '' && (!isSafeId(row.cardId) || !cardIds.has(row.cardId)))) ? 'invalid posted occurrence reference' : null);
+    checkRows(data.income, 'income', r => !validText(r.name) ? 'invalid name' : !validMoney(Number(r.amount)) ? 'invalid amount' : !validFrequency(r.frequency) ? 'invalid frequency' : !validText(r.category, 80) ? 'invalid category' : (r.frequency === 'one-time' && !isValidISODate(r.date)) ? 'invalid date' : (r.frequency !== 'one-time' && r.startDate && !isValidISODate(r.startDate)) ? 'invalid startDate' : (r.startMonth && !isValidMonthKey(r.startMonth)) ? 'invalid startMonth' : (r.endMonth && !isValidMonthKey(r.endMonth)) ? 'invalid endMonth' : (r.startMonth && r.endMonth && r.endMonth < r.startMonth) ? 'endMonth precedes startMonth' : (r.isActive !== undefined && !isBool(r.isActive)) ? 'invalid isActive' : (r.isDeleted !== undefined && !isBool(r.isDeleted)) ? 'invalid isDeleted' : (r.deletedAt && !isValidISODate(r.deletedAt)) ? 'invalid deletedAt' : (r.isDeleted && !isValidISODate(r.deletedAt)) ? 'deleted income requires deletedAt' : (r.activePeriods !== undefined && !validPeriods(r.activePeriods)) ? 'invalid activePeriods' : (r.incomePeriods !== undefined && !validIncomePeriods(r.incomePeriods)) ? 'invalid incomePeriods' : (r.isDeleted && (r.incomePeriods || []).some(p => !p.endDate)) ? 'deleted income has an open period' : null);
+    checkRows(data.savings, 'savings', r => !validText(r.name) ? 'invalid name' : !validMoney(Number(r.targetAmount)) ? 'invalid targetAmount' : !validMoney(Number(r.currentAmount || 0), { allowZero: true }) ? 'invalid currentAmount' : !validOptionalText(r.notes) ? 'invalid notes' : null);
+    checkRows(data.savingsContributions, 'savingsContributions', r => !isSafeId(r.goalId) || !goalIds.has(r.goalId) ? 'invalid goalId' : !validMoney(Number(r.amount)) ? 'invalid amount' : !isValidISODate(r.date) ? 'invalid date' : null);
+    checkRows(data.installments, 'installments', r => {
+      const total=Number(r.totalAmount),payment=Number(r.monthlyPayment),count=Math.ceil(total/payment);
+      if (!validText(r.name)) return 'invalid name';
+      if (!validMoney(total)) return 'invalid totalAmount';
+      if (!validMoney(payment)) return 'invalid monthlyPayment';
+      if (!Number.isInteger(count) || count < 1 || count > MAX_INSTALLMENT_PAYMENTS) return 'installment term exceeds supported limit';
+      if (r.cardId === '') { if (!r.isDeleted) return 'active installment requires cardId'; } else if (!isSafeId(r.cardId) || !cardIds.has(r.cardId)) return 'invalid cardId';
+      if (!isValidISODate(r.startDate)) return 'invalid startDate';
+      if (r.nextPaymentDate && !isValidISODate(r.nextPaymentDate)) return 'invalid nextPaymentDate';
+      if (r.postedThrough && !isValidISODate(r.postedThrough)) return 'invalid postedThrough';
+      if (r.isComplete !== undefined && !isBool(r.isComplete)) return 'invalid isComplete';
+      if (r.isDeleted !== undefined && !isBool(r.isDeleted)) return 'invalid isDeleted';
+      if (r.deletedAt && !isValidISODate(r.deletedAt)) return 'invalid deletedAt';
+      if (r.completedDate && !isValidISODate(r.completedDate)) return 'invalid completedDate';
+      if (r.completedDate && r.completedDate < r.startDate) return 'completedDate precedes startDate';
+      if (!validInstallmentPostings(r.postedPayments || [])) return 'invalid postedPayments';
+      if ((r.postedPayments || []).some(row => row.cardId !== '' && (!isSafeId(row.cardId) || !cardIds.has(row.cardId)))) return 'invalid posted payment cardId';
+      const paid = Math.round((r.postedPayments || []).reduce((sum,row)=>sum+Number(row.amount||0),0)*100)/100;
+      if (paid < 0 || paid > total + .01) return 'posted payments contradict principal';
+      if ((r.isComplete || r.completedDate) && Math.abs(total-paid) > .01) return 'completed installment has unpaid principal';
+      return null;
+    });
     const budgetCats = new Set();
-    checkRows(data.budgets, 'budgets', r => !validText(r.category, 80) ? 'invalid category' : budgetCats.has(r.category) ? 'duplicate category' : (budgetCats.add(r.category), !validMoney(r.amount) ? 'invalid amount' : null));
+    checkRows(data.budgets, 'budgets', r => !validText(r.category, 80) || !validExpenseCategory(r.category) ? 'invalid category' : budgetCats.has(r.category) ? 'duplicate category' : (budgetCats.add(r.category), !validMoney(Number(r.amount)) ? 'invalid amount' : null));
     checkRows(data.settings, 'settings', r => {
       if (!validText(r.key, 80) || settingKeys.has(r.key)) return 'invalid or duplicate key';
       settingKeys.add(r.key);
@@ -735,12 +812,12 @@ const validateBackup = input => {
       if (r.key === 'darkMode' && !isBool(r.value)) return 'invalid darkMode';
       if (r.key === 'currency' && (!isPlainObj(r.value) || !validText(r.value.code, 8) || !validText(r.value.sym, 8))) return 'invalid currency';
       if (r.key === 'customCategories') {
-        if (!Array.isArray(r.value) || r.value.length > 100 || r.value.some(c => !isPlainObj(c) || !validText(c.id, 80) || !validText(c.label, 80) || !validText(c.icon, 40))) return 'invalid customCategories';
+        if (!Array.isArray(r.value) || r.value.length > 100 || r.value.some(c => !isPlainObj(c) || !validText(c.id, 80) || !validText(c.label, 80) || !validText(c.icon, 40) || (c.archived !== undefined && !isBool(c.archived)) || BUILTIN_EXPENSE_CATEGORY_IDS.has(c.id))) return 'invalid customCategories or reserved id collision';
         const ids = r.value.map(c => c.id); if (new Set(ids).size !== ids.length) return 'duplicate custom category id';
       }
       if (r.key === 'totalSavings' && !validMoney(Number(r.value), { allowZero: true })) return 'invalid totalSavings';
-      if (['migration-v3','migration-v4','migration-v5'].includes(r.key) && (!isPlainObj(r.value) || !isValidISODate(r.value.completed) || !validText(r.value.build, 40))) return 'invalid migration marker';
-      if (!['language','payday','cycleLabel','theme','darkMode','currency','customCategories','totalSavings','migration-v3','migration-v4','migration-v5'].includes(r.key)) return 'unknown setting key';
+      if (['migration-v3','migration-v4','migration-v5','migration-v6'].includes(r.key) && (!isPlainObj(r.value) || !isValidISODate(r.value.completed) || !validText(r.value.build, 40))) return 'invalid migration marker';
+      if (!['language','payday','cycleLabel','theme','darkMode','currency','customCategories','totalSavings','migration-v3','migration-v4','migration-v5','migration-v6'].includes(r.key)) return 'unknown setting key';
       return null;
     });
     return { ok: true, data };
@@ -818,7 +895,7 @@ const CATS = [{
   tc: '#86198f'
 }];
 let CUSTOM_CATS = [];
-const expenseCats = () => [...CATS, ...CUSTOM_CATS];
+const expenseCats = () => [...CATS, ...CUSTOM_CATS.filter(category=>!category.archived)];
 const ICATS = [{
   id: 'salary',
   label: 'Salary',
@@ -1020,7 +1097,7 @@ const LANGS = {
     thisMonthCharges: "This Month's Charges",
     fixedDueDay: 'Fixed · due day',
     addCard: 'Add Card', editCard: 'Edit Card', addInstallment: 'Add Installment', editInstallment: 'Edit Installment',
-    deleteCardConfirm: 'Delete "', deleteCardConfirm2: '"? This will remove all installments on this card. Past expenses and fixed costs charged to it will be kept but unlinked from the card.',
+    deleteCardConfirm: 'Delete "', deleteCardConfirm2: '"? This will remove all installments on this card. Past charges will be preserved. Active installments on this card will be archived, and future fixed costs will be unlinked from the card.',
     paidOff: 'Paid off!', done: 'Done',
     errName: 'Please enter a name.', errAmount: 'Amount must be a number greater than 0.',
     errDate: 'Please enter a valid date.', errCardId: 'Please select a valid card.',
@@ -1328,7 +1405,7 @@ const getFreqLabel = val => {
 };
 
 // Utils
-const getCat = id => applyCategoryTheme(expenseCats().find(c => c.id === id) || CATS.find(c => c.id === 'other'));
+const getCat = id => applyCategoryTheme(expenseCats().find(c => c.id === id) || CUSTOM_CATS.find(c => c.id === id) || CATS.find(c => c.id === 'other'));
 const getICat = id => ICATS.find(c => c.id === id) || ICATS[ICATS.length - 1];
 const roundMoney = value => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
 const moneySum = values => roundMoney(values.reduce((sum, value) => sum + Math.round((Number(value) || 0) * 100), 0) / 100);
@@ -1436,7 +1513,22 @@ const withActivityAtMonth = (record, makeActive, effectiveMonth) => {
   };
 };
 
-const recurringOccurrences = (record, start, end) => {
+const normalizeRecurringPostings = record => {
+  const rows = Array.isArray(record?.postedOccurrences) ? record.postedOccurrences : [];
+  const seen = new Set();
+  return rows.filter(row => row && isValidISODate(row.date) && Number(row.amount) > 0).map(row => ({
+    date: row.date,
+    dateObj: parseISODate(row.date),
+    amount: roundMoney(row.amount),
+    name: String(row.name || record.name || t('fixed')),
+    category: row.category || record.category || 'other',
+    cardId: canonicalCardId(row.cardId),
+    cardLabel: row.cardLabel || '',
+    source: 'posted',
+    record
+  })).filter(row => !seen.has(row.date) && seen.add(row.date)).sort((a,b)=>a.date.localeCompare(b.date));
+};
+const projectedRecurringOccurrences = (record, start, end) => {
   const occurrences = [];
   let cursor = new Date(start.getFullYear(), start.getMonth(), 1, 12);
   const finalMonth = new Date(end.getFullYear(), end.getMonth(), 1, 12);
@@ -1445,11 +1537,37 @@ const recurringOccurrences = (record, start, end) => {
   while (cursor <= finalMonth && guard++ < 2400) {
     const date = clampedMonthlyDate(cursor.getFullYear(), cursor.getMonth(), record.dueDay);
     if (dateInRange(date, start, end) && activeInMonthKey(record, mkKey(date))) {
-      occurrences.push({ date: isoLocal(date), amount: roundMoney(record.amount), record });
+      occurrences.push({ date: isoLocal(date), dateObj: date, amount: roundMoney(record.amount), name: record.name, category: record.category, cardId: canonicalCardId(record.cardId), source: 'projected', record });
     }
     cursor.setMonth(cursor.getMonth() + 1);
   }
   return occurrences;
+};
+const freezeRecurringThrough = (record, throughISO = todayStr()) => {
+  if (!record || !isValidISODate(throughISO)) return record;
+  const throughEnd = endExclusiveAfterISO(throughISO);
+  const existing = normalizeRecurringPostings(record);
+  const firstMonth = activityPeriodsFor(record)[0]?.startMonth || record.startMonth || mkKey(new Date());
+  const projectionStart = record.postedThrough && isValidISODate(record.postedThrough) ? endExclusiveAfterISO(record.postedThrough) : parseMonthKey(firstMonth);
+  const byDate = new Map(existing.map(row => [row.date, row]));
+  if (projectionStart && projectionStart < throughEnd) {
+    for (const row of projectedRecurringOccurrences(record, projectionStart, throughEnd)) if (!byDate.has(row.date)) byDate.set(row.date, row);
+  }
+  const postedOccurrences = [...byDate.values()].sort((a,b)=>a.date.localeCompare(b.date)).map(row => ({date:row.date,amount:roundMoney(row.amount),name:row.name || record.name,category:row.category || record.category,cardId:canonicalCardId(row.cardId),cardLabel:row.cardLabel||''}));
+  const previous = isValidISODate(record.postedThrough) ? record.postedThrough : '';
+  return {...record,postedOccurrences,postedThrough:previous > throughISO ? previous : throughISO};
+};
+const recurringOccurrences = (record, start, end) => {
+  const posted = normalizeRecurringPostings(record).filter(row => row.dateObj && dateInRange(row.dateObj,start,end));
+  if (record?.isDeleted) return posted;
+  let projectedStart = start;
+  if (record?.postedThrough && isValidISODate(record.postedThrough)) {
+    const afterPosted = endExclusiveAfterISO(record.postedThrough);
+    if (afterPosted > projectedStart) projectedStart = afterPosted;
+  }
+  const projected = projectedStart < end ? projectedRecurringOccurrences(record, projectedStart, end) : [];
+  const postedDates = new Set(posted.map(row=>row.date));
+  return [...posted,...projected.filter(row=>!postedDates.has(row.date))].sort((a,b)=>a.date.localeCompare(b.date));
 };
 const recurringAmountInRange = (record, start, end) => moneySum(recurringOccurrences(record, start, end).map(o => o.amount));
 
@@ -1573,65 +1691,137 @@ const applyIncomeEdit = (existing, updated, actionDate = todayStr()) => {
 };
 const toMonthly = (amount, frequency) => roundMoney(frequency === 'weekly' ? Number(amount) * 52 / 12 : frequency === 'biweekly' ? Number(amount) * 26 / 12 : frequency === 'yearly' ? Number(amount) / 12 : frequency === 'one-time' ? 0 : Number(amount));
 
-// An installment is defined by exact payment dates. Total financed is authoritative;
-// monthlyPayment is the cap and the final payment may be smaller.
-const installmentSchedule = installment => {
-  const total = roundMoney(installment.totalAmount);
-  const payment = roundMoney(installment.monthlyPayment);
-  const start = parseISODate(installment.startDate);
+// Installments use immutable posted payments plus a future-only projection.
+const normalizeInstallmentPostings = installment => {
+  const rows = Array.isArray(installment?.postedPayments) ? installment.postedPayments : [];
+  return rows.filter(row => row && isValidISODate(row.date) && Number(row.amount) !== 0).map((row,index) => ({
+    date: row.date,
+    dateObj: parseISODate(row.date),
+    amount: roundMoney(row.amount),
+    type: row.type || 'payment',
+    name: String(row.name || installment.name || t('installments')),
+    cardId: canonicalCardId(row.cardId),
+    cardLabel: row.cardLabel || '',
+    source: 'posted',
+    index,
+    installment
+  })).sort((a,b)=>a.date.localeCompare(b.date)||a.index-b.index);
+};
+const installmentPostedTotal = (installment, asOfISO = '9999-12-31') => moneySum(normalizeInstallmentPostings(installment).filter(row=>row.date<=asOfISO).map(row=>row.amount));
+const legacyInstallmentSchedule = installment => {
+  const total = roundMoney(installment.totalAmount), payment = roundMoney(installment.monthlyPayment), start = parseISODate(installment.startDate);
   if (!(total > 0) || !(payment > 0) || !start) return [];
-  const count = Math.min(1200, Math.ceil(total / payment));
-  const rows = [];
-  let paid = 0;
-  for (let index = 0; index < count; index++) {
-    const date = clampedMonthlyDate(start.getFullYear(), start.getMonth() + index, start.getDate());
-    const amount = roundMoney(Math.min(payment, total - paid));
-    if (!(amount > 0)) break;
-    rows.push({ date: isoLocal(date), dateObj: date, amount, index });
-    paid = roundMoney(paid + amount);
+  const count = Math.ceil(total / payment);
+  if (count > MAX_INSTALLMENT_PAYMENTS) return [];
+  const rows=[]; let paid=0;
+  for(let index=0;index<count;index++){
+    const date=clampedMonthlyDate(start.getFullYear(),start.getMonth()+index,start.getDate()),amount=roundMoney(Math.min(payment,total-paid));
+    if(!(amount>0))break;
+    rows.push({date:isoLocal(date),dateObj:date,amount,type:'payment',name:installment.name,cardId:canonicalCardId(installment.cardId),source:'projected',index,installment});
+    paid=roundMoney(paid+amount);
   }
   return rows;
 };
-const installmentCompletionDate = installment => installment.completedDate && isValidISODate(installment.completedDate) ? installment.completedDate : (installment.isComplete ? todayStr() : null);
+const projectedInstallmentSchedule = installment => {
+  if (!installment || installment.isComplete || installment.isDeleted) return [];
+  const total=roundMoney(installment.totalAmount),payment=roundMoney(installment.monthlyPayment),paid=installmentPostedTotal(installment),remaining=roundMoney(Math.max(0,total-paid));
+  const start=parseISODate(installment.nextPaymentDate || installment.startDate);
+  if (!(remaining>0) || !(payment>0) || !start) return [];
+  const count=Math.ceil(remaining/payment);
+  if(count>MAX_INSTALLMENT_PAYMENTS)return [];
+  const rows=[];let projectedPaid=0;
+  for(let index=0;index<count;index++){
+    const date=clampedMonthlyDate(start.getFullYear(),start.getMonth()+index,start.getDate()),amount=roundMoney(Math.min(payment,remaining-projectedPaid));
+    if(!(amount>0))break;
+    rows.push({date:isoLocal(date),dateObj:date,amount,type:'payment',name:installment.name,cardId:canonicalCardId(installment.cardId),source:'projected',index,installment});
+    projectedPaid=roundMoney(projectedPaid+amount);
+  }
+  return rows;
+};
+const freezeInstallmentThrough = (installment, throughISO = todayStr()) => {
+  if(!installment || !isValidISODate(throughISO))return installment;
+  let rows=normalizeInstallmentPostings(installment).map(row=>({date:row.date,amount:row.amount,type:row.type,name:row.name,cardId:row.cardId,cardLabel:row.cardLabel||''}));
+  const existingPaymentDates=new Set(rows.filter(row=>row.type==='payment').map(row=>row.date));
+  const baseSchedule=installment.postedThrough ? projectedInstallmentSchedule({...installment,isComplete:false,isDeleted:false}) : legacyInstallmentSchedule(installment);
+  const completion=installment.completedDate&&isValidISODate(installment.completedDate)?installment.completedDate:null;
+  const scheduleThrough=completion&&completion<throughISO?completion:throughISO;
+  for(const row of baseSchedule){
+    if(row.date>scheduleThrough)break;
+    if(!existingPaymentDates.has(row.date)){
+      rows.push({date:row.date,amount:row.amount,type:'payment',name:row.name||installment.name,cardId:canonicalCardId(row.cardId)});
+      existingPaymentDates.add(row.date);
+    }
+  }
+  rows.sort((a,b)=>a.date.localeCompare(b.date));
+  let next={...installment,postedPayments:rows,postedThrough:isValidISODate(installment.postedThrough)&&installment.postedThrough>throughISO?installment.postedThrough:throughISO};
+  if((next.isComplete||completion) && completion){
+    const paidAtCompletion=moneySum(rows.filter(row=>row.date<=completion).map(row=>row.amount));
+    const remaining=roundMoney(Math.max(0,Number(next.totalAmount||0)-paidAtCompletion));
+    if(remaining>0)rows.push({date:completion,amount:remaining,type:'payoff',name:next.name,cardId:canonicalCardId(next.cardId)});
+    next={...next,postedPayments:rows.sort((a,b)=>a.date.localeCompare(b.date)),isComplete:true,completedDate:completion};
+  }
+  const afterThrough=endExclusiveAfterISO(throughISO);
+  const candidate=(installment.postedThrough?projectedInstallmentSchedule({...next,isComplete:false,isDeleted:false}):legacyInstallmentSchedule(next)).find(row=>row.date>throughISO);
+  next.nextPaymentDate=candidate?.date || (afterThrough ? isoLocal(afterThrough) : next.startDate);
+  next.monthsRemaining=projectedInstallmentSchedule({...next,isComplete:false,isDeleted:false}).length;
+  return next;
+};
+const installmentSchedule = installment => installment?.postedThrough ? projectedInstallmentSchedule(installment) : legacyInstallmentSchedule(installment);
+const installmentCompletionDate = installment => installment.completedDate && isValidISODate(installment.completedDate) ? installment.completedDate : null;
 const installmentOccurrences = (installment, start, end) => {
-  const completed = installmentCompletionDate(installment);
-  return installmentSchedule(installment).filter(row => dateInRange(row.dateObj, start, end) && (!completed || row.date <= completed));
+  const posted=normalizeInstallmentPostings(installment).filter(row=>row.dateObj&&dateInRange(row.dateObj,start,end));
+  const projected=installmentSchedule(installment).filter(row=>dateInRange(row.dateObj,start,end));
+  return [...posted,...projected].sort((a,b)=>a.date.localeCompare(b.date));
 };
 const installmentAmountInRange = (installment, start, end) => moneySum(installmentOccurrences(installment, start, end).map(row => row.amount));
 const instRemaining = (installment, asOf = new Date()) => {
-  const completed = installmentCompletionDate(installment);
-  const asOfISO = isoLocal(asOf);
-  if (completed && asOfISO >= completed) return 0;
-  const schedule = installmentSchedule(installment);
-  const paid = moneySum(schedule.filter(row => row.date <= asOfISO).map(row => row.amount));
-  return roundMoney(Math.max(0, Number(installment.totalAmount || 0) - paid));
+  const asOfISO=isoLocal(asOf),posted=installmentPostedTotal(installment,asOfISO),projected=moneySum(installmentSchedule(installment).filter(row=>row.date<=asOfISO).map(row=>row.amount));
+  return roundMoney(Math.max(0,Number(installment.totalAmount||0)-posted-projected));
 };
-const instMonthsLeft = (installment, asOf = new Date()) => {
-  const completed = installmentCompletionDate(installment);
-  const asOfISO = isoLocal(asOf);
-  if (completed && asOfISO >= completed) return 0;
-  return installmentSchedule(installment).filter(row => row.date >= asOfISO && (!completed || row.date <= completed)).length;
+const instMonthsLeft = (installment, asOf = new Date()) => instRemaining(installment,asOf)<=0?0:installmentSchedule(installment).filter(row=>row.date>=isoLocal(asOf)).length;
+const instActive = (installment, asOf = new Date()) => !installment?.isDeleted && instRemaining(installment, asOf) > 0;
+const nextInstallmentDateAfter = (startDate, afterISO) => {
+  const base=parseISODate(startDate),after=parseISODate(afterISO);
+  if(!base||!after)return startDate;
+  let candidate=clampedMonthlyDate(after.getFullYear(),after.getMonth(),base.getDate());
+  if(candidate<=after)candidate=clampedMonthlyDate(after.getFullYear(),after.getMonth()+1,base.getDate());
+  return isoLocal(candidate);
 };
-const instActive = (installment, asOf = new Date()) => instRemaining(installment, asOf) > 0;
+const completeInstallmentRecord = (installment, completionISO = todayStr()) => {
+  if(!isValidISODate(completionISO)||!isValidISODate(installment.startDate)||completionISO<installment.startDate)throw new Error('Installment cannot be completed before its start date');
+  let next=freezeInstallmentThrough({...installment,isComplete:false,completedDate:''},completionISO);
+  const paid=installmentPostedTotal(next,completionISO),remaining=roundMoney(Math.max(0,Number(next.totalAmount||0)-paid));
+  const rows=normalizeInstallmentPostings(next).map(row=>({date:row.date,amount:row.amount,type:row.type,name:row.name,cardId:row.cardId}));
+  if(remaining>0)rows.push({date:completionISO,amount:remaining,type:'payoff',name:next.name,cardId:canonicalCardId(next.cardId)});
+  return {...next,postedPayments:rows.sort((a,b)=>a.date.localeCompare(b.date)),postedThrough:completionISO,isComplete:true,completedDate:completionISO,monthsRemaining:0};
+};
+const reopenInstallmentRecord = (installment, reopenISO = todayStr()) => {
+  let next=freezeInstallmentThrough(installment,reopenISO);
+  const rows=normalizeInstallmentPostings(next).map(row=>({date:row.date,amount:row.amount,type:row.type,name:row.name,cardId:row.cardId}));
+  const payoffBalance=moneySum(rows.filter(row=>row.type==='payoff'||row.type==='reversal').map(row=>row.amount));
+  if(payoffBalance>0)rows.push({date:reopenISO,amount:-payoffBalance,type:'reversal',name:next.name,cardId:canonicalCardId(next.cardId)});
+  next={...next,postedPayments:rows.sort((a,b)=>a.date.localeCompare(b.date)),postedThrough:reopenISO,nextPaymentDate:nextInstallmentDateAfter(next.startDate,reopenISO),isComplete:false,completedDate:''};
+  return {...next,monthsRemaining:projectedInstallmentSchedule(next).length};
+};
+const archiveInstallmentRecord = (installment, deletedISO = todayStr()) => ({...freezeInstallmentThrough(installment,deletedISO),isDeleted:true,deletedAt:deletedISO,isComplete:installment.isComplete,completedDate:installment.completedDate||''});
 
-// Credit-card totals are explicitly estimates because the app does not store real card payments.
+// Credit-card totals are date-based estimates because the app does not store real card payments.
+const dateOnly = value => parseISODate(isoLocal(value)) || value;
 const monthlyOnOrBefore = (day, asOf) => {
-  const make = (year, month) => clampedMonthlyDate(year, month, day);
-  let date = make(asOf.getFullYear(), asOf.getMonth());
-  if (date > asOf) date = make(asOf.getFullYear(), asOf.getMonth() - 1);
+  const compare=dateOnly(asOf),make=(year,month)=>clampedMonthlyDate(year,month,day);
+  let date=make(compare.getFullYear(),compare.getMonth());
+  if(isoLocal(date)>isoLocal(compare))date=make(compare.getFullYear(),compare.getMonth()-1);
   return date;
 };
 const monthlyAfter = (day, from) => {
-  const make = (year, month) => clampedMonthlyDate(year, month, day);
-  let month = from.getMonth(), date = make(from.getFullYear(), month);
-  while (date <= from) date = make(from.getFullYear(), ++month);
+  const compare=dateOnly(from),make=(year,month)=>clampedMonthlyDate(year,month,day);
+  let month=compare.getMonth(),date=make(compare.getFullYear(),month);
+  while(isoLocal(date)<=isoLocal(compare))date=make(compare.getFullYear(),++month);
   return date;
 };
 const cardChargeStart = (card, asOf) => {
-  const cutoffThis = monthlyOnOrBefore(Number(card.statementDate) || 1, asOf);
-  const cutoffPrev = monthlyOnOrBefore(Number(card.statementDate) || 1, new Date(cutoffThis.getTime() - DAY));
-  const due = monthlyAfter(Number(card.dueDate) || 15, cutoffThis);
-  return due > asOf ? cutoffPrev : cutoffThis;
+  const compare=dateOnly(asOf),cutoffThis=monthlyOnOrBefore(Number(card.statementDate)||1,compare),cutoffPrev=monthlyOnOrBefore(Number(card.statementDate)||1,new Date(cutoffThis.getTime()-DAY)),due=monthlyAfter(Number(card.dueDate)||15,cutoffThis);
+  return isoLocal(due)>isoLocal(compare)?cutoffPrev:cutoffThis;
 };
 const cardExpOutstanding = (card, cardExpenses, asOf) => {
   const startISO = isoLocal(cardChargeStart(card, asOf)), endISO = isoLocal(asOf);
@@ -1640,8 +1830,8 @@ const cardExpOutstanding = (card, cardExpenses, asOf) => {
 const calculateCardBalance = (card, cardExpenses, recurring, installments, asOf = new Date()) => {
   const start = cardChargeStart(card, asOf);
   const end = new Date(asOf); end.setDate(end.getDate() + 1); end.setHours(0, 0, 0, 0);
-  const recurringBalance = moneySum(recurring.filter(record => Number(record.cardId) === Number(card.id)).flatMap(record => recurringOccurrences(record, start, end)).map(row => row.amount));
-  const installmentBalance = moneySum(installments.filter(item => Number(item.cardId) === Number(card.id)).map(item => instRemaining(item, asOf)));
+  const recurringBalance = moneySum(recurring.flatMap(record => recurringOccurrences(record, start, end)).filter(row => Number(row.cardId) === Number(card.id)).map(row => row.amount));
+  const installmentBalance = moneySum(installments.filter(item => !item.isDeleted && Number(item.cardId) === Number(card.id)).map(item => instRemaining(item, asOf)));
   return roundMoney(cardExpOutstanding(card, cardExpenses, asOf) + recurringBalance + installmentBalance);
 };
 const cycleRangeLabel = (anchor, payday = PAYDAY, label = CYCLE_LABEL) => {
@@ -1795,6 +1985,8 @@ const Field = ({ label, children, hint, error }) => {
 };
 const Inp = p => /*#__PURE__*/React.createElement("input", {
   className: "fi",
+  ...(p.type === 'text' && p.maxLength === undefined ? { maxLength: 160 } : {}),
+  ...(p.type === 'number' && p.max === undefined ? { max: '1000000000000' } : {}),
   ...p
 });
 const Sel = ({
@@ -1809,6 +2001,7 @@ const Sel = ({
 }, o.label ?? o)));
 const Txa = p => /*#__PURE__*/React.createElement("textarea", {
   className: "fta",
+  maxLength: p.maxLength ?? 2000,
   ...p
 });
 function CatPicker({
@@ -2022,7 +2215,7 @@ function ExpenseForm({
     const name = f.name.trim();
     const amount = Number(f.amount);
     if (!name) return setErr(t('errName'));
-    if (!Number.isFinite(amount) || amount <= 0) return setErr(t('errAmount'));
+    if (!validMoney(amount)) return setErr(t('errAmount'));
     if (!isValidISODate(f.date)) return setErr(t('errDate'));
     setErr('');
     return onSave({
@@ -2126,7 +2319,7 @@ function RecurringForm({
     const amount = Number(f.amount);
     const dueDay = Number(f.dueDay);
     if (!name) return setErr(t('errName'));
-    if (!Number.isFinite(amount) || amount <= 0) return setErr(t('errAmount'));
+    if (!validMoney(amount)) return setErr(t('errAmount'));
     if (!Number.isInteger(dueDay) || dueDay < 1 || dueDay > 31) return setErr(t('errDueDay'));
     if (f.endMonth && f.startMonth && f.endMonth < f.startMonth) return setErr(t('errEndBeforeStart'));
     setErr('');
@@ -2238,7 +2431,7 @@ function IncomeForm({
     const name = f.name.trim();
     const amount = Number(f.amount);
     if (!name) return setErr(t('errName'));
-    if (!Number.isFinite(amount) || amount <= 0) return setErr(t('errAmount'));
+    if (!validMoney(amount)) return setErr(t('errAmount'));
     if (!isValidISODate(f.date)) return setErr(t('errDate'));
     setErr('');
     const recurring = f.frequency !== 'one-time';
@@ -2324,7 +2517,7 @@ function SavingsForm({
     const targetAmount = Number(f.targetAmount);
     const currentAmount = Number(f.currentAmount || 0);
     if (!name) return setErr(t('errName'));
-    if (!Number.isFinite(targetAmount) || targetAmount <= 0) return setErr(t('errAmount'));
+    if (!validMoney(targetAmount)) return setErr(t('errAmount'));
     if (!Number.isFinite(currentAmount) || currentAmount < 0) return setErr(t('errAmount'));
     setErr('');
     return onSave({
@@ -2418,7 +2611,7 @@ function CardForm({
     const dueDate = Number(f.dueDate);
     if (!name) return setErr(t('errName'));
     if (!/^\d{4}$/.test(f.lastFour)) return setErr(t('errLastFour'));
-    if (!Number.isFinite(creditLimit) || creditLimit <= 0) return setErr(t('errAmount'));
+    if (!validMoney(creditLimit)) return setErr(t('errAmount'));
     if (!Number.isInteger(statementDate) || statementDate < 1 || statementDate > 31) return setErr(t('errDueDay'));
     if (!Number.isInteger(dueDate) || dueDate < 1 || dueDate > 31) return setErr(t('errDueDay'));
     setErr('');
@@ -2531,9 +2724,11 @@ function InstallForm({
     const monthsRemaining = Number.isFinite(totalAmount) && Number.isFinite(monthlyPayment) && monthlyPayment > 0 ? Math.ceil(totalAmount / monthlyPayment) : requestedMonths;
     const cardId = Number(f.cardId);
     if (!name) return setErr(t('errName'));
-    if (!Number.isFinite(totalAmount) || totalAmount <= 0) return setErr(t('errAmount'));
-    if (!Number.isFinite(monthlyPayment) || monthlyPayment <= 0) return setErr(t('errAmount'));
-    if (!Number.isInteger(monthsRemaining) || monthsRemaining <= 0) return setErr(t('errMonths'));
+    if (!validMoney(totalAmount)) return setErr(t('errAmount'));
+    if (!validMoney(monthlyPayment)) return setErr(t('errAmount'));
+    if (!Number.isInteger(monthsRemaining) || monthsRemaining <= 0 || monthsRemaining > MAX_INSTALLMENT_PAYMENTS) return setErr(t('errMonths'));
+    const alreadyPosted=initial?installmentPostedTotal(initial):0;
+    if (totalAmount + .001 < alreadyPosted) return setErr(t('errAmount'));
     if (!f.cardId || !Number.isFinite(cardId)) return setErr(t('errCardId'));
     if (!isValidISODate(f.startDate)) return setErr(t('errDate'));
     setErr('');
@@ -2632,17 +2827,15 @@ function Dashboard({ sym, currentMonth, payday }) {
       ]);
       const exps = await db.expenses.where('date').between(cr.startISO, cr.endISO, true, false).toArray();
       const totalInc = moneySum(allInc.map(inc => incomeAmountInRange(inc, cr.start, cr.end)));
+      const recurringLedger=allRec.flatMap(record=>recurringOccurrences(record,cr.start,cr.end).map(row=>({...row,id:`rec-${record.id}-${row.date}`,kind:'recurring'})));
+      const installmentLedger=allInst.flatMap(record=>installmentOccurrences(record,cr.start,cr.end).filter(row=>Number(row.amount)>0).map((row,index)=>({...row,id:`inst-${record.id}-${row.date}-${index}`,kind:'installment',category:'installments'})));
+      const variableLedger=exps.map(row=>({...row,kind:'variable'}));
+      const expenseLedger=[...variableLedger,...recurringLedger,...installmentLedger];
       const catMap = {};
-      let fixed = 0;
-      for (const r of allRec) {
-        const amount = recurringAmountInRange(r, cr.start, cr.end);
-        fixed = roundMoney(fixed + amount);
-        if (amount) catMap[r.category] = roundMoney((catMap[r.category] || 0) + amount);
-      }
-      const varExp = moneySum(exps.map(e => e.amount));
-      for (const e of exps) catMap[e.category] = roundMoney((catMap[e.category] || 0) + Number(e.amount));
-      const instExp = moneySum(allInst.map(inst => installmentAmountInRange(inst, cr.start, cr.end)));
-      if (instExp) catMap.installments = roundMoney((catMap.installments || 0) + instExp);
+      const fixed=moneySum(recurringLedger.map(row=>row.amount));
+      const varExp=moneySum(variableLedger.map(row=>row.amount));
+      const instExp=moneySum(installmentLedger.map(row=>row.amount));
+      for(const row of expenseLedger){const category=row.category||'other';catMap[category]=roundMoney((catMap[category]||0)+Number(row.amount||0));}
       const cats = Object.entries(catMap).filter(([,amt]) => amt > 0).map(([id, amt]) => ({ ...getCat(id), id, amt })).sort((a,b) => b.amt-a.amt);
       const monthRanges = Array.from({length:6},(_,idx)=>{ const md=addMonths(currentMonth,-(5-idx)); return {md,mcr:cycleRange(md,payday)}; });
       const monthExps = await Promise.all(monthRanges.map(({mcr}) => db.expenses.where('date').between(mcr.startISO,mcr.endISO,true,false).toArray()));
@@ -2655,7 +2848,7 @@ function Dashboard({ sym, currentMonth, payday }) {
       const prevRows=await db.expenses.where('date').between(pcr.startISO,pcr.endISO,true,false).toArray();
       const prevTotal=roundMoney(moneySum(prevRows.map(x=>x.amount))+moneySum(allRec.map(x=>recurringAmountInRange(x,pcr.start,pcr.end)))+moneySum(allInst.map(x=>installmentAmountInRange(x,pcr.start,pcr.end))));
       if (!isLatest()) return;
-      setD({cr,totalInc,fixed,varExp,instExp,cats,allCards,allInst,allRec,allSav,totalSavings:roundMoney(Number(savingsSetting?.value??moneySum(allSav.map(g=>g.currentAmount||0)))),monthly,recent:[...exps].sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).slice(0,6),cardCharges,allBudgets,catMap,exps,prevTotal});
+      setD({cr,totalInc,fixed,varExp,instExp,cats,allCards,allInst,allRec,allSav,totalSavings:roundMoney(Number(savingsSetting?.value??moneySum(allSav.map(g=>g.currentAmount||0)))),monthly,recent:[...expenseLedger].sort((a,b)=>b.date.localeCompare(a.date)||String(b.id).localeCompare(String(a.id))).slice(0,6),expenseLedger,cardCharges,allBudgets,catMap,exps,prevTotal});
     } catch (err) {
       console.error('Dashboard load failed:',err);
       if (isLatest()) setLoadError(err);
@@ -2664,7 +2857,7 @@ function Dashboard({ sym, currentMonth, payday }) {
   useEffect(()=>{ load(); },[load]);
   if (loadError) return h('div',{className:'empty',role:'alert'},h('div',{className:'etxt'},t('loadFailed')),h('button',{className:'btn bpri',onClick:load},t('retry')));
   if (!d) return h('div',{className:'loading'},t('loading'));
-  const {cr,totalInc,fixed,varExp,instExp,cats,allCards,allInst,allRec,allSav,totalSavings,monthly,recent,allBudgets,catMap,exps,prevTotal}=d;
+  const {cr,totalInc,fixed,varExp,instExp,cats,allCards,allInst,allRec,allSav,totalSavings,monthly,recent,expenseLedger,allBudgets,catMap,exps,prevTotal}=d;
   const totalExp=roundMoney(fixed+varExp+instExp), net=roundMoney(totalInc-totalExp);
   const totSaved=roundMoney(Number(totalSavings||0));
   const budgeted=allBudgets.filter(b=>Number(b.amount)>0);
@@ -2675,7 +2868,7 @@ function Dashboard({ sym, currentMonth, payday }) {
   const projectedVar=selectedPast?varExp:selectedFuture?0:roundMoney(incurredVar/elapsed*cycleLen);
   const projectedTotal=selectedPast?totalExp:roundMoney(fixed+instExp+projectedVar);
   const projectionLabel=selectedPast?t('actualSpend'):selectedFuture?t('scheduledSpend'):t('currentProjection');
-  const biggest=exps.length?exps.reduce((a,b)=>Number(a.amount)>Number(b.amount)?a:b):null;
+  const biggest=expenseLedger.length?expenseLedger.reduce((a,b)=>Number(a.amount)>Number(b.amount)?a:b):null;
   const momChange=prevTotal>0?(totalExp-prevTotal)/prevTotal*100:0;
   const saveBudgets=async()=>{
     try{
@@ -2701,7 +2894,7 @@ function Dashboard({ sym, currentMonth, payday }) {
     monthly.some(m=>m.inc||m.exp)&&h('section',{className:'sec'},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('incomeVsExpenses')),h(BarChart,{sym,labels:monthly.map(m=>m.label),datasets:[{label:t('incomeChart'),data:monthly.map(m=>m.inc),gradient:{light:'#E0ECE2',base:'#78957E',dark:'#4f7058'},borderRadius:5},{label:t('expensesChart'),data:monthly.map(m=>m.exp),gradient:{light:'#F0E1DC',base:'#9F7D74',dark:'#744f48'},borderRadius:5}]}))),
     h('section',{className:'sec'},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('insights')),h('div',{style:{marginBottom:12,padding:'10px 12px',background:'var(--bg)',borderRadius:'var(--rmd)'}},h('div',{style:{fontSize:12,color:'var(--t3)',fontWeight:600}},projectionLabel),h('div',{style:{fontSize:18,fontWeight:800,color:'var(--danger)'}},fmt(projectedTotal,sym)),!selectedFuture&&h('div',{style:{fontSize:12,color:totalInc-projectedTotal>=0?'var(--success)':'var(--danger)'}},t('projectedRemaining'),': ',fmt(totalInc-projectedTotal,sym))),h('div',{style:{marginBottom:12,padding:'10px 12px',background:'var(--bg)',borderRadius:'var(--rmd)'}},h('div',{style:{fontSize:12,color:'var(--t3)',fontWeight:600}},t('biggestExpense')),biggest?h('div',{className:'fbet'},h('span',null,biggest.name,' · ',biggest.date),h('strong',null,fmt(biggest.amount,sym))):h('span',null,t('noExpensesYet'))),prevTotal>0&&h('div',{style:{padding:'10px 12px',background:'var(--bg)',borderRadius:'var(--rmd)'}},h('div',{style:{fontSize:12,color:'var(--t3)',fontWeight:600}},t('vsLastMonth')),h('div',{style:{fontSize:16,fontWeight:800,color:momChange>0?'var(--danger)':'var(--success)'}},Math.abs(momChange).toFixed(1),'% ',momChange>0?t('moreSpending'):t('lessSpending'))))),
     allCards.length>0&&h('section',{className:'sec'},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('creditCards')),allCards.map(card=>{const colors=CCOLORS[Number(card.colorIdx)]||CCOLORS[0],bal=calculateCardBalance(card,d.cardCharges,allRec,allInst,new Date()),avail=roundMoney(Number(card.creditLimit)-bal);return h('div',{key:card.id,className:'li'},h('span',{style:{width:10,height:10,borderRadius:'50%',background:`linear-gradient(135deg,${colors[0]},${colors[1]})`},'aria-hidden':true}),h('span',{className:'linf'},h('span',{className:'lname'},card.name,' ••••',card.lastFour)),h('span',{style:{textAlign:'right'}},h('span',{style:{display:'block',fontWeight:700,color:'var(--danger)'}},fmt(bal,sym)),h('span',{style:{fontSize:11,color:avail<0?'var(--danger)':'var(--t3)'}},avail<0?`${t('overLimitBy')} ${fmt(-avail,sym)}`:`${fmt(avail,sym)} ${t('avail')}`)));}))),
-    recent.length>0&&h('section',{className:'sec',style:{paddingBottom:14}},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('recentTransactions')),recent.map(exp=>{const cat=getCat(exp.category);return h('div',{key:exp.id,className:'li spend-row'},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('div',{className:'linf spend-copy'},h('div',{className:'lname spend-name'},exp.name),h('div',{className:'spend-meta'},h('span',{className:'spend-date'},exp.date))),h('div',{className:'lamt exp spend-actions'},'−',fmt(exp.amount,sym)));}))),
+    recent.length>0&&h('section',{className:'sec',style:{paddingBottom:14}},h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('recentTransactions')),recent.map(exp=>{const cat=getCat(exp.category||'other');return h('div',{key:exp.id,className:'li spend-row'},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('div',{className:'linf spend-copy'},h('div',{className:'lname spend-name'},exp.name),h('div',{className:'spend-meta'},h('span',{className:'spend-date'},exp.date))),h('div',{className:'lamt exp spend-actions'},'−',fmt(exp.amount,sym)));}))),
     budgetModal&&h(Modal,{title:t('setBudgets'),onClose:()=>setBudgetModal(false)},expenseCats().filter(c=>c.id!=='installments').map(c=>h(Field,{key:c.id,label:getCatLabel(c.id)},h(Inp,{type:'number',placeholder:'0.00',step:'0.01',inputMode:'decimal',value:budgetDrafts[c.id]||'',onChange:e=>setBudgetDrafts(x=>({...x,[c.id]:e.target.value}))}))),h('button',{className:'btn bpri',onClick:saveBudgets},t('saveBudgets')))
   );
 }
@@ -2728,31 +2921,33 @@ function ExpensesTab({ sym, currentMonth, payday }) {
   },[currentMonth,payday,latest]);
   const loadSummary=useCallback(async()=>{
     const isLatest=latestSummary();
-    try{const range=summaryMode==='weekly'?mondayWeekRange(day):{startISO:day,endISO:day};const rows=await db.expenses.where('date').between(range.startISO,range.endISO,true,true).toArray();if(isLatest())setSummaryExps(rows);}catch(err){console.error(err);if(isLatest())showToast(t('errorOccurred'));}
+    try{if(!isValidISODate(day)){if(isLatest())setSummaryExps([]);return;}const range=summaryMode==='weekly'?mondayWeekRange(day):{startISO:day,endISO:day};const rows=await db.expenses.where('date').between(range.startISO,range.endISO,true,true).toArray();if(isLatest())setSummaryExps(rows);}catch(err){console.error(err);if(isLatest())showToast(t('errorOccurred'));}
   },[day,summaryMode,latestSummary,showToast]);
   useEffect(()=>{load();},[load]);useEffect(()=>{loadSummary();},[loadSummary]);
   const afterWrite=async(message)=>{await Promise.all([load(),loadSummary()]);showToast(message);};
   const saveVar=async f=>{try{if(f.id)await db.expenses.update(f.id,f);else await db.expenses.add(f);setModal(null);await afterWrite(f.id?t('updated'):t('expenseAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
-  const saveRec=async f=>{try{if(f.id)await db.recurring.update(f.id,f);else await db.recurring.add(f);setModal(null);await afterWrite(f.id?t('updated'):t('fixedCostAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
-  const saveInst=async f=>{try{if(f.id)await db.installments.update(f.id,f);else await db.installments.add(f);setModal(null);await afterWrite(f.id?t('updated'):t('installmentAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
+  const saveRec=async f=>{try{let next;if(f.id){const existing=await db.recurring.get(f.id),frozen=freezeRecurringThrough(existing,todayStr());next={...frozen,...f,postedOccurrences:frozen.postedOccurrences,postedThrough:frozen.postedThrough,isDeleted:false,deletedAt:''};await db.recurring.put(next);}else{next=freezeRecurringThrough({...f,postedOccurrences:[],postedThrough:'',isDeleted:false,deletedAt:''},todayStr());await db.recurring.add(next);}setModal(null);await afterWrite(f.id?t('updated'):t('fixedCostAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
+  const saveInst=async f=>{try{let next;if(f.id){const existing=await db.installments.get(f.id),frozen=freezeInstallmentThrough(existing,todayStr()),paid=installmentPostedTotal(frozen);if(Number(f.totalAmount)+.001<paid)throw new Error('Total cannot be less than posted payments');const effectiveStart=f.startDate>todayStr()?f.startDate:nextInstallmentDateAfter(f.startDate,todayStr());next={...frozen,...f,postedPayments:frozen.postedPayments,postedThrough:frozen.postedThrough,nextPaymentDate:effectiveStart,isDeleted:false,deletedAt:'',monthsRemaining:0};next.monthsRemaining=projectedInstallmentSchedule(next).length;await db.installments.put(next);}else{const base={...f,postedPayments:[],postedThrough:'',nextPaymentDate:f.startDate,isDeleted:false,deletedAt:''};next=freezeInstallmentThrough(base,todayStr());await db.installments.add(next);}setModal(null);await afterWrite(f.id?t('updated'):t('installmentAdded'));}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);throw err;}};
   const confirmedDelete=(kind,row,tableName)=>setConfirmState({kind,row,tableName});
-  const runConfirmedDelete=async()=>{if(!confirmState||confirmBusy)return;setConfirmBusy(true);try{await db[confirmState.tableName].delete(confirmState.row.id);setConfirmState(null);await afterWrite(t('deleted'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
-  const toggleRec=async r=>{try{const current=activeInMonthKey(r,todayKey);await db.recurring.update(r.id,withActivityAtMonth(r,!current,todayKey));await load();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
-  const completeInst=async inst=>{try{await db.installments.update(inst.id,{isComplete:true,completedDate:todayStr()});await load();showToast(t('paidOff'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
-  const reopenInst=async inst=>{try{await db.installments.update(inst.id,{isComplete:false,completedDate:''});await load();showToast(t('updated'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const runConfirmedDelete=async()=>{if(!confirmState||confirmBusy)return;setConfirmBusy(true);try{if(confirmState.kind==='recurring'){const frozen=freezeRecurringThrough(confirmState.row,todayStr());await db.recurring.put({...frozen,isDeleted:true,deletedAt:todayStr(),isActive:false});}else if(confirmState.kind==='installment'){await db.installments.put(archiveInstallmentRecord(confirmState.row,todayStr()));}else await db[confirmState.tableName].delete(confirmState.row.id);setConfirmState(null);await afterWrite(t('deleted'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
+  const toggleRec=async r=>{try{const current=activeInMonthKey(r,todayKey),frozen=freezeRecurringThrough(r,todayStr());await db.recurring.put({...frozen,...withActivityAtMonth(frozen,!current,todayKey)});await load();}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const completeInst=async inst=>{try{await db.installments.put(completeInstallmentRecord(inst,todayStr()));await load();showToast(t('paidOff'));}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);}};
+  const reopenInst=async inst=>{try{await db.installments.put(reopenInstallmentRecord(inst,todayStr()));await load();showToast(t('updated'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const saveCustomCategory=async()=>{const label=customCat.label.trim();if(!label)return;try{if(customCat.id)CUSTOM_CATS=CUSTOM_CATS.map(c=>c.id===customCat.id?{...c,label,icon:iconName(customCat)}:c);else CUSTOM_CATS=[...CUSTOM_CATS,{id:`custom-${Date.now()}`,label,icon:iconName(customCat),bg:'#eeecff',tc:'#5148d8'}];await db.settings.put({key:'customCategories',value:CUSTOM_CATS});setCustomCat({label:'',icon:'tag'});setCategoryModal('manage');setCatVersion(v=>v+1);showToast(t('expenseTypeUpdated'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const askDeleteCategory=async cat=>{try{const [a,b]=await Promise.all([db.expenses.where('category').equals(cat.id).count(),db.recurring.where('category').equals(cat.id).count()]);setReplacementCat('other');setCategoryModal({type:'delete',cat,count:a+b});}catch(err){showToast(t('errorOccurred'));}};
-  const deleteCustomCategory=async cat=>{try{const next=CUSTOM_CATS.filter(c=>c.id!==cat.id);await db.transaction('rw',[db.expenses,db.recurring,db.budgets,db.settings],async()=>{await db.expenses.where('category').equals(cat.id).modify({category:replacementCat});await db.recurring.where('category').equals(cat.id).modify({category:replacementCat});const old=await db.budgets.get(cat.id);if(old){const target=await db.budgets.get(replacementCat);await db.budgets.put({category:replacementCat,amount:roundMoney(Number(target?.amount||0)+Number(old.amount||0))});await db.budgets.delete(cat.id);}await db.settings.put({key:'customCategories',value:next});});CUSTOM_CATS=next;if(catFilter===cat.id)setCatFilter('');setCategoryModal('manage');setCatVersion(v=>v+1);await load();showToast(t('expenseTypeRemoved'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const deleteCustomCategory=async cat=>{try{const next=CUSTOM_CATS.map(c=>c.id===cat.id?{...c,archived:true}:c);await db.transaction('rw',[db.expenses,db.recurring,db.budgets,db.settings],async()=>{await db.expenses.where('category').equals(cat.id).modify({category:replacementCat});const affectedRecurring=await db.recurring.where('category').equals(cat.id).toArray();for(const record of affectedRecurring){const frozen=freezeRecurringThrough(record,todayStr());await db.recurring.put({...frozen,category:replacementCat});}const old=await db.budgets.get(cat.id);if(old){const target=await db.budgets.get(replacementCat);await db.budgets.put({category:replacementCat,amount:roundMoney(Number(target?.amount||0)+Number(old.amount||0))});await db.budgets.delete(cat.id);}await db.settings.put({key:'customCategories',value:next});});CUSTOM_CATS=next;if(catFilter===cat.id)setCatFilter('');setCategoryModal('manage');setCatVersion(v=>v+1);await load();showToast(t('expenseTypeRemoved'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const variableTotal=moneySum(varExps.map(e=>e.amount));
-  const activeRecs=recs.filter(r=>activeInMonthKey(r,selectedKey)), inactiveRecs=recs.filter(r=>!activeInMonthKey(r,selectedKey));
+  const visibleRecs=recs.filter(r=>!r.isDeleted),visibleInsts=allInsts.filter(i=>!i.isDeleted);
+  const activeRecs=visibleRecs.filter(r=>activeInMonthKey(r,selectedKey)), inactiveRecs=visibleRecs.filter(r=>!activeInMonthKey(r,selectedKey));
   const fixedTotal=moneySum(recs.map(r=>recurringAmountInRange(r,cr.start,cr.end)));
-  const cycleInsts=allInsts.filter(i=>installmentOccurrences(i,cr.start,cr.end).length>0), completedInsts=allInsts.filter(i=>i.isComplete||i.completedDate);
+  const cycleInsts=allInsts.filter(i=>installmentOccurrences(i,cr.start,cr.end).some(row=>Number(row.amount)>0)), completedInsts=visibleInsts.filter(i=>(i.isComplete||i.completedDate)&&!cycleInsts.some(c=>c.id===i.id));
   const instTotal=moneySum(allInsts.map(i=>installmentAmountInRange(i,cr.start,cr.end)));
-  const summaryRange=summaryMode==='weekly'?mondayWeekRange(day):{start:parseISODate(day),end:new Date(parseISODate(day).getTime()+DAY)};
+  const parsedSummaryDay=parseISODate(day);
+  const summaryRange=summaryMode==='weekly'?mondayWeekRange(day):parsedSummaryDay?{start:parsedSummaryDay,end:new Date(parsedSummaryDay.getTime()+DAY)}:null;
   const summaryMap={};
   for(const e of summaryExps)summaryMap[e.category]=roundMoney((summaryMap[e.category]||0)+Number(e.amount||0));
-  for(const r of recs)for(const o of recurringOccurrences(r,summaryRange.start,summaryRange.end))summaryMap[r.category]=roundMoney((summaryMap[r.category]||0)+Number(o.amount??r.amount??0));
-  for(const inst of allInsts)for(const o of installmentOccurrences(inst,summaryRange.start,summaryRange.end))summaryMap.installments=roundMoney((summaryMap.installments||0)+Number(o.amount||0));
+  if(summaryRange){for(const r of recs)for(const o of recurringOccurrences(r,summaryRange.start,summaryRange.end)){const category=o.category||r.category;summaryMap[category]=roundMoney((summaryMap[category]||0)+Number(o.amount??r.amount??0));}
+  for(const inst of allInsts)for(const o of installmentOccurrences(inst,summaryRange.start,summaryRange.end))if(Number(o.amount)>0)summaryMap.installments=roundMoney((summaryMap.installments||0)+Number(o.amount||0));}
   const summaryRows=Object.entries(summaryMap).filter(([,amount])=>amount>0).sort((a,b)=>b[1]-a[1]);
   const summaryTotal=moneySum(summaryRows.map(([,amount])=>amount));
   const filtered=varExps.filter(e=>(!search||`${e.name} ${e.notes||''}`.toLowerCase().includes(search.toLowerCase()))&&(!catFilter||e.category===catFilter));
@@ -2765,17 +2960,17 @@ function ExpensesTab({ sym, currentMonth, payday }) {
   return h('div',null,h(Toast,{msg:toast}),
     h('section',{className:'sec'},h('div',{className:'seg expense-type-seg',role:'tablist','aria-label':t('expensesLabel')},tab('variable',t('variable'),variableTotal),tab('fixed',t('fixed'),fixedTotal),tab('installments',t('installments'),instTotal))),
     sub==='variable'&&h(React.Fragment,null,
-      h('section',{className:'sec'},h('div',{className:'card summary-card'},h('div',{className:'summary-toolbar'},h('div',{className:'summary-header'},h('h2',{className:'summary-title'},summaryMode==='daily'?t('dailySummary'):t('weeklySummary')),h('div',{className:'summary-inline-controls'},h('div',{className:'summary-mode-toggle',role:'group','aria-label':t('summaryMode')},h('button',{className:`sbtn${summaryMode==='daily'?' active':''}`,'aria-pressed':summaryMode==='daily',onClick:()=>setSummaryMode('daily')},t('dayLabel')),h('button',{className:`sbtn${summaryMode==='weekly'?' active':''}`,'aria-pressed':summaryMode==='weekly',onClick:()=>setSummaryMode('weekly')},t('weekLabel'))))),h('label',{className:'summary-date-pill'},h(Icon,{name:'calendar',size:16}),h('span',{className:'sr-only'},t('date')),h('input',{className:'summary-date-input',type:'date',value:day,onChange:e=>setDay(e.target.value)}))),summaryMode==='weekly'&&h('div',{className:'summary-range'},mondayWeekLabel(day),' · ',t('mondaySunday')),summaryRows.length?h(React.Fragment,null,h('div',{className:'summary-total'},fmt(summaryTotal,sym)),h(DonutChart,{labels:summaryRows.map(([id])=>getCatLabel(id)),data:summaryRows.map(([,amount])=>amount),colors:summaryRows.map(([id],index)=>chartToneFor(id,index)),sym}),h('div',{style:{marginTop:8}},summaryRows.map(([id,amount],index)=>{const tone=chartToneFor(id,index);return h('div',{key:id,className:'summary-row'},h('span',{className:'summary-row-label'},h('span',{className:'summary-swatch',style:{background:chartToneCss(tone),color:tone.base},'aria-hidden':true}),h(Icon,{name:iconName(getCat(id)),size:17}),h('span',null,getCatLabel(id))),h('strong',null,fmt(amount,sym)));}))):h('div',{className:'empty',style:{padding:'16px 0'}},h('div',{className:'eico'},h(Icon,{name:'calendar',size:28})),h('div',{className:'etxt'},t('noExpenses'))))),
+      h('section',{className:'sec'},h('div',{className:'card summary-card'},h('div',{className:'summary-toolbar'},h('div',{className:'summary-header'},h('h2',{className:'summary-title'},summaryMode==='daily'?t('dailySummary'):t('weeklySummary')),h('div',{className:'summary-inline-controls'},h('div',{className:'summary-mode-toggle',role:'group','aria-label':t('summaryMode')},h('button',{className:`sbtn${summaryMode==='daily'?' active':''}`,'aria-pressed':summaryMode==='daily',onClick:()=>setSummaryMode('daily')},t('dayLabel')),h('button',{className:`sbtn${summaryMode==='weekly'?' active':''}`,'aria-pressed':summaryMode==='weekly',onClick:()=>setSummaryMode('weekly')},t('weekLabel'))))),h('label',{className:'summary-date-pill'},h(Icon,{name:'calendar',size:16}),h('span',{className:'sr-only'},t('date')),h('input',{className:'summary-date-input',type:'date',value:day,onChange:e=>setDay(e.target.value||todayStr())}))),summaryMode==='weekly'&&h('div',{className:'summary-range'},mondayWeekLabel(day),' · ',t('mondaySunday')),summaryRows.length?h(React.Fragment,null,h('div',{className:'summary-total'},fmt(summaryTotal,sym)),h(DonutChart,{labels:summaryRows.map(([id])=>getCatLabel(id)),data:summaryRows.map(([,amount])=>amount),colors:summaryRows.map(([id],index)=>chartToneFor(id,index)),sym}),h('div',{style:{marginTop:8}},summaryRows.map(([id,amount],index)=>{const tone=chartToneFor(id,index);return h('div',{key:id,className:'summary-row'},h('span',{className:'summary-row-label'},h('span',{className:'summary-swatch',style:{background:chartToneCss(tone),color:tone.base},'aria-hidden':true}),h(Icon,{name:iconName(getCat(id)),size:17}),h('span',null,getCatLabel(id))),h('strong',null,fmt(amount,sym)));}))):h('div',{className:'empty',style:{padding:'16px 0'}},h('div',{className:'eico'},h(Icon,{name:'calendar',size:28})),h('div',{className:'etxt'},t('noExpenses'))))),
       h('section',{className:'sec'},h('div',{className:'filter-row'},h('input',{className:'fi filter-search',type:'search','aria-label':t('searchExpensesLabel'),placeholder:t('searchExpenses'),value:search,onChange:e=>setSearch(e.target.value)}),h('select',{className:'fsel category-filter','aria-label':t('categoryFilterLabel'),value:catFilter,onChange:e=>setCatFilter(e.target.value)},h('option',{value:''},t('allCategories')),expenseCats().map(c=>h('option',{key:c.id,value:c.id},getCatLabel(c.id)))))),
       h('section',{className:'sec',style:{paddingBottom:14}},filtered.length?h('div',{className:'card cp'},filtered.map(expenseRow)):h('div',{className:'empty'},h('div',{className:'etxt'},t('noExpenses')),h('div',{className:'esub'},t('tapToAddExpense'))))),
-    sub==='fixed'&&h('section',{className:'sec',style:{paddingBottom:14}},recs.length?h('div',null,activeRecs.length>0&&h('div',{className:'card cp mb10'},h('h2',{className:'ctitle mb10'},t('active')),activeRecs.map(recurringRow)),inactiveRecs.length>0&&h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('pausedEnded')),inactiveRecs.map(recurringRow))):h('div',{className:'empty'},h('div',{className:'etxt'},t('noFixedCosts')),h('div',{className:'esub'},t('tapToAddRecurring')))),
-    sub==='installments'&&h('section',{className:'sec',style:{paddingBottom:14}},allInsts.length?h('div',null,cycleInsts.length>0&&h('div',{className:'card cp mb10'},h('h2',{className:'ctitle mb10'},t('selectedCycleCharges')),cycleInsts.map(installmentRow)),completedInsts.length>0&&h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('completed')),completedInsts.map(installmentRow))):h('div',{className:'empty'},h('div',{className:'etxt'},t('noInstallments')),h('div',{className:'esub'},t('addInstFromCards')))),
+    sub==='fixed'&&h('section',{className:'sec',style:{paddingBottom:14}},visibleRecs.length?h('div',null,activeRecs.length>0&&h('div',{className:'card cp mb10'},h('h2',{className:'ctitle mb10'},t('active')),activeRecs.map(recurringRow)),inactiveRecs.length>0&&h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('pausedEnded')),inactiveRecs.map(recurringRow))):h('div',{className:'empty'},h('div',{className:'etxt'},t('noFixedCosts')),h('div',{className:'esub'},t('tapToAddRecurring')))),
+    sub==='installments'&&h('section',{className:'sec',style:{paddingBottom:14}},(cycleInsts.length||visibleInsts.length)?h('div',null,cycleInsts.length>0&&h('div',{className:'card cp mb10'},h('h2',{className:'ctitle mb10'},t('selectedCycleCharges')),cycleInsts.map(installmentRow)),completedInsts.length>0&&h('div',{className:'card cp'},h('h2',{className:'ctitle mb10'},t('completed')),completedInsts.map(installmentRow))):h('div',{className:'empty'},h('div',{className:'etxt'},t('noInstallments')),h('div',{className:'esub'},t('addInstFromCards')))),
     h('button',{className:'fab','aria-label':sub==='variable'?t('addExpense'):sub==='fixed'?t('addFixedCost'):t('addInstallment'),onClick:()=>setModal(sub==='variable'?'addVar':sub==='fixed'?'addFixed':'addInst')},h(Icon,{name:'plus',size:25})),
     (modal==='addVar'||modal?.type==='editVar')&&h(Modal,{title:modal?.type?t('editExpense'):t('addExpense'),onClose:()=>setModal(null)},h(ExpenseForm,{onSave:saveVar,cards,onManageCategories:()=>setCategoryModal('manage'),initial:modal?.data,catVersion})),
     (modal==='addFixed'||modal?.type==='editFixed')&&h(Modal,{title:modal?.type?t('editFixedCost'):t('addFixedCost'),onClose:()=>setModal(null)},h(RecurringForm,{onSave:saveRec,cards,initial:modal?.data,catVersion})),
     (modal==='addInst'||modal?.type==='editInst')&&(cards.length?h(Modal,{title:modal?.type?t('editInstallment'):t('addInstallment'),onClose:()=>setModal(null)},h(InstallForm,{onSave:saveInst,cards,initial:modal?.data})):h(Modal,{title:t('addInstallment'),onClose:()=>setModal(null)},h('p',{className:'fhint'},t('addInstFromCards')))),
-    categoryModal==='manage'&&h(Modal,{title:t('manageExpenseTypes'),onClose:()=>setCategoryModal(null)},h('button',{className:'btn bpri',onClick:()=>{setCustomCat({label:'',icon:'tag'});setCategoryModal('add');}},t('addExpenseType')),CUSTOM_CATS.length?CUSTOM_CATS.map(cat=>h('div',{key:cat.id,className:'li'},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('div',{className:'linf'},h('div',{className:'lname'},cat.label)),h('button',{className:'btn bsm bghost',onClick:()=>{setCustomCat({...cat});setCategoryModal('edit');}},t('editBtn')),h('button',{className:'btn bsm bdanger',onClick:()=>askDeleteCategory(cat)},t('removeBtn')))):h('div',{className:'empty'},t('noCustomExpenseTypes'))),
-    (categoryModal==='add'||categoryModal==='edit')&&h(Modal,{title:categoryModal==='edit'?t('editExpenseTypeTitle'):t('addExpenseTypeTitle'),onClose:()=>setCategoryModal('manage')},h(Field,{label:t('typeName')},h(Inp,{type:'text',value:customCat.label,onChange:e=>setCustomCat(x=>({...x,label:e.target.value})),autoFocus:true})),h(Field,{label:t('chooseIcon')},h('div',{className:'catg',role:'radiogroup'},CUSTOM_ICON_OPTIONS.map(name=>h('button',{key:name,type:'button',role:'radio','aria-checked':customCat.icon===name,className:`copt${customCat.icon===name?' sel':''}`,'aria-label':name,onClick:()=>setCustomCat(x=>({...x,icon:name}))},h('span',{className:'cico'},h(Icon,{name,size:22})))))),h('button',{className:'btn bpri',onClick:saveCustomCategory},categoryModal==='edit'?t('saveChanges'):t('addExpenseTypeTitle'))),
+    categoryModal==='manage'&&h(Modal,{title:t('manageExpenseTypes'),onClose:()=>setCategoryModal(null)},h('button',{className:'btn bpri',onClick:()=>{setCustomCat({label:'',icon:'tag'});setCategoryModal('add');}},t('addExpenseType')),CUSTOM_CATS.some(cat=>!cat.archived)?CUSTOM_CATS.filter(cat=>!cat.archived).map(cat=>h('div',{key:cat.id,className:'li'},h('div',{className:'lico',style:{background:cat.bg,color:cat.tc}},h(Icon,{name:iconName(cat),size:20})),h('div',{className:'linf'},h('div',{className:'lname'},cat.label)),h('button',{className:'btn bsm bghost',onClick:()=>{setCustomCat({...cat});setCategoryModal('edit');}},t('editBtn')),h('button',{className:'btn bsm bdanger',onClick:()=>askDeleteCategory(cat)},t('removeBtn')))):h('div',{className:'empty'},t('noCustomExpenseTypes'))),
+    (categoryModal==='add'||categoryModal==='edit')&&h(Modal,{title:categoryModal==='edit'?t('editExpenseTypeTitle'):t('addExpenseTypeTitle'),onClose:()=>setCategoryModal('manage')},h(Field,{label:t('typeName')},h(Inp,{type:'text',maxLength:80,value:customCat.label,onChange:e=>setCustomCat(x=>({...x,label:e.target.value})),autoFocus:true})),h(Field,{label:t('chooseIcon')},h('div',{className:'catg',role:'radiogroup'},CUSTOM_ICON_OPTIONS.map(name=>h('button',{key:name,type:'button',role:'radio','aria-checked':customCat.icon===name,className:`copt${customCat.icon===name?' sel':''}`,'aria-label':name,onClick:()=>setCustomCat(x=>({...x,icon:name}))},h('span',{className:'cico'},h(Icon,{name,size:22})))))),h('button',{className:'btn bpri',onClick:saveCustomCategory},categoryModal==='edit'?t('saveChanges'):t('addExpenseTypeTitle'))),
     categoryModal?.type==='delete'&&h(Modal,{title:t('removeExpenseTypeTitle'),onClose:()=>setCategoryModal('manage')},h('p',null,categoryModal.count>0?`${categoryModal.count} ${t('catInUsePrefix')} "${categoryModal.cat.label}" ${t('catInUseSuffix')}`:`"${categoryModal.cat.label}" ${t('catNotUsedSuffix')}`),categoryModal.count>0&&h(Field,{label:t('moveExistingTo')},h(Sel,{value:replacementCat,onChange:e=>setReplacementCat(e.target.value),options:expenseCats().filter(c=>c.id!==categoryModal.cat.id).map(c=>({value:c.id,label:getCatLabel(c.id)}))})),h('button',{className:'btn bdanger',onClick:()=>deleteCustomCategory(categoryModal.cat)},categoryModal.count>0?t('moveAndRemove'):t('removeExpenseType'))),
     confirmState&&h(ConfirmModal,{title:t('confirmDelete'),message:`${t('deleteItem')}: ${confirmState.row.name}?`,details:t('deleteItemMessage'),confirmLabel:t('deleteAction'),danger:true,busy:confirmBusy,onClose:()=>!confirmBusy&&setConfirmState(null),onConfirm:runConfirmedDelete})
   );
@@ -2902,22 +3097,22 @@ function CardsTab({ sym, currentMonth, payday }) {
   useEffect(()=>{load();},[load]);
   const saveCard=async f=>{try{if(f.id)await db.cards.update(f.id,f);else await db.cards.add(f);setModal(null);await load();showToast(f.id?t('updated'):t('cardAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
   const delCard=card=>setConfirmCard(card);
-  const runDeleteCard=async()=>{if(!confirmCard||confirmBusy)return;setConfirmBusy(true);try{const card=confirmCard;await db.transaction('rw',[db.cards,db.installments,db.expenses,db.recurring],async()=>{await db.installments.where('cardId').equals(card.id).delete();await db.expenses.where('cardId').equals(card.id).modify({cardId:''});await db.recurring.filter(r=>Number(r.cardId)===Number(card.id)).modify({cardId:''});await db.cards.delete(card.id);});setConfirmCard(null);setExpanded(null);await load();showToast(t('cardRemoved'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
-  const saveInst=async f=>{try{if(f.id)await db.installments.update(f.id,f);else await db.installments.add(f);setInstModal(null);await load();showToast(f.id?t('updated'):t('installmentAdded'));}catch(err){console.error(err);showToast(t('errorOccurred'));throw err;}};
+  const runDeleteCard=async()=>{if(!confirmCard||confirmBusy)return;setConfirmBusy(true);try{const card=confirmCard;await db.transaction('rw',[db.cards,db.installments,db.expenses,db.recurring],async()=>{const cardLabel=`${card.name} ••••${card.lastFour}`;const affectedInst=await db.installments.filter(i=>Number(i.cardId)===Number(card.id)).toArray();for(const inst of affectedInst){const archived=archiveInstallmentRecord(inst,todayStr()),postedPayments=(archived.postedPayments||[]).map(row=>Number(row.cardId)===Number(card.id)?{...row,cardId:'',cardLabel}:row);await db.installments.put({...archived,cardId:'',postedPayments});}await db.expenses.filter(e=>Number(e.cardId)===Number(card.id)).modify({cardId:''});const affectedRec=await db.recurring.filter(r=>Number(r.cardId)===Number(card.id)).toArray();for(const rec of affectedRec){const frozen=freezeRecurringThrough(rec,todayStr()),postedOccurrences=(frozen.postedOccurrences||[]).map(row=>Number(row.cardId)===Number(card.id)?{...row,cardId:'',cardLabel}:row);await db.recurring.put({...frozen,cardId:'',postedOccurrences});}await db.cards.delete(card.id);});setConfirmCard(null);setExpanded(null);await load();showToast(t('cardRemoved'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
+  const saveInst=async f=>{try{let next;if(f.id){const existing=await db.installments.get(f.id),frozen=freezeInstallmentThrough(existing,todayStr()),paid=installmentPostedTotal(frozen);if(Number(f.totalAmount)+.001<paid)throw new Error('Total cannot be less than posted payments');next={...frozen,...f,postedPayments:frozen.postedPayments,postedThrough:frozen.postedThrough,nextPaymentDate:f.startDate>todayStr()?f.startDate:nextInstallmentDateAfter(f.startDate,todayStr()),isDeleted:false,deletedAt:''};next.monthsRemaining=projectedInstallmentSchedule(next).length;await db.installments.put(next);}else{next=freezeInstallmentThrough({...f,postedPayments:[],postedThrough:'',nextPaymentDate:f.startDate,isDeleted:false,deletedAt:''},todayStr());await db.installments.add(next);}setInstModal(null);await load();showToast(f.id?t('updated'):t('installmentAdded'));}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);throw err;}};
   const delInst=inst=>setConfirmInst(inst);
-  const runDeleteInst=async()=>{if(!confirmInst||confirmBusy)return;setConfirmBusy(true);try{await db.installments.delete(confirmInst.id);setConfirmInst(null);await load();showToast(t('removed'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
-  const complete=async inst=>{try{await db.installments.update(inst.id,{isComplete:true,completedDate:todayStr()});await load();showToast(t('paidOff'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
-  const reopen=async inst=>{try{await db.installments.update(inst.id,{isComplete:false,completedDate:''});await load();showToast(t('updated'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
+  const runDeleteInst=async()=>{if(!confirmInst||confirmBusy)return;setConfirmBusy(true);try{await db.installments.put(archiveInstallmentRecord(confirmInst,todayStr()));setConfirmInst(null);await load();showToast(t('removed'));}catch(err){console.error(err);showToast(t('errorOccurred'));}finally{setConfirmBusy(false);}};
+  const complete=async inst=>{try{await db.installments.put(completeInstallmentRecord(inst,todayStr()));await load();showToast(t('paidOff'));}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);}};
+  const reopen=async inst=>{try{await db.installments.put(reopenInstallmentRecord(inst,todayStr()));await load();showToast(t('updated'));}catch(err){console.error(err);showToast(t('errorOccurred'));}};
   const cardView=card=>{
     const colors=CCOLORS[Number(card.colorIdx)]||CCOLORS[0];
     const bal=calculateCardBalance(card,cardExps,recs,insts,new Date());
     const limit=Number(card.creditLimit),available=roundMoney(limit-bal),usedPct=limit>0?bal/limit*100:0,isExp=expanded===card.id;
     const cardVar=exps.filter(e=>Number(e.cardId)===Number(card.id));
-    const recurringRows=recs.filter(r=>Number(r.cardId)===Number(card.id)).flatMap(r=>recurringOccurrences(r,cr.start,cr.end).map(o=>({...o,name:r.name,category:r.category,id:`r-${r.id}-${o.date}`})));
-    const installmentRows=insts.filter(i=>Number(i.cardId)===Number(card.id)).flatMap(i=>installmentOccurrences(i,cr.start,cr.end).map(o=>({...o,name:i.name,id:`i-${i.id}-${o.date}`})));
+    const recurringRows=recs.flatMap(r=>recurringOccurrences(r,cr.start,cr.end).filter(o=>Number(o.cardId)===Number(card.id)).map(o=>({...o,name:o.name||r.name,category:o.category||r.category,id:`r-${r.id}-${o.date}`})));
+    const installmentRows=insts.flatMap(i=>installmentOccurrences(i,cr.start,cr.end).filter(o=>Number(o.cardId)===Number(card.id)&&Number(o.amount)>0).map((o,index)=>({...o,name:o.name||i.name,id:`i-${i.id}-${o.date}-${index}`})));
     const selectedCharges=roundMoney(moneySum(cardVar.map(x=>x.amount))+moneySum(recurringRows.map(x=>x.amount))+moneySum(installmentRows.map(x=>x.amount)));
-    const activeInst=insts.filter(i=>Number(i.cardId)===Number(card.id)&&!i.isComplete&&!i.completedDate);
-    const completedInst=insts.filter(i=>Number(i.cardId)===Number(card.id)&&(i.isComplete||i.completedDate));
+    const activeInst=insts.filter(i=>!i.isDeleted&&Number(i.cardId)===Number(card.id)&&!i.isComplete&&!i.completedDate);
+    const completedInst=insts.filter(i=>!i.isDeleted&&Number(i.cardId)===Number(card.id)&&(i.isComplete||i.completedDate));
     const face=h('div',{className:'ccard-wrap'},
       h('button',{type:'button',className:'ccard',style:{background:`linear-gradient(135deg,${colors[0]},${colors[1]})`},'aria-expanded':isExp,'aria-controls':`card-details-${card.id}`,'aria-label':`${card.name} ••••${card.lastFour}. ${t('estimatedOutstanding')} ${fmt(bal,sym)}`,onClick:()=>setExpanded(isExp?null:card.id)},
         h('span',{className:'ccard-content'},
@@ -2979,9 +3174,9 @@ for(const tableName of ['expenses','recurring','income','savings','savingsContri
 async function migrateLegacyData(){
   const currentMonthKey=mkKey(new Date());
   await db.transaction('rw',[db.recurring,db.income,db.installments,db.savings,db.cards,db.settings],async()=>{
-    const [recurring,income,installments,savings,cards,doneV3,doneV4,doneV5,totalSavingsSetting]=await Promise.all([
+    const [recurring,income,installments,savings,cards,doneV3,doneV4,doneV5,doneV6,totalSavingsSetting]=await Promise.all([
       db.recurring.toArray(),db.income.toArray(),db.installments.toArray(),db.savings.toArray(),db.cards.toArray(),
-      db.settings.get('migration-v3'),db.settings.get('migration-v4'),db.settings.get('migration-v5'),db.settings.get('totalSavings')
+      db.settings.get('migration-v3'),db.settings.get('migration-v4'),db.settings.get('migration-v5'),db.settings.get('migration-v6'),db.settings.get('totalSavings')
     ]);
     if(!doneV3?.value){
       const recUpdates=recurring.map(r=>{
@@ -3026,6 +3221,19 @@ async function migrateLegacyData(){
       if(updates.length)await db.income.bulkPut(updates);
       await db.settings.put({key:'migration-v5',value:{completed:todayStr(),build:window.CASHFLOW_BUILD.version}});
     }
+    if(!doneV6?.value){
+      const latestRecurring=await db.recurring.toArray(),latestInstallments=await db.installments.toArray();
+      const recurringUpdates=latestRecurring.map(record=>freezeRecurringThrough({...record,isDeleted:!!record.isDeleted},todayStr()));
+      const installmentUpdates=latestInstallments.map(record=>{
+        let next={...record,cardId:canonicalCardId(record.cardId),postedPayments:Array.isArray(record.postedPayments)?record.postedPayments:[]};
+        if(next.completedDate&&isValidISODate(next.startDate)&&next.completedDate<next.startDate){next={...next,isComplete:false,completedDate:''};}
+        next=freezeInstallmentThrough(next,todayStr());
+        return {...next,monthsRemaining:projectedInstallmentSchedule(next).length};
+      });
+      if(recurringUpdates.length)await db.recurring.bulkPut(recurringUpdates);
+      if(installmentUpdates.length)await db.installments.bulkPut(installmentUpdates);
+      await db.settings.put({key:'migration-v6',value:{completed:todayStr(),build:window.CASHFLOW_BUILD.version}});
+    }
   });
 }
 
@@ -3034,11 +3242,14 @@ function SettingsModal({ currCode,onCurrChange,onClose,showToast,lang,onLangChan
   const [curr,setCurr]=useState(currCode),[busy,setBusy]=useState(''),[pendingImport,setPendingImport]=useState(null),[confirmClear,setConfirmClear]=useState(false);
   const download=(blob,name)=>{const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),0);};
   const run=async(name,fn)=>{if(busy)return;setBusy(name);try{await fn();}catch(err){console.error(err);showToast(`${t('errorOccurred')}: ${err.message||err}`);}finally{setBusy('');}};
-  const doExportJSON=()=>run('json',async()=>{const data={version:4,build:window.CASHFLOW_BUILD,exported:new Date().toISOString(),expenses:await db.expenses.toArray(),recurring:await db.recurring.toArray(),income:await db.income.toArray(),savings:await db.savings.toArray(),savingsContributions:await db.savingsContributions.toArray(),cards:await db.cards.toArray(),installments:await db.installments.toArray(),budgets:await db.budgets.toArray(),settings:await db.settings.toArray()};download(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),`cashflow-backup-${todayStr()}.json`);showToast(t('jsonExported'));});
+  const makeBackupData=async()=>({version:5,build:window.CASHFLOW_BUILD,exported:new Date().toISOString(),expenses:await db.expenses.toArray(),recurring:await db.recurring.toArray(),income:await db.income.toArray(),savings:await db.savings.toArray(),savingsContributions:await db.savingsContributions.toArray(),cards:await db.cards.toArray(),installments:await db.installments.toArray(),budgets:await db.budgets.toArray(),settings:await db.settings.toArray()});
+  const downloadBackup=(data,name)=>download(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),name);
+  const verifyInTemporaryDatabase=async data=>{const name=`cashflow_import_check_${Date.now()}_${Math.random().toString(36).slice(2)}`,temp=new Dexie(name);temp.version(5).stores({expenses:'++id,date,category,cardId',recurring:'++id,category,isActive',income:'++id,isActive',savings:'++id',savingsContributions:'++id,goalId,date',cards:'++id',installments:'++id,cardId,isComplete',settings:'key',budgets:'category'});try{await temp.open();const keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];await temp.transaction('rw',keys.map(key=>temp[key]),async()=>{for(const key of keys)if(data[key].length)await temp[key].bulkPut(data[key]);});}finally{temp.close();await Dexie.delete(name);}};
+  const doExportJSON=()=>run('json',async()=>{const data=await makeBackupData();downloadBackup(data,`cashflow-backup-${todayStr()}.json`);showToast(t('jsonExported'));});
   const csvSafe=value=>{let text=String(value??'');if(/^[\s]*[=+\-@]/.test(text))text="'"+text;return `"${text.replace(/"/g,'""')}"`;};
-  const doExportCSV=()=>run('csv',async()=>{const [e,r,inc,inst,sav,contrib,totalSetting]=await Promise.all([db.expenses.toArray(),db.recurring.toArray(),db.income.toArray(),db.installments.toArray(),db.savings.toArray(),db.savingsContributions.toArray(),db.settings.get('totalSavings')]);const rows=[['Type','Name','Amount','Date / Frequency','Category','Notes','CardId'],...e.map(x=>['variable_expense',x.name,x.amount,x.date,x.category,x.notes||'',x.cardId||'']),...r.map(x=>['fixed_expense',x.name,x.amount,`monthly-day${x.dueDay}`,x.category,'',x.cardId||'']),...inc.map(x=>['income',x.name,x.amount,x.frequency,x.category,'','']),...inst.map(x=>['installment',x.name,x.monthlyPayment,x.startDate,'installments',x.completedDate?`completed ${x.completedDate}`:'',x.cardId||'']),['savings_total',t('totalSavings'),Number(totalSetting?.value||0),'current','savings','',''],...sav.map(x=>['legacy_savings_goal',x.name,x.currentAmount,`target ${x.targetAmount}`,'savings','','']),...contrib.map(x=>['legacy_savings_contribution',`goal ${x.goalId}`,x.amount,x.date,'savings','',''])];download(new Blob(['\uFEFF'+rows.map(row=>row.map(csvSafe).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),`cashflow-${todayStr()}.csv`);showToast(t('csvExported'));});
-  const doImport=()=>{if(busy)return;const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>10*1024*1024){showToast(`${t('invalidBackup')}: ${t('importTooLarge')}`);return;}setBusy('import-read');try{const parsed=JSON.parse(await file.text()),check=validateBackup(parsed);if(!check.ok)throw new Error(check.reason);const data=check.data;const keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];const counts=keys.map(k=>`${k}: ${data[k].length}`).join('\n');setPendingImport({data,counts,date:data.exported?.split('T')[0]||'unknown'});}catch(err){console.error(err);showToast(`${t('invalidBackup')}: ${err.message||err}`);}finally{setBusy('');}};input.click();};
-  const applyImport=()=>run('import',async()=>{if(!pendingImport)return;const data=pendingImport.data,keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];await db.transaction('rw',[db.expenses,db.recurring,db.income,db.savings,db.savingsContributions,db.cards,db.installments,db.budgets,db.settings],async()=>{for(const key of keys)await db[key].clear();for(const key of keys)if(data[key].length)await db[key].bulkPut(data[key]);await db.settings.delete('migration-v3');await db.settings.delete('migration-v4');await db.settings.delete('migration-v5');});setPendingImport(null);showToast(t('dataRestored'));onClose();setTimeout(()=>location.reload(),250);});
+  const doExportCSV=()=>run('csv',async()=>{const [e,r,inc,inst,sav,contrib,totalSetting]=await Promise.all([db.expenses.toArray(),db.recurring.toArray(),db.income.toArray(),db.installments.toArray(),db.savings.toArray(),db.savingsContributions.toArray(),db.settings.get('totalSavings')]);const rows=[['Type','Name','Amount','Date / Frequency','Category','Notes','CardId'],...e.map(x=>['variable_expense',x.name,x.amount,x.date,x.category,x.notes||'',x.cardId||'']),...r.flatMap(x=>normalizeRecurringPostings(x).map(row=>['fixed_expense_posted',row.name,row.amount,row.date,row.category,'',row.cardId||''])),...r.filter(x=>!x.isDeleted).map(x=>['fixed_expense_schedule',x.name,x.amount,`monthly-day${x.dueDay}`,x.category,'future schedule',x.cardId||'']),...inc.map(x=>['income',x.name,x.amount,x.frequency,x.category,'','']),...inst.flatMap(x=>normalizeInstallmentPostings(x).map(row=>['installment_posting',row.name,row.amount,row.date,'installments',row.type,row.cardId||''])),...inst.filter(x=>!x.isDeleted).map(x=>['installment_schedule',x.name,x.monthlyPayment,x.nextPaymentDate||x.startDate,'installments',x.completedDate?`completed ${x.completedDate}`:'future schedule',x.cardId||'']),['savings_total',t('totalSavings'),Number(totalSetting?.value||0),'current','savings','',''],...sav.map(x=>['legacy_savings_goal',x.name,x.currentAmount,`target ${x.targetAmount}`,'savings','','']),...contrib.map(x=>['legacy_savings_contribution',`goal ${x.goalId}`,x.amount,x.date,'savings','',''])];download(new Blob(['\uFEFF'+rows.map(row=>row.map(csvSafe).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),`cashflow-${todayStr()}.csv`);showToast(t('csvExported'));});
+  const doImport=()=>{if(busy)return;const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>MAX_BACKUP_BYTES){showToast(`${t('invalidBackup')}: ${t('importTooLarge')}`);return;}setBusy('import-read');try{const parsed=JSON.parse(await file.text()),check=validateBackup(parsed);if(!check.ok)throw new Error(check.reason);const data=check.data;await verifyInTemporaryDatabase(data);const keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];const counts=keys.map(k=>`${k}: ${data[k].length}`).join('\n');setPendingImport({data,counts,date:data.exported?.split('T')[0]||'unknown'});}catch(err){console.error(err);showToast(`${t('invalidBackup')}: ${err.message||err}`);}finally{setBusy('');}};input.click();};
+  const applyImport=()=>run('import',async()=>{if(!pendingImport)return;const data=pendingImport.data,keys=['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'];const recovery=await makeBackupData();downloadBackup(recovery,`cashflow-pre-restore-${todayStr()}-${Date.now()}.json`);await db.transaction('rw',[db.expenses,db.recurring,db.income,db.savings,db.savingsContributions,db.cards,db.installments,db.budgets,db.settings],async()=>{for(const key of keys)await db[key].clear();for(const key of keys)if(data[key].length)await db[key].bulkPut(data[key]);await db.settings.delete('migration-v3');await db.settings.delete('migration-v4');await db.settings.delete('migration-v5');await db.settings.delete('migration-v6');});setPendingImport(null);showToast(t('dataRestored'));onClose();setTimeout(()=>location.reload(),250);});
   const applyClear=()=>run('clear',async()=>{await db.transaction('rw',[db.expenses,db.recurring,db.income,db.savings,db.savingsContributions,db.cards,db.installments,db.budgets,db.settings],async()=>{for(const key of ['expenses','recurring','income','savings','savingsContributions','cards','installments','budgets','settings'])await db[key].clear();});setConfirmClear(false);showToast(t('dataCleared'));onClose();setTimeout(()=>location.reload(),250);});
   return h(React.Fragment,null,
     h(Modal,{title:t('settingsTitle'),onClose,busy:!!busy},
