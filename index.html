@@ -978,6 +978,17 @@ const normalizePostedRows = (rows, kind) => {
     seenMonthly.add(key); return true;
   });
 };
+const SLIP_RECOGNIZER_BANKS = new Set(['kbank','uob','ktb','scb','wallet']);
+const validSlipOwnerSignature = signature => typeof signature === 'string' && signature.length >= 10 && signature.length <= 1024 && /^[A-Za-z0-9+/=]+$/.test(signature);
+const normalizeSlipRecognizerState = value => {
+  const owners = {};
+  if (isPlainObj(value?.owners)) for (const [bankId, signature] of Object.entries(value.owners)) {
+    if (SLIP_RECOGNIZER_BANKS.has(bankId) && validSlipOwnerSignature(signature)) owners[bankId] = signature;
+  }
+  // Amount templates now ship with the app. Discard legacy learned templates so
+  // stale recognizer metadata cannot prevent users from backing up financial data.
+  return {templates:{},owners};
+};
 const normalizeBackup = input => {
   if (!isPlainObj(input)) throw new Error('Not a valid backup object');
   if (!Number.isInteger(input.version) || input.version < 1 || input.version > 6) throw new Error('Unsupported or missing backup version');
@@ -1014,7 +1025,10 @@ const normalizeBackup = input => {
   data.savings = data.savings.map(row=>synchronizeMoneyRecord('savings',row));
   data.cards = data.cards.map(row=>synchronizeMoneyRecord('cards',row));
   data.budgets = data.budgets.map(row=>synchronizeMoneyRecord('budgets',row));
-  data.settings = data.settings.map(row=>synchronizeMoneyRecord('settings',row));
+  data.settings = data.settings.map(row=>{
+    const next=synchronizeMoneyRecord('settings',row);
+    return next?.key==='slipRecognizerState'?{...next,value:normalizeSlipRecognizerState(next.value)}:next;
+  });
   assertBackupMoneySafety(data);
   data.version = 6;
   for (const key of [...required, 'budgets', 'savingsContributions']) {
@@ -1028,16 +1042,15 @@ const validSlipRecognizerState = value => {
   const templates = value.templates === undefined ? {} : value.templates;
   const owners = value.owners === undefined ? {} : value.owners;
   if (!isPlainObj(templates) || !isPlainObj(owners)) return false;
-  const allowedBanks = new Set(['kbank','uob','ktb','scb','wallet']);
   for (const [bankId, chars] of Object.entries(templates)) {
-    if (!allowedBanks.has(bankId) || !isPlainObj(chars)) return false;
+    if (!SLIP_RECOGNIZER_BANKS.has(bankId) || !isPlainObj(chars)) return false;
     for (const [char, samples] of Object.entries(chars)) {
       if (!/^[0-9.,]$/.test(char) || !Array.isArray(samples) || samples.length > 12) return false;
       if (samples.some(sample => typeof sample !== 'string' || sample.length < 10 || sample.length > 256 || !/^[A-Za-z0-9+/=]+$/.test(sample))) return false;
     }
   }
   for (const [bankId, signature] of Object.entries(owners)) {
-    if (!allowedBanks.has(bankId) || typeof signature !== 'string' || signature.length < 10 || signature.length > 1024 || !/^[A-Za-z0-9+/=]+$/.test(signature)) return false;
+    if (!SLIP_RECOGNIZER_BANKS.has(bankId) || !validSlipOwnerSignature(signature)) return false;
   }
   return true;
 };
@@ -2846,8 +2859,8 @@ const classifySlipGlyphs=(bankId,glyphs)=>{const templates=mergeSlipTemplates(ba
 const parseSlipAmountText=text=>{const cleaned=String(text||'').replace(/[^\d.,]/g,'');if(!/^\d{1,3}(?:,\d{3})*(?:\.\d{2})?$/.test(cleaned)&&!/^\d+(?:\.\d{2})?$/.test(cleaned))return null;const amount=Number(cleaned.replace(/,/g,''));return validMoney(amount)?roundMoney(amount):null;};
 const slipSignatureFromCrop=crop=>{const source=slipPixelMask(crop,{mask:'neutral',meanMax:150,spreadMax:55}),trimmed=trimSlipGlyph(source.mask,source.width,source.height);if(!trimmed)return null;const W=96,H=20,out=new Uint8Array(W*H),scale=Math.min((W-2)/trimmed.width,(H-2)/trimmed.height),w=Math.max(1,Math.round(trimmed.width*scale)),h=Math.max(1,Math.round(trimmed.height*scale)),ox=Math.floor((W-w)/2),oy=Math.floor((H-h)/2);for(let y=0;y<h;y++){const sy=Math.min(trimmed.height-1,Math.floor((y+.5)*trimmed.height/h));for(let x=0;x<w;x++){const sx=Math.min(trimmed.width-1,Math.floor((x+.5)*trimmed.width/w));out[(y+oy)*W+x+ox]=trimmed.mask[sy*trimmed.width+sx];}}return packSlipBits(out);};
 const slipSignatureDistance=(a,b)=>{if(!a||!b)return 1;const aa=base64ToBytes(a),bb=base64ToBytes(b),length=Math.min(aa.length,bb.length);let aCount=0,bCount=0,intersection=0;for(let i=0;i<length;i++){let av=aa[i],bv=bb[i],both=av&bv;for(let bit=0;bit<8;bit++){aCount+=(av>>bit)&1;bCount+=(bv>>bit)&1;intersection+=(both>>bit)&1;}}return 1-(2*intersection/(aCount+bCount||1));};
-const loadSlipRecognizerState=async()=>{const row=await db.settings.get('slipRecognizerState'),owners=isPlainObj(row?.value?.owners)?row.value.owners:{};return{templates:{},owners};};
-const saveSlipRecognizerState=state=>db.settings.put({key:'slipRecognizerState',value:{templates:{},owners:isPlainObj(state?.owners)?state.owners:{}}});
+const loadSlipRecognizerState=async()=>normalizeSlipRecognizerState((await db.settings.get('slipRecognizerState'))?.value);
+const saveSlipRecognizerState=state=>db.settings.put({key:'slipRecognizerState',value:normalizeSlipRecognizerState(state)});
 const simpleSlipHash=bytes=>{let h1=2166136261,h2=0x9e3779b9;for(const value of bytes){h1=Math.imul(h1^value,16777619);h2=Math.imul(h2+value,2246822519);}return `${(h1>>>0).toString(16)}${(h2>>>0).toString(16)}`;};
 const hashSlipFile=async file=>{const bytes=new Uint8Array(await file.arrayBuffer());try{const digest=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(digest)].map(v=>v.toString(16).padStart(2,'0')).join('');}catch(_){return simpleSlipHash(bytes);}};
 const detectSlipDirection=(analysis,state)=>{const owner=state.owners?.[analysis.bankId];if(!owner)return null;const sender=analysis.senderSignature,receiver=analysis.receiverSignature,sd=slipSignatureDistance(owner,sender),rd=slipSignatureDistance(owner,receiver);if(Math.min(sd,rd)>.32||Math.abs(sd-rd)<.07)return null;return sd<rd?'expense':'income';};
